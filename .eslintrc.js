@@ -16,6 +16,11 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'vue/no-deprecated-slot-attribute': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    "consistent-return": 2,
+    "indent"           : [2, 2],
+    "no-else-return"   : 1,
+    "semi"             : [1, "always"],
+    "space-unary-ops"  : 2
   },
   overrides: [
     {
@@ -28,4 +33,4 @@ module.exports = {
       }
     }
   ]
-}
+};
