@@ -9,7 +9,8 @@
 
     <ion-content fullscreen :scroll-y="false">
       <ion-list :scroll-y="false">
-        <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="84" key-field="id">
+        <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="84" key-field="id"
+          ref="virtualScroller">
           <template #default="{ item }">
             <ion-item>
               <ion-avatar slot="start">
@@ -22,8 +23,8 @@
               </ion-label>
             </ion-item>
           </template>
-         <template #after>
-            <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll" >
+          <template #after>
+            <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll">
               <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading more data...">
               </ion-infinite-scroll-content>
             </ion-infinite-scroll>
@@ -43,7 +44,7 @@ import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
-
+import { Ref, ref } from '@vue/reactivity';
 
 /* 
   ion-content-scroll-host
@@ -72,6 +73,7 @@ export default defineComponent({
     const store = createEntityStore('segments');
     const route = useRoute();
     const entityName = route.params.entityName as string;
+    const virtualScroller = ref(null) as Ref<any>;
     const { records } = storeToRefs(store);
     debugger;
     let page = 1;
@@ -82,6 +84,9 @@ export default defineComponent({
       setTimeout(() => {
         store.getRecords(entityName, { page });
         console.log('Loaded data');
+        if (virtualScroller.value) {
+          virtualScroller.value?.['updateVisibleItems'](true);
+        }
         evt.target.complete();
         page++;
         // App logic to determine if all data is loaded
@@ -89,7 +94,7 @@ export default defineComponent({
       }, 1000);
     }
     return {
-      records, loadData
+      records, loadData, virtualScroller
     };
   },
 });
