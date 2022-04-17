@@ -35,7 +35,6 @@ export function createEntityStore(entityName: string) {
             colB:  `colB ${index}`,
           } as EntityRecord);
         }
-        debugger;
         this.$state.records = abc;
       }
     }

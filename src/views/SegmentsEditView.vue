@@ -5,21 +5,15 @@
 </template>
 
 <script lang="ts">
-// import { createEntityStore } from '@/share/entity';
 import { IonPage,  } from '@ionic/vue';
-// import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'SegmentsEditView', // 分隔图tab
+  name: 'SegmentsEditView', // 分隔图Edit
   components: {
     IonPage,
   },
   setup() {
-    debugger;
-    // const store = createEntityStore('segments');
-    // store.getRecords();
-    // const { records } = storeToRefs(store);
     return {};
   }
 });

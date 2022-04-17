@@ -3,7 +3,7 @@ import { defineStore  } from 'pinia';
 import { delay } from 'rxjs';
 import { userService } from './user.service';
 import { useRouter } from 'vue-router';
-import { authService, RequestUserInfo, ResponseUserInfo } from './auth.service';
+import { authService, RequestUserInfo, ResponseUserInfo } from '@/share/auth';
 
 const user = cacheService.get('user') as Omit<ResponseUserInfo, 'token'>;
 
@@ -39,8 +39,7 @@ export const userStore = defineStore('user', {
     },
     getUserMenu() {
       if (this.status.isAuth) {
-        userService.getUserMenus().pipe(delay(1000)).subscribe((response) => {
-          debugger;
+        userService.getUserMenus().pipe(delay(50)).subscribe((response) => {
           this.menus = response;
         });
       }else {

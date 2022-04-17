@@ -10,7 +10,7 @@
           <ion-row>
             <template v-for="item in menus" :key="item.id">
               <ion-col size="6" size-sm="6">
-                <div class="gridcard ion-activatable ripple-parent" @click="goto(item.entryPath)">
+                <div class="gridcard ion-activatable ripple-parent" @click="goto(item.id)">
                   <ion-icon :icon="item.icon" color="primary" class="gridcard-icon"></ion-icon>
                   <ion-label class="gridcard-text">{{ item.name }}</ion-label>
                   <ion-ripple-effect></ion-ripple-effect>
@@ -20,21 +20,17 @@
           </ion-row>
         </ion-grid>
       </ion-content>
-
-    <div v-show="childPageVisible">
-      <ion-router-outlet></ion-router-outlet>
-    </div>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { useRouter, onBeforeRouteUpdate } from 'vue-router';
+import { defineComponent} from 'vue';
+import { useRouter } from 'vue-router';
 import {
   IonPage, IonHeader, IonGrid, IonRow, IonCol,
-  IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonRouterOutlet
+  IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect
 } from '@ionic/vue';
-import { userStore } from './user.store';
+import { userStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
 
 
@@ -43,29 +39,27 @@ export default defineComponent({
   components: {
     IonHeader, IonToolbar,
     IonTitle, IonContent, IonPage, IonIcon, IonGrid, IonRow, IonCol,
-    IonLabel, IonRippleEffect, IonRouterOutlet
+    IonLabel, IonRippleEffect
   },
   setup() {
-    debugger;
+  
     const user = userStore();
     user.getUserMenu();
     const {menus} = storeToRefs(user);
 
-    let childPageVisible = ref(false);
+
     const router = useRouter();
     function goto(path: string) {
-      router.push(path);
+      router.push('/entity/' + path);
     }
     (window as any).tt = router;
     // const route = useRoute();
     // watch(route, (to, from) => {});
     // onBeforeRouteLeave((to, from) => {})
-    onBeforeRouteUpdate(async (to) => {
-      childPageVisible.value = !!to.meta.isHomeChildren;
-    });
+    // onBeforeRouteUpdate(async (to) => {});
  
     return {
-      menus, goto, childPageVisible
+      menus, goto
     };
   },
 });

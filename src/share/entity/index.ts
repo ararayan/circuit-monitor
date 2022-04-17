@@ -1,2 +1,2 @@
 export * from './entity.store';
-export * from './entity.routes';
+export * from './entity-view-map';

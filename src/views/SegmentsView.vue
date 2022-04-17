@@ -47,7 +47,6 @@ export default defineComponent({
     IonListHeader
   },
   setup() {
-    debugger;
     const store = createEntityStore('segments');
     store.getRecords();
     const { records } = storeToRefs(store);

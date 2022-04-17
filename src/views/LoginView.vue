@@ -28,7 +28,7 @@
 <script lang="ts">
 import { defineComponent, onBeforeUnmount, onUnmounted, reactive } from 'vue';
 import { IonPage, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonButton } from '@ionic/vue';
-import { userStore } from './user.store';
+import { userStore } from '@/share/user';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
