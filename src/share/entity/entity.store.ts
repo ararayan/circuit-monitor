@@ -14,19 +14,23 @@ export interface EntityState {
 
 const initialState: EntityState = { records: [] as EntityRecord[] };
 
-const entityStoreMap = Object.create(null);
+const entityStoreMap = Object.create(null) as {
+  [key: string]: Store<string, EntityState, any, {
+    getRecords(entityName: string, data: any): void
+  }>
+};
 
 export function createEntityStore(entityName: string) {
   if(entityStoreMap[entityName]) {
-    return entityStoreMap[entityName] as Store<string, EntityState, any, { getRecords(): void}>;
+    return entityStoreMap[entityName];
   }
   const store = defineStore(entityName, {
     state: () => initialState,
     actions: {
-      getRecords() {
+      getRecords(entityName: string, data: any) {
         //WIP
         const abc = [];
-        for(let index = 0; index < 2000; index++) {
+        for(let index = (data.page - 1) * 20; index < 20 * data.page; index++) {
           abc.push({
             id: index,
             avatar: 'assets/circuit.jpg',
@@ -35,11 +39,16 @@ export function createEntityStore(entityName: string) {
             colB:  `colB ${index}`,
           } as EntityRecord);
         }
-        this.$state.records = abc;
+        this.$state.records.push(...abc);
       }
     }
   });
   const _store = store();
   entityStoreMap[entityName] = _store;
   return _store;
+}
+
+export function destoryEntityStore(entityName: string) {
+  const store = entityStoreMap[entityName];
+  store?.$dispose();
 }

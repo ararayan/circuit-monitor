@@ -17,16 +17,20 @@ import '@ionic/vue/css/text-alignment.css';
 import '@ionic/vue/css/text-transformation.css';
 import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
+// for vue virtual scroll
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 /* Theme variables */
 import './theme/variables.css';
 import { router } from './router';
 import { createPinia } from 'pinia';
+import VueVirtualScroller from 'vue-virtual-scroller';
 
 
 const app = createApp(App)
   .use(IonicVue)
   .use(createPinia())
+  .use(VueVirtualScroller)
   .use(router);
 
 
