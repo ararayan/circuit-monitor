@@ -1,8 +1,7 @@
-import { APP_URL, httpService, router } from "@/share";
+import { APP_URL, httpService } from "@/share";
 import { Entities, EntityViews } from "@/share/entity";
 // import { codeWorkingOutline, fileTrayFullOutline, gitNetworkOutline, infiniteOutline, pulseOutline } from 'ionicons/icons';
 import { map } from "rxjs/operators";
-import { Router } from "vue-router";
 
 export interface UserMenu {
     id: keyof EntityViews;
@@ -61,7 +60,6 @@ const UserMenus: UserMenu[] =  [
 
 
 class UserService {
-  constructor(protected router: Router) {}
   getUserMenus() {
     return httpService.post<UserMenu[]>(APP_URL.GetUserMenus).pipe(
       map(() => {
@@ -71,4 +69,4 @@ class UserService {
   }
 }
 
-export const userService = new UserService(router);
+export const userService = new UserService();

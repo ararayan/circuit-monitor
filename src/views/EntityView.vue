@@ -1,5 +1,6 @@
 <template>
- <component :is="entityComponent"></component>
+<!-- v-bing support dyanmic pass all props to child -->
+ <component :is="entityComponent" v-bind="props"></component>
 </template>
 
 <script lang="ts">
@@ -9,9 +10,12 @@ import { computed }  from '@vue/reactivity';
 import { EntityViewType, getViewNameByEntityName } from '@/share/entity';
 
 export default defineComponent({
-  name: 'EntityView', // 分隔图tab
+  name: 'EntityView',
   components: {},
-  setup() {
+  props: {
+    tab: { type: String, required: false}
+  },
+  setup(props) {
     const route = useRoute();
     const entityComponent = computed(()=> {
       const entityName = route.params?.entityName as string;
@@ -23,7 +27,8 @@ export default defineComponent({
       );
     });
     return {
-      entityComponent
+      entityComponent,
+      props
     };
   }
 });

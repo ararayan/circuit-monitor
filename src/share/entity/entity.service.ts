@@ -1,5 +1,0 @@
-class EntityService {
-  getEntityRecords() {
-        
-  }
-}

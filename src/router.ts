@@ -16,10 +16,18 @@ export const routes: Array<RouteRecordRaw> = [
     component: HomeView,
     meta: {requireAuth: true}
   },
+  // {
+  //   path: '/entity/:entityName/:recordId?',
+  //   component: EntityView,
+  //   meta: {requireAuth: true}
+  // },
   {
-    path: '/entity/:entityName/:recordId?',
+    path: '/entity/:parentEntityName?/:parentRecordId?/:entityName/:recordId?',
     component: EntityView,
-    meta: {requireAuth: true}
+    meta: {requireAuth: true},
+    props: route => {
+      return { tab: route.query.tab };
+    }
   },
   // {
   //   path: '/entity/:entityName/:recordId',

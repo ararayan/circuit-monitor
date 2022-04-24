@@ -42,7 +42,7 @@ import {
 import { defineComponent, PropType } from 'vue';
 import {   toRefs } from '@vue/reactivity';
 import { searchCircleOutline, arrowBackOutline } from 'ionicons/icons';
-import { FormField }  from '@/share/entity';
+import { Entities, FormField, getEntityStore }  from '@/share/entity';
 
 
 export default defineComponent({
@@ -53,12 +53,14 @@ export default defineComponent({
     IonButtons, IonMenu, IonMenuButton, IonIcon
   },
   props: {
+    entityName: {type: String as PropType<Entities>, required: true},
     forms: {
       type: Array as PropType<Array<FormField>>,
       required: true
     },
   },
   setup(props) {
+    const entityStore = getEntityStore(props.entityName);
     const {forms: searchForm} = toRefs(props);
     
     return {

@@ -1,6 +1,8 @@
 export const enum Entities {
+    Empty = 'empty',
     Wirings = 'wirings',
     Segments = 'segments',
+    SegmentsChild = 'segmentsChild',
     Realtime = 'realtime',
     Operations = 'operations',
     LightingControl = 'lightcontrol',
@@ -15,6 +17,10 @@ export const enum EntityViewType {
 export type EntityViews  =  Record<Entities,{ [EntityViewType.Browse]: string, [EntityViewType.Edit]: string }>;
 
 export const EntityViewMapping: EntityViews = {
+  [Entities.Empty]: {
+    [EntityViewType.Browse]: 'NotFoundView',
+    [EntityViewType.Edit]: 'NotFoundView',
+  },
   [Entities.Wirings]: {
     [EntityViewType.Browse]: 'SegmentsView',
     [EntityViewType.Edit]: 'SegmentsEditView',
@@ -22,6 +28,10 @@ export const EntityViewMapping: EntityViews = {
   [Entities.Segments]: {
     [EntityViewType.Browse]: 'SegmentsView',
     [EntityViewType.Edit]: 'SegmentsEditView',
+  },
+  [Entities.SegmentsChild]: {
+    [EntityViewType.Browse]: 'SegmentsChildView',
+    [EntityViewType.Edit]: 'SegmentsChildEditView',
   },
   [Entities.Realtime]: {
     [EntityViewType.Browse]: 'SegmentsView',

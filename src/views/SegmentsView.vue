@@ -1,12 +1,12 @@
 <template>
   <ion-page>
     <ion-split-pane content-id="mainabc">
-      <search-form :forms="searchForm" content-id="mainabc"></search-form>
+      <search-form :forms="searchForm" :entityName="entityName" content-id="mainabc"></search-form>
       <div class="ion-page segments-view" id="mainabc">
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home"></ion-back-button>
+              <ion-back-button default-href="/home" @click="gotoHome()"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
             <ion-buttons slot="end">
@@ -21,7 +21,7 @@
             <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="84" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
-                <ion-item>
+                <ion-item @click="openRecord(item)">
                   <ion-avatar slot="start">
                     <img :src="item.avatar" />
                   </ion-avatar>
@@ -30,6 +30,7 @@
                     <h3>{{ item.colA }}</h3>
                     <p>{{ item.colB }}</p>
                   </ion-label>
+                  <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
                 </ion-item>
               </template>
               <template #after>
@@ -48,7 +49,7 @@
 </template>
 
 <script lang="ts">
-import { getEntityStore } from '@/share/entity';
+import { Entities, EntityRecord, getEntityStore } from '@/share/entity';
 import {
   IonPage, IonHeader, IonContent,
   IonButtons, IonBackButton, IonToolbar, IonTitle, IonIcon, 
@@ -57,13 +58,13 @@ import {
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
 import { computed, Ref, ref } from '@vue/reactivity';
-import { searchCircleOutline, arrowBackOutline } from 'ionicons/icons';
+import { searchCircleOutline, arrowBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import  SearchForm  from '@/components/SearchForm.vue';
 import { useUserStore } from '@/share/user';
-import { DataStatus } from '@/share';
+
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -90,11 +91,13 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute();
-    const entityName = route.params.entityName as string;
+    const router = useRouter();
+    const entityName = route.params.entityName as Entities;
     const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
-    const { records, searchForm } = storeToRefs(entityStore);
-
+    const { records, searchForm, editViewEntityName } = storeToRefs(entityStore);
+    entityStore.initEditViewEntity(entityName);
+    entityStore.getSearchForm(entityName);
     const userStore = useUserStore();
     const { menus }  = storeToRefs(userStore);
     const title = computed(() => {
@@ -117,8 +120,22 @@ export default defineComponent({
         // and disable the infinite scroll
       }, 1000);
     }
+    function openRecord(item: EntityRecord) {
+      if (editViewEntityName.value !== entityName) {
+        const parentRecordId = item.id;
+        const parentEntityName = entityName;
+        router.push(`/entity/${parentEntityName}/${parentRecordId}/${editViewEntityName.value}`);
+      }else {
+        const recordId = item.id;
+        router.push(`/entity/${entityName}/${recordId}`);
+      }
+    }
+    function gotoHome() {
+      router.push('/home');
+    }
     return {
-      records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, searchForm
+      openRecord, gotoHome, entityName,
+      records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, searchForm, chevronForwardOutline
     };
   },
 });

@@ -70,7 +70,6 @@ export default defineComponent({
     IonLabel, IonRippleEffect, IonMenuButton, MainMenus, IonSplitPane
   },
   setup() {
-
     const user = useUserStore();
     // user.getUserMenu();
     const { menus } = storeToRefs(user);

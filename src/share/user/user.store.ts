@@ -1,9 +1,9 @@
-import { cacheService, DataStatus, CacheKeys, getStateMetaKey} from '@/share';
-import { defineStore  } from 'pinia';
-import { catchError, delay, of, tap } from 'rxjs';
-import { UserMenu, userService } from './user.service';
-import { useRouter } from 'vue-router';
+import { CacheKeys, cacheService, DataStatus } from '@/share';
 import { authService, RequestUserInfo, ResponseUserInfo } from '@/share/auth';
+import { defineStore } from 'pinia';
+import { catchError, delay, of, tap } from 'rxjs';
+import { useRouter } from 'vue-router';
+import { UserMenu, userService } from './user.service';
 
 const user = cacheService.get(CacheKeys.User) as Omit<ResponseUserInfo, 'token'>;
 

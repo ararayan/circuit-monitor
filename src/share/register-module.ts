@@ -1,7 +1,7 @@
 import { RouteRecordRaw } from "vue-router";
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 
-export const router = createRouter({
+const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes: []
 });
