@@ -1,6 +1,6 @@
 import { APP_URL, httpService, router } from "@/share";
 import { Entities, EntityViews } from "@/share/entity";
-import { codeWorkingOutline, fileTrayFullOutline, gitNetworkOutline, infiniteOutline, pulseOutline } from 'ionicons/icons';
+// import { codeWorkingOutline, fileTrayFullOutline, gitNetworkOutline, infiniteOutline, pulseOutline } from 'ionicons/icons';
 import { map } from "rxjs/operators";
 import { Router } from "vue-router";
 
@@ -18,35 +18,42 @@ const UserMenus: UserMenu[] =  [
   {
     id: Entities.Wirings,
     name: '接线图',
-    icon: infiniteOutline,
+    icon: '',
     auth: true,
     lazy: true,
   },
   {
     id: Entities.Segments,
     name: '间隔图',
-    icon: codeWorkingOutline, //<ion-icon name="barcode-outline"></ion-icon>
+    icon: '', //<ion-icon name="barcode-outline"></ion-icon>
     lazy: true,
     auth: true,
   },
   {
-    id: Entities.Telesignalling,
-    name: '遥信总览',
-    icon: pulseOutline,
+    id: Entities.Realtime,
+    name: '实时数据',
+    icon: '',
     lazy: true,
     auth: true,
   },
   {
-    id: Entities.Telemetry,
-    name: '遥测总览', 
-    icon: gitNetworkOutline,
+    id: Entities.Operations,
+    name: '控制操作', 
+    icon: '',
+    lazy: true,
+    auth: true,
+  },
+  {
+    id: Entities.LightingControl,
+    name: '照明管理', 
+    icon: '',
     lazy: true,
     auth: true,
   },
   {
     id: Entities.Events,
     name: '事件查询',
-    icon: fileTrayFullOutline,
+    icon: '',
     lazy: true,
     auth: true,
   },

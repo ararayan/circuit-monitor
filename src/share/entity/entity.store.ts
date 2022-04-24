@@ -7,25 +7,34 @@ export interface EntityRecord {
     colA:  string;
     colB:  string;
 }
-
-export interface EntityState {
-    records: EntityRecord[]
+export interface FormField{
+  id: string;
+  label: string;
+  type: string;
 }
 
-const initialState: EntityState = { records: [] as EntityRecord[] };
+export interface EntityState {
+    records: EntityRecord[],
+    searchForm: FormField[],
+}
+
+const initialState: EntityState = { records: [] as EntityRecord[], searchForm: []  as FormField[]};
 
 const entityStoreMap = Object.create(null) as {
   [key: string]: Store<string, EntityState, any, {
     getRecords(entityName: string, data: any): void
+    getSearchForm(entityName: string): void
   }>
 };
 
-export function createEntityStore(entityName: string) {
+function getWithCreateEntityStore(entityName: string) {
   if(entityStoreMap[entityName]) {
     return entityStoreMap[entityName];
   }
   const store = defineStore(entityName, {
-    state: () => initialState,
+    state: () => {
+      return {...initialState, entityName};
+    },
     actions: {
       getRecords(entityName: string, data: any) {
         //WIP
@@ -40,6 +49,15 @@ export function createEntityStore(entityName: string) {
           } as EntityRecord);
         }
         this.$state.records.push(...abc);
+      },
+      getSearchForm(entityName: string) {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const forms = Array.from({ length: 4 }).map((_, i) => ({
+          id: `col1${i}`,
+          label: `search col ${characters[i]}:`,
+          type: Math.random() * 10 > 5 ? 'text' : 'dateTime',
+        }));
+        this.$state.searchForm.push(...forms);
       }
     }
   });
@@ -51,4 +69,8 @@ export function createEntityStore(entityName: string) {
 export function destoryEntityStore(entityName: string) {
   const store = entityStoreMap[entityName];
   store?.$dispose();
+}
+
+export function getEntityStore(entityName: string) {
+  return getWithCreateEntityStore(entityName);
 }

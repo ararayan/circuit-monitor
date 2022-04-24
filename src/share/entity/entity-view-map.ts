@@ -1,8 +1,11 @@
 export const enum Entities {
     Wirings = 'wirings',
     Segments = 'segments',
-    Telesignalling = 'telesignalling',
-    Telemetry = 'telemetry',
+    Realtime = 'realtime',
+    Operations = 'operations',
+    LightingControl = 'lightcontrol',
+    // Telesignalling = 'telesignalling',
+    // Telemetry = 'telemetry',
     Events = 'events',
 }
 export const enum EntityViewType {
@@ -20,11 +23,15 @@ export const EntityViewMapping: EntityViews = {
     [EntityViewType.Browse]: 'SegmentsView',
     [EntityViewType.Edit]: 'SegmentsEditView',
   },
-  [Entities.Telesignalling]: {
+  [Entities.Realtime]: {
     [EntityViewType.Browse]: 'SegmentsView',
     [EntityViewType.Edit]: 'SegmentsEditView',
   },
-  [Entities.Telemetry]: {
+  [Entities.Operations]: {
+    [EntityViewType.Browse]: 'SegmentsView',
+    [EntityViewType.Edit]: 'SegmentsEditView',
+  },
+  [Entities.LightingControl]: {
     [EntityViewType.Browse]: 'SegmentsView',
     [EntityViewType.Edit]: 'SegmentsEditView',
   },

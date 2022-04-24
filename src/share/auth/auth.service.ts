@@ -5,7 +5,7 @@ import { tap } from "rxjs/operators";
 
 export interface RequestUserInfo {
   userName: string;
-  password: number;
+  password: string;
 }
 export interface ResponseUserInfo {
   userId: string;

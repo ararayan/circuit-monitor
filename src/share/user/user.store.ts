@@ -1,30 +1,29 @@
-import { cacheService,} from '@/share';
+import { cacheService, DataStatus, CacheKeys, getStateMetaKey} from '@/share';
 import { defineStore  } from 'pinia';
-import { delay } from 'rxjs';
-import { userService } from './user.service';
+import { catchError, delay, of, tap } from 'rxjs';
+import { UserMenu, userService } from './user.service';
 import { useRouter } from 'vue-router';
 import { authService, RequestUserInfo, ResponseUserInfo } from '@/share/auth';
 
-const user = cacheService.get('user') as Omit<ResponseUserInfo, 'token'>;
+const user = cacheService.get(CacheKeys.User) as Omit<ResponseUserInfo, 'token'>;
 
 export interface UserState {
-    status: {
-        isAuth: boolean;
-    };
+    isAuth: boolean;
     user: Omit<ResponseUserInfo, 'token'>;
-    menus: any[];
+    menus: UserMenu[];
+    menusStatus: DataStatus
 }
 
 const initialState: UserState = user
-  ? { status: { isAuth: true }, user, menus: [] }
-  : { status: { isAuth: false }, user, menus: [] };
+  ? {isAuth: true, user, menus: [] as UserMenu[], menusStatus: DataStatus.Unloaded}
+  : {isAuth: false, user, menus: []  as UserMenu[], menusStatus: DataStatus.Unloaded };
 
-export const userStore = defineStore('user', {
+const userStoreFactory =  defineStore('user', {
   state: () => initialState,
   actions: {
     login(user: RequestUserInfo) {
       authService.login(user).subscribe((response: any) => {
-        this.status.isAuth = true;
+        this.isAuth = true;
         this.user = {
           userName: response.userName,
           userId: response.userId,
@@ -34,18 +33,40 @@ export const userStore = defineStore('user', {
     },
     logout() {
       authService.logout().subscribe(() => {
-        this.status.isAuth = false;
+        this.isAuth = false;
       });
     },
     getUserMenu() {
-      if (this.status.isAuth) {
-        userService.getUserMenus().pipe(delay(50)).subscribe((response) => {
+      if (this.isAuth) {
+        userService.getUserMenus().pipe(
+          tap(() => { this.menusStatus = DataStatus.Loading; }),
+          delay(50),
+          catchError(error => {
+            this.menusStatus = DataStatus.Error;
+            return of(error);
+          })
+        ).subscribe((response) => {
           this.menus = response;
+          this.menusStatus = DataStatus.Loaded;
         });
       }else {
         const router = useRouter();
-        router.push('/login');
+        if (!router.currentRoute.value.path.startsWith('/login')) {
+          router.push('/login');
+        }
       }
     }
   }
-});
+});  
+
+export const useUserStore = () => {
+  const instance = userStoreFactory();
+  // check is auto unsubscribe when store is dispose;
+  instance.$subscribe((mutation,state) => {
+    if (state.menusStatus === DataStatus.Unloaded) {
+      instance.getUserMenu();
+    }
+  }, {immediate: true, detached: true, deep: false});
+  return instance;
+};
+
