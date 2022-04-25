@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-split-pane content-id="mainabc">
-      <search-form :forms="searchForm" :entityName="entityName" content-id="mainabc"></search-form>
+      <search-form-panel :entityName="entityName" content-id="mainabc"></search-form-panel>
       <div class="ion-page segments-view" id="mainabc">
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
@@ -62,8 +62,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
 import { computed, Ref, ref } from '@vue/reactivity';
 import { searchCircleOutline, arrowBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import  SearchForm  from '@/components/SearchForm.vue';
 import { useUserStore } from '@/share/user';
+import SearchFormPanel from '@/components/SearchFormPanel.vue';
 
 /* 
   ion-content-scroll-host
@@ -75,7 +75,6 @@ import { useUserStore } from '@/share/user';
 export default defineComponent({
   name: 'SegmentsView', // 分隔图tab
   components: {
-    SearchForm,
     IonPage,
     IonHeader,
     IonToolbar,
@@ -85,6 +84,7 @@ export default defineComponent({
     IonContent,
     IonAvatar,
     IonLabel,
+    SearchFormPanel,
     RecycleScroller,
     IonInfiniteScroll, 
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
@@ -95,7 +95,7 @@ export default defineComponent({
     const entityName = route.params.entityName as Entities;
     const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
-    const { records, searchForm, editViewEntityName } = storeToRefs(entityStore);
+    const { records, editViewEntityName } = storeToRefs(entityStore);
     entityStore.initEditViewEntity(entityName);
     entityStore.getSearchForm(entityName);
     const userStore = useUserStore();
@@ -103,19 +103,18 @@ export default defineComponent({
     const title = computed(() => {
       return menus.value.find(item => item.id === entityName)?.name || '';
     });
-    let page = 1;
-    entityStore.getRecords(entityName, { page });
-    page++;
+
+    entityStore.getRecords(entityName, {init: true, nextPage: true });
+ 
     function loadData(evt: InfiniteScrollCustomEvent) {
       // load data 
       setTimeout(() => {
-        entityStore.getRecords(entityName, { page });
+        entityStore.getRecords(entityName, { nextPage: true });
         console.log('Loaded data');
         if (virtualScroller.value) {
           virtualScroller.value?.['updateVisibleItems'](true);
         }
         evt.target.complete();
-        page++;
         // App logic to determine if all data is loaded
         // and disable the infinite scroll
       }, 1000);
@@ -135,7 +134,7 @@ export default defineComponent({
     }
     return {
       openRecord, gotoHome, entityName,
-      records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, searchForm, chevronForwardOutline
+      records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
 });

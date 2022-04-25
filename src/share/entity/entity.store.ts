@@ -1,5 +1,5 @@
 import { defineStore, Store, _StoreWithGetters } from 'pinia';
-import { of, take } from 'rxjs';
+import { delay, of, take } from 'rxjs';
 import { Entities } from './entity-view-map';
 
 export interface EntityRecord {
@@ -13,7 +13,13 @@ export interface EntityRecord {
 export interface FormField{
   id: string;
   label: string;
-  type: string;
+  name: string;
+  // input, select, checkbox, radio, range
+  as: string; 
+  // type: "date" ｜ "datetime-local" ｜ "email" ｜ "month" ｜ "number" ｜ "password" ｜ "search" ｜ "tel" ｜ "text" ｜ "time" ｜ "url" ｜ "week"
+  type: string; 
+  rules: any;
+  value: any;
 }
 export interface EntityTabInfo {
   colName: string;
@@ -27,11 +33,23 @@ export interface EntityState {
     entityName: string;
     editViewEntityName: Entities;
     records: EntityRecord[];
+    pagination: {current: number; pageSize: number; total: number;},
     entityTabs: EntityTabInfo[];
     searchForm: FormField[];
 }
 
-const initialState: EntityState = { entityName: '',  records: [] as EntityRecord[], searchForm: []  as FormField[], editViewEntityName: Entities.Empty, entityTabs: []};
+const initialState: EntityState = { 
+  entityName: '', 
+  records: [] as EntityRecord[],
+  searchForm: []  as FormField[],
+  editViewEntityName: Entities.Empty,
+  entityTabs: [],
+  pagination: {
+    current: 1,
+    pageSize: 20,
+    total: 10
+  }
+};
 
 const entityStoreMap = Object.create(null) as {
   [key: string]: Store<string, EntityState, _StoreWithGetters<any>, {
@@ -41,6 +59,12 @@ const entityStoreMap = Object.create(null) as {
     getSearchForm(entityName: Entities): void;
   }>
 };
+
+//#region temp help
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const _fieldAs = ['input', 'checkbox', 'radio']; // select, range
+const _fieldInputTypes = [ "text" , "number", "date" , "month" , "email" , "password" , "search" , "tel" , "time" , "url" , "week", "datetime-local" ];
+//#endregion
 
 function getWithCreateEntityStore(entityName: string, customGetters?: _StoreWithGetters<any>) {
   if(entityStoreMap[entityName]) {
@@ -92,21 +116,34 @@ function getWithCreateEntityStore(entityName: string, customGetters?: _StoreWith
           ];
         });
       },
-      getRecords(entityName: Entities, data: any) {
+      getRecords(entityName: Entities, data: {init?: boolean, nextPage?: boolean, tabId?: string, search?: Record<string, any>}) {
         //WIP
-        if (data.page) {
+        if (data.search || data.init) {
+          this.records = [];
+          this.pagination.current = 1;
+        }
+        if (data.nextPage) {
           const abc = [];
-          for(let index = (data.page - 1) * 20; index < 20 * data.page; index++) {
-            abc.push({
-              id: index,
-              avatar: 'assets/circuit.jpg',
-              displayName: `${entityName} Title ${index}`,
-              colA:  `${entityName} colA ${index}`,
-              colB:  `${entityName} colB ${index}`,
-              colC:  `${entityName} colC ${index}`,
-            } as EntityRecord);
+          if (this.pagination.current === 10){
+            // done;
+          }else {
+            for(let index = (this.pagination.current - 1) * this.pagination.pageSize; index < this.pagination.pageSize * this.pagination.current; index++) {
+              abc.push({
+                id: index,
+                avatar: 'assets/circuit.jpg',
+                displayName: `${entityName} Title ${index}`,
+                colA:  `${entityName} colA ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
+                colB:  `${entityName} colB ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
+                colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
+              } as EntityRecord);
+            }
+            if (this.pagination.current === 1) {
+              this.$state.records = abc;
+            }else {
+              this.$state.records.push(...abc);
+            }
+            this.pagination.current = this.pagination.current + 1;
           }
-          this.$state.records.push(...abc);
         }else if (entityName === Entities.SegmentsChild) {
           const eee = [];
           for(let index = 0; index < 50; index++) {
@@ -114,8 +151,8 @@ function getWithCreateEntityStore(entityName: string, customGetters?: _StoreWith
               id: index,
               avatar: 'assets/circuit.jpg',
               displayName: `Title ${index}`,
-              colA:  `colA ${index}`,
-              colB:  `colB ${index}`,
+              colA:  `colA ${index} - ${characters[Math.floor(Math.random() * 10)]} `,
+              colB:  `colB ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
               colC: data.tabId === 't1' ? '遙信' :  data.tabId === 't2' ? '遥测' : '遥脉' ,
             } as EntityRecord);
           }
@@ -134,19 +171,25 @@ function getWithCreateEntityStore(entityName: string, customGetters?: _StoreWith
           }
           this.$state.records = eee;
         }
-
-        
       },
       getSearchForm(entityName: Entities) {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        of(entityName).pipe(take(1)).subscribe(() => {
-          const forms = Array.from({ length: 4 }).map((_, i) => ({
-            id: `col1${i}`,
-            label: `search col ${characters[i]}:`,
-            type: Math.random() * 10 > 5 ? 'text' : 'dateTime',
-          }));
-          this.$state.searchForm.push(...forms);
-        });
+        if (this.$state.searchForm.length) {
+          of(entityName).pipe(delay(100), take(1)).subscribe();
+        }else {
+          of(entityName).pipe(delay(100), take(1)).subscribe(() => {
+            const forms = Array.from({ length: 4 }).map((_, i) => ({
+              id: `col${i}`,
+              label: `search ${characters[i].toLocaleLowerCase()}:`,
+              name: `col${i}`,
+              as: i === 3 ? 'checkbox' : 'input',
+              type: i === 3 ?  'checkbox' : _fieldInputTypes[i % _fieldInputTypes.length],
+              value: i === 3  ?  false : '',
+              rules: {}
+            }));
+            this.$state.searchForm.push(...forms);
+          });
+        }
+
       },
     }
   });

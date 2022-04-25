@@ -16,17 +16,11 @@
             <ion-slide>
               <div class="slide">
                 <img src="assets/cm-messaging.png" />
-                <h2>Welcome</h2>
-                <p>
-                  The <b>ionic conference app</b> is a practical preview of the ionic framework in action, and a
-                  demonstration of proper code use.
-                </p>
               </div>
             </ion-slide>
             <ion-slide>
                <div class="slide">
               <img src="assets/biz-analysis.png" />
-              <h2>What is Ionic?</h2>
                </div>
             </ion-slide>
           </ion-slides>
