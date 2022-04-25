@@ -74,7 +74,7 @@ import { getMatchedEntityInfoByRoute } from '@/share';
 */
 
 export default defineComponent({
-  name: 'SegmentsView', // 分隔图tab
+  name: 'WiringsView', // 分隔图tab
   components: {
     IonPage,
     IonHeader,

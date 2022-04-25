@@ -44,7 +44,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 
 export default defineComponent({
-  name: 'SegmentsChildView',
+  name: 'RealtimeView',
   components: { IonPage, IonButton, IonLabel, IonIcon,
     IonFooter, IonList, IonItem, IonContent, IonToolbar, IonTitle, IonButtons, IonHeader,IonBackButton },
   props: {
@@ -53,7 +53,7 @@ export default defineComponent({
   setup(props) {
     const route = useRoute();
     const router = useRouter();
-    const { entityName, parentEntityName } = getMatchedEntityInfoByRoute(route);
+    const { entityName } = getMatchedEntityInfoByRoute(route);
     const entityStore = getEntityStore(entityName);
     entityStore.initEntityTabs(entityName);
     const { entityTabs, records } = storeToRefs(entityStore);
@@ -74,15 +74,10 @@ export default defineComponent({
     const userStore = useUserStore();
     const { menus }  = storeToRefs(userStore);
     const title = computed(() => {
-      return menus.value.find(item => item.id === parentEntityName)?.name || '';
+      return menus.value.find(item => item.id === entityName)?.name || '';
     });
     function backTo() {
-      if (parentEntityName) {
-        router.push({path: `/entity/${parentEntityName}`});
-      }else {
-        router.back();
-      }
-      
+      router.push('/home');
     }
 
     function gotoTab(tab: any) {

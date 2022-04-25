@@ -21,16 +21,13 @@
             <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="84" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
-                <ion-item @click="openRecord(item)">
-                  <ion-avatar slot="start">
-                    <img :src="item.avatar" />
-                  </ion-avatar>
+                <ion-item>
                   <ion-label>
                     <h2>{{ item.displayName }}</h2>
                     <h3>{{ item.colA }}</h3>
                     <p>{{ item.colB }}</p>
                   </ion-label>
-                  <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
+                   <ion-toggle slot="end" name="grape" color="tertiary" :checked="item.controlCol"></ion-toggle>
                 </ion-item>
               </template>
               <template #after>
@@ -49,11 +46,11 @@
 </template>
 
 <script lang="ts">
-import { Entities, EntityRecord, getEntityStore } from '@/share/entity';
+import { Entities, getEntityStore } from '@/share/entity';
 import {
   IonPage, IonHeader, IonContent,
   IonButtons, IonBackButton, IonToolbar, IonTitle, IonIcon, 
-  IonAvatar, IonLabel, IonItem, IonList, IonInfiniteScroll, IonSplitPane, IonMenuButton,
+  IonLabel, IonItem, IonList, IonInfiniteScroll, IonSplitPane, IonMenuButton,
   IonInfiniteScrollContent, InfiniteScrollCustomEvent
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
@@ -66,15 +63,9 @@ import { useUserStore } from '@/share/user';
 import SearchFormPanel from '@/components/SearchFormPanel.vue';
 import { getMatchedEntityInfoByRoute } from '@/share';
 
-/* 
-  ion-content-scroll-host
-  Ionic Framework requires that features such as collapsible large titles,
-  ion-infinite-scroll, ion-refresher, and ion-reorder-group be used within an ion-content.
-  To use these experiences with virtual scrolling, you must add the .ion-content-scroll-host class to the virtual scroll viewport.
-*/
 
 export default defineComponent({
-  name: 'SegmentsView', // 分隔图tab
+  name: 'LightingControlView', // 分隔图tab
   components: {
     IonPage,
     IonHeader,
@@ -83,7 +74,6 @@ export default defineComponent({
     IonList,
     IonItem,
     IonContent,
-    IonAvatar,
     IonLabel,
     SearchFormPanel,
     RecycleScroller,
@@ -96,7 +86,7 @@ export default defineComponent({
     const { entityName } = getMatchedEntityInfoByRoute(route);
     const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
-    const { records, editViewEntityName } = storeToRefs(entityStore);
+    const { records } = storeToRefs(entityStore);
     entityStore.initEditViewEntity(entityName);
     entityStore.getSearchForm(entityName);
     const userStore = useUserStore();
@@ -120,21 +110,11 @@ export default defineComponent({
         // and disable the infinite scroll
       }, 1000);
     }
-    function openRecord(item: EntityRecord) {
-      if (editViewEntityName.value !== entityName) {
-        const parentRecordId = item.id;
-        const parentEntityName = entityName;
-        router.push(`/entity/${parentEntityName}/${parentRecordId}/${editViewEntityName.value}`);
-      }else {
-        const recordId = item.id;
-        router.push(`/entity/${entityName}/${recordId}`);
-      }
-    }
     function gotoHome() {
       router.push('/home');
     }
     return {
-      openRecord, gotoHome, entityName,
+      gotoHome, entityName,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

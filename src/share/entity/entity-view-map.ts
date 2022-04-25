@@ -22,7 +22,7 @@ export const EntityViewMapping: EntityViews = {
     [EntityViewType.Edit]: 'NotFoundView',
   },
   [Entities.Wirings]: {
-    [EntityViewType.Browse]: 'SegmentsView',
+    [EntityViewType.Browse]: 'WiringsView',
     [EntityViewType.Edit]: 'SegmentsEditView',
   },
   [Entities.Segments]: {
@@ -34,20 +34,20 @@ export const EntityViewMapping: EntityViews = {
     [EntityViewType.Edit]: 'SegmentsChildEditView',
   },
   [Entities.Realtime]: {
-    [EntityViewType.Browse]: 'SegmentsView',
-    [EntityViewType.Edit]: 'SegmentsEditView',
+    [EntityViewType.Browse]: 'RealtimeView',
+    [EntityViewType.Edit]: '',
   },
   [Entities.Operations]: {
-    [EntityViewType.Browse]: 'SegmentsView',
-    [EntityViewType.Edit]: 'SegmentsEditView',
+    [EntityViewType.Browse]: 'OperationsView',
+    [EntityViewType.Edit]: 'OperationsEditView',
   },
   [Entities.LightingControl]: {
-    [EntityViewType.Browse]: 'SegmentsView',
-    [EntityViewType.Edit]: 'SegmentsEditView',
+    [EntityViewType.Browse]: 'LightingControlView',
+    [EntityViewType.Edit]: '',
   },
   [Entities.Events]: {
-    [EntityViewType.Browse]: 'SegmentsView',
-    [EntityViewType.Edit]: 'SegmentsEditView',
+    [EntityViewType.Browse]: 'EventsView',
+    [EntityViewType.Edit]: '',
   },
 };
 

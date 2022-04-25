@@ -22,7 +22,7 @@ export const routes: Array<RouteRecordRaw> = [
   //   meta: {requireAuth: true}
   // },
   {
-    path: '/entity/:parentEntityName?/:parentRecordId?/:entityName/:recordId?',
+    path: '/entity/:parentEntityName?/:parentRecordId?/:entityName?/:recordId?',
     component: EntityView,
     meta: {requireAuth: true},
     props: route => {

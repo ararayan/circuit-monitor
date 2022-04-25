@@ -123,31 +123,35 @@ function getWithCreateEntityStore(entityName: string, customGetters?: _StoreWith
           this.pagination.current = 1;
         }
         if (data.nextPage) {
-          const abc = [];
+          const _records = [];
           if (this.pagination.current === 10){
             // done;
           }else {
             for(let index = (this.pagination.current - 1) * this.pagination.pageSize; index < this.pagination.pageSize * this.pagination.current; index++) {
-              abc.push({
+              const item: EntityRecord = {
                 id: index,
                 avatar: 'assets/circuit.jpg',
                 displayName: `${entityName} Title ${index}`,
                 colA:  `${entityName} colA ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
                 colB:  `${entityName} colB ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
                 colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
-              } as EntityRecord);
+              };
+              if ([Entities.LightingControl, Entities.Operations].includes(entityName)) {
+                item['controlCol'] = !!(Math.floor(Math.random() * 10) % 2);
+              }
+              _records.push(item);
             }
             if (this.pagination.current === 1) {
-              this.$state.records = abc;
+              this.$state.records = _records;
             }else {
-              this.$state.records.push(...abc);
+              this.$state.records.push(..._records);
             }
             this.pagination.current = this.pagination.current + 1;
           }
         }else if (entityName === Entities.SegmentsChild) {
-          const eee = [];
+          const _records = [];
           for(let index = 0; index < 50; index++) {
-            eee.push({
+            _records.push({
               id: index,
               avatar: 'assets/circuit.jpg',
               displayName: `Title ${index}`,
@@ -156,11 +160,11 @@ function getWithCreateEntityStore(entityName: string, customGetters?: _StoreWith
               colC: data.tabId === 't1' ? '遙信' :  data.tabId === 't2' ? '遥测' : '遥脉' ,
             } as EntityRecord);
           }
-          this.$state.records = eee;
+          this.$state.records = _records;
         }else {
-          const eee = [];
+          const _records = [];
           for(let index = 0; index < 20; index++) {
-            eee.push({
+            _records.push({
               id: index,
               avatar: 'assets/circuit.jpg',
               displayName: `${entityName} Title ${index}`,
@@ -169,7 +173,7 @@ function getWithCreateEntityStore(entityName: string, customGetters?: _StoreWith
               colC:  `${entityName} colC ${index}`, 
             } as EntityRecord);
           }
-          this.$state.records = eee;
+          this.$state.records = _records;
         }
       },
       getSearchForm(entityName: Entities) {
