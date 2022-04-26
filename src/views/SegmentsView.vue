@@ -21,13 +21,13 @@
             <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="84" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
-                <ion-item @click="openRecord(item)">
+                <ion-item @click="openRecord(item)" class="entity-list-item">
                   <ion-avatar slot="start">
                     <img :src="item.avatar" />
                   </ion-avatar>
-                  <ion-label>
+                  <ion-label siz>
                     <h2>{{ item.displayName }}</h2>
-                    <h3>{{ item.colA }}</h3>
+                    <i>{{ item.colA }}</i>
                     <p>{{ item.colB }}</p>
                   </ion-label>
                   <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
@@ -57,10 +57,10 @@ import {
   IonInfiniteScrollContent, InfiniteScrollCustomEvent
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
-import { defineComponent } from 'vue';
+import { defineComponent, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
-import { computed, Ref, ref } from '@vue/reactivity';
+import { computed, reactive, Ref, ref } from '@vue/reactivity';
 import { searchCircleOutline, arrowBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { useUserStore } from '@/share/user';
 import SearchFormPanel from '@/components/SearchFormPanel.vue';
@@ -96,7 +96,7 @@ export default defineComponent({
     const { entityName } = getMatchedEntityInfoByRoute(route);
     const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
-    const { records, editViewEntityName } = storeToRefs(entityStore);
+    const { records, editViewEntityName, pagination } = storeToRefs(entityStore);
     entityStore.initEditViewEntity(entityName);
     entityStore.getSearchForm(entityName);
     const userStore = useUserStore();
@@ -106,19 +106,20 @@ export default defineComponent({
     });
 
     entityStore.getRecords(entityName, {init: true, nextPage: true });
- 
+
     function loadData(evt: InfiniteScrollCustomEvent) {
       // load data 
-      setTimeout(() => {
-        entityStore.getRecords(entityName, { nextPage: true });
-        console.log('Loaded data');
-        if (virtualScroller.value) {
-          virtualScroller.value?.['updateVisibleItems'](true);
+      const current = pagination.value.current;
+      const dispose = watch(pagination, (change) => {
+        if (change.current >= current + 1 || change.current === change.total) {
+          if (virtualScroller.value) {
+            virtualScroller.value?.['updateVisibleItems'](true);
+          }
+          evt.target.complete();
+          dispose();
         }
-        evt.target.complete();
-        // App logic to determine if all data is loaded
-        // and disable the infinite scroll
-      }, 1000);
+      }, {deep: true});
+      entityStore.getRecords(entityName, { nextPage: true });
     }
     function openRecord(item: EntityRecord) {
       if (editViewEntityName.value !== entityName) {
@@ -144,5 +145,8 @@ export default defineComponent({
 .scroller {
   /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
   height: 100%;
+}
+.entity-list-item {
+  --border-color: var(--ion-color-light, #f2f2f2);
 }
 </style>
