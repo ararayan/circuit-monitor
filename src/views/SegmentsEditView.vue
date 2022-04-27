@@ -9,6 +9,7 @@
           </ion-toolbar>
         </ion-header>
         <ion-content fullscreen class="ion-padding">
+          <ion-text>under construct...</ion-text>
            <canvas id="circuit" @click="openModal()"></canvas>
         </ion-content>
   </ion-page>
@@ -17,7 +18,7 @@
 <script lang="ts">
 import { getMatchedEntityInfoByRoute } from '@/share';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, modalController } from '@ionic/vue';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonText } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
@@ -121,8 +122,8 @@ const getCircuitCanvas = (id: string) => {
     ctx.scale(xs,ys);
     while(n--)
     {
-      ctx.moveTo(x/xs+5*Math.abs(dx),y/ys+5*dy);
-      ctx.arc(x/xs,y/ys,5,Math.PI/2*dy,Math.PI+Math.PI/2*dy,1);
+      ctx.moveTo(x/xs+5*Math.abs(dx), y/ys+5*dy);
+      ctx.arc( x/xs, y/ys, 5, Math.PI/2*dy, Math.PI+Math.PI/2*dy, true);
       x+=6.5*dx;
       y+=6.5*dy;
       if(n!=0)
@@ -133,7 +134,7 @@ const getCircuitCanvas = (id: string) => {
         }
                     
         ctx.moveTo(x/xs-5*dx,y/ys-5*dy);
-        ctx.arc(x/xs-6.5/2*dx,y/ys-6.5/2*dy,1.5,Math.PI+Math.PI/2*dy,Math.PI/2*dy,1);
+        ctx.arc(x/xs-6.5/2*dx,y/ys-6.5/2*dy,1.5,Math.PI+Math.PI/2*dy,Math.PI/2*dy, true);
       }
     }
     ctx.moveTo(x/xs-1.75*dx,y/ys-1.75*dy);
@@ -192,7 +193,7 @@ const getCircuitCanvas = (id: string) => {
 export default defineComponent({
   name: 'OperationsEditView',
   components: {
-    IonPage,IonHeader, IonContent,
+    IonPage,IonHeader, IonContent, IonText,
     IonButtons, IonBackButton, IonToolbar, IonTitle,
   },
   setup() {

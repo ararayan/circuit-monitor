@@ -1,8 +1,8 @@
 <template>
-      <ion-menu side="end" :menuId="menuId" si>
+      <ion-menu side="end" :menuId="menuId"  style="--side-max-width: 400px">
         <ion-header mode="md" collapse="fade">
-          <ion-toolbar>
-            <ion-buttons slot="start">
+          <ion-toolbar color="primary">
+            <ion-buttons slot="start" >
               <ion-menu-button autoHide="false">
                 <ion-icon :icon="closeOutline"></ion-icon>
               </ion-menu-button>
@@ -21,7 +21,6 @@
             <ion-item lines="none" style="flex: 1 1 50%;">
                 <ion-button type="submit"  style="width: 100%; height: 100%;"  fill="clear" size="large" @click="submitForm()">搜索</ion-button>
             </ion-item>
-
           </ion-list>
         </ion-footer>
       </ion-menu>

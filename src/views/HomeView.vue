@@ -11,18 +11,25 @@
             <ion-title center>衍能科技</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content :fullscreen="true">
-          <ion-slides>
+        <ion-content :fullscreen="true" class="ion-padding-bottom">
+          <ion-slides :option="{ autoplay: true }">
+            <ion-slide>
+                <div class="slide">
+                <img src="assets/sliders/electricy.jpg" />
+              </div>
+         
+            </ion-slide>
             <ion-slide>
               <div class="slide">
-                <img src="assets/cm-messaging.png" />
+                <img src="assets/sliders/engercy.jpg" />
               </div>
             </ion-slide>
             <ion-slide>
-               <div class="slide">
-              <img src="assets/biz-analysis.png" />
-               </div>
+                  <div class="slide">
+                <img src="assets/sliders/wind.jpg" />
+              </div>
             </ion-slide>
+
           </ion-slides>
           <ion-grid>
             <ion-row>
@@ -37,6 +44,50 @@
               </template>
             </ion-row>
           </ion-grid>
+
+          <ion-grid>
+            <ion-row>
+
+              <ion-col size="12" size-sm="12" size-md="4">
+                <ion-card>
+                  <ion-card-header>
+                    <ion-card-title>电力系统</ion-card-title>
+                  </ion-card-header>
+                  <img src="assets/card/electric.jpg" />
+                  <ion-card-content>
+                    电力系统在各个环节和不同层次还具有相应的信息与控制系统，对电能的生产过程进行测量、调节、控制、保护、通信和调度，以保证用户获得安全、优质的电能。
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-sm="12" size-md="4">
+                <ion-card>
+                  <ion-card-header>
+                    <ion-card-title>新能源领域</ion-card-title>
+                  </ion-card-header>
+                  <img src="assets/card/wind.jpeg" />
+                  <ion-card-content>
+                    新能源普遍具有污染少、储量大的特点，对于解决当今世界严重的环境污染问题和资源（特别是化石能源）枯竭问题具有重要意义。
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-sm="12" size-md="4">
+
+                <ion-card>
+                  <ion-card-header>
+                    <ion-card-title>工业领域</ion-card-title>
+                  </ion-card-header>
+                  <img src="assets/card/engercy.jpg" />
+                  <ion-card-content>
+                    工业还为自身和国民经济其他各个部门提供原材料、燃料和动力，为人民物质文化生活提供工业消费品；它还是国家财政收入的主要源泉，是国家经济自主、政治独立、国防现代化的根本保证。
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+
+
+
         </ion-content>
       </div>
     </ion-split-pane>
@@ -46,9 +97,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import { ref, reactive } from '@vue/reactivity';
+import { ref, } from '@vue/reactivity';
 import {
-  IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton,
+  IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
   IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonSplitPane, IonSlides, IonSlide,
 } from '@ionic/vue';
 import { useUserStore } from '@/share/user';
@@ -61,7 +112,7 @@ export default defineComponent({
   name: 'HomeView',
   components: {
     IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonIcon, IonGrid, IonRow, IonCol, IonButtons, IonSlides, IonSlide,
-    IonLabel, IonRippleEffect, IonMenuButton, MainMenus, IonSplitPane
+    IonLabel, IonRippleEffect, IonMenuButton, MainMenus, IonSplitPane, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
   },
   setup() {
     const user = useUserStore();
@@ -77,12 +128,9 @@ export default defineComponent({
     // onBeforeRouteLeave((to, from) => {})
     // onBeforeRouteUpdate(async (to) => {});
     const menuConnectId = ref('home-menu-connect');
-    const kk = reactive({
-      tt: { a: 2 }
-    });
-    (window as any)['ee'] = kk;
+
     return {
-      menus, goto, personOutline, homeOutline, menuConnectId, kk
+      menus, goto, personOutline, homeOutline, menuConnectId
     };
   },
 });

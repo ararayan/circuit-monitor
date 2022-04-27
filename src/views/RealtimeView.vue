@@ -10,7 +10,7 @@
     </ion-header>
     <ion-content>
       <ion-list :class="{ 'ion-hide': !!!records.length }">
-        <ion-item v-for="item in records" :key="item.id">
+        <ion-item v-for="item in records" :key="item.id" class="entity-list-item">
           <ion-label>
             <h2>{{ item.displayName }}</h2>
             <p>{{ item.colC }}</p>
@@ -40,41 +40,29 @@
       </ion-list>
     </ion-content>
     <ion-footer>
-      <ion-list style="display: flex; justify-content: space-between;">
-        <ion-item lines="none" style="flex: 1 1 50%;" v-for="tab in tabs" :key="tab.id">
-          <ion-button @click="gotoTab(tab)" :class="{ 'tab-btn-selected': tab.selected }"
-            style="width: 100%; height: 100%;" type="submit" size="large" fill="clear"
-            :color="tab.selected ? 'primary' : 'medium'">
-            <ion-icon :icon="tab.id == 't1' ? radioOutline : tab.id == 't2' ? scaleOutline : pulseOutline" size="small"
-              solt="start"></ion-icon>
-            <ion-label style="margin-left: 0.3em;">{{ tab.displayName }}</ion-label>
-          </ion-button>
-        </ion-item>
-      </ion-list>
+      <entity-tab :tabList="tabs" @goto-tab="gotoTab($event)"></entity-tab>
     </ion-footer>
 
   </ion-page>
 </template>
 
 <script lang="ts">
+import EntityTab from '@/components/EntityTab.vue';
 import { getMatchedEntityInfoByRoute } from '@/share';
-import { Entities, getEntityStore } from '@/share/entity';
+import { getEntityStore } from '@/share/entity';
 import { useUserStore } from '@/share/user';
-import {
-  IonPage, IonFooter, IonButton, IonIcon, IonThumbnail, IonSkeletonText, 
-  IonLabel, IonList, IonItem, IonContent, IonTitle, IonToolbar, IonButtons, IonHeader, IonBackButton
-} from '@ionic/vue';
+import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonSkeletonText, IonThumbnail, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
+import { pulseOutline, radioOutline, scaleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
-import { defineComponent, watch } from 'vue';
+import { defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { scaleOutline, pulseOutline, radioOutline } from 'ionicons/icons';
 
 
 export default defineComponent({
   name: 'RealtimeView',
   components: {
-    IonPage, IonButton, IonLabel, IonIcon, IonThumbnail, IonSkeletonText, 
+    IonPage, IonLabel, IonIcon, IonThumbnail, IonSkeletonText, EntityTab,
     IonFooter, IonList, IonItem, IonContent, IonToolbar, IonTitle, IonButtons, IonHeader, IonBackButton
   },
   props: {
@@ -118,16 +106,9 @@ export default defineComponent({
   },
 });
 </script>
+
 <style>
-.tab-btn-selected {
-  border-bottom: 3px solid;
-}
-
-#data {
-  display: none;
-}
-
-#skeleton {
-  display: block;
+.entity-list-item {
+  --border-color: var(--ion-color-light, #f2f2f2);
 }
 </style>

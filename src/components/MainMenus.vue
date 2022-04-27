@@ -1,16 +1,12 @@
 <template>
-  <ion-menu side="start" :content-id="menuId" style="--side-max-width: 420px">
-    <ion-header>
+  <ion-menu side="start" :content-id="menuId" style="--side-max-width: 400px">
+    <ion-header lines="none" class="ion-padding-top">
       <ion-toolbar translucent padding class="drawer-header-toolbar">
-        <ion-title size="large" class="drawer-header-title">衍能科技</ion-title>
-        
+        <!-- <ion-title size="large" class="drawer-header-title">衍能科技</ion-title> -->
       </ion-toolbar>
-    </ion-header>
-    <ion-content style="--ion-background-color: transparent">
-
-      <ion-list >
-         <ion-item class="drawer-header-userinfo">
-
+      <ion-list>
+             <ion-list-header>
+          <ion-item class="drawer-header-userinfo ion-margin-bottom" lines="none">
           <ion-avatar slot="start">
             <ion-img src="assets/user/avatar_1.svg"></ion-img>
           </ion-avatar>
@@ -19,11 +15,17 @@
             <p>UserAccount@outlook.com</p>
           </ion-label>
         </ion-item>
-        <ion-item>
+        </ion-list-header>
+      </ion-list>
+    </ion-header>
+    <ion-content style="--ion-background-color: transparent" color="light">
+
+      <ion-list color="light">
+        <ion-item color="light">
           <ion-icon :icon="homeOutline" class="menu-item-icon" color="medium"></ion-icon>
           <ion-label class="menu-item-text">首页</ion-label>
         </ion-item>
-        <ion-item>
+        <ion-item color="light">
           <ion-icon :icon="bookOutline" class="menu-item-icon" color="medium"></ion-icon>
           <ion-label>关于</ion-label>
         </ion-item>
@@ -68,8 +70,8 @@
 import { defineComponent, } from 'vue';
 import { toRef } from '@vue/reactivity';
 import {
-  IonHeader,
-  IonToolbar, IonTitle, IonContent, IonLabel, IonMenu, IonList, IonItem, IonImg, IonAccordionGroup, IonAccordion, IonAvatar, IonIcon, IonToggle
+  IonHeader, IonListHeader,
+  IonToolbar, IonContent, IonLabel, IonMenu, IonList, IonItem, IonImg, IonAccordionGroup, IonAccordion, IonAvatar, IonIcon, IonToggle
 } from '@ionic/vue';
 import { settingsOutline, homeOutline, bookOutline } from 'ionicons/icons';
 
@@ -77,7 +79,7 @@ export default defineComponent({
   name: 'MainMenus',
   components: {
     IonHeader, IonToolbar,
-    IonTitle, IonContent,
+    IonContent, IonListHeader,
     IonLabel, IonMenu, IonList, IonItem, IonImg, IonAccordion, IonAccordionGroup, IonAvatar, IonIcon, IonToggle
   },
   props: {

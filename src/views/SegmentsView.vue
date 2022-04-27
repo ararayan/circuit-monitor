@@ -1,5 +1,5 @@
 <template>
-  <ion-page>
+  <ion-page mode="md">
     <ion-split-pane content-id="mainabc">
       <search-form-panel :entityName="entityName" content-id="mainabc"></search-form-panel>
       <div class="ion-page segments-view" id="mainabc">

@@ -17,7 +17,7 @@ export default defineComponent({
   },  
   async created() {
     return Promise.resolve(true).then(() => {
-      debugger;
+      // debugger;
     });
   }
 });
