@@ -6,8 +6,10 @@
 
 <script lang="ts">
 import { IonApp } from '@ionic/vue';
-import { defineComponent } from 'vue';
-import { RouterView } from 'vue-router';
+import { defineComponent, onUnmounted } from 'vue';
+import { RouterView, useRoute } from 'vue-router';
+import { useBackButton } from '@ionic/vue';
+import { App } from '@capacitor/app';
 
 export default defineComponent({
   name: 'App',
@@ -15,9 +17,23 @@ export default defineComponent({
     IonApp,
     RouterView
   },  
-  async created() {
-    return Promise.resolve(true).then(() => {
-      // debugger;
+  // async created() {
+  //   return Promise.resolve(true).then(() => {
+  //     // debugger;
+  //   });
+  // },
+  setup() {
+    const route = useRoute();
+    const dispose = useBackButton(-1, (next) => {
+      if (route.path.includes('/home') || route.path.includes('/login')) {
+        alert('exit app');
+        App.exitApp();
+      }
+      alert('check whether is exit app!!!');
+      next();
+    });
+    onUnmounted(() => {
+      dispose.unregister();
     });
   }
 });

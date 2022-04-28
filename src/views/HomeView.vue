@@ -12,7 +12,7 @@
           </ion-toolbar>
         </ion-header>
         <ion-content :fullscreen="true" class="ion-padding-bottom">
-          <ion-slides :option="{ autoplay: true }">
+          <ion-slides :options="sliderOptions">
             <ion-slide>
                 <div class="slide">
                 <img src="assets/sliders/electricy.jpg" />
@@ -128,9 +128,13 @@ export default defineComponent({
     // onBeforeRouteLeave((to, from) => {})
     // onBeforeRouteUpdate(async (to) => {});
     const menuConnectId = ref('home-menu-connect');
-
+    const sliderOptions = {
+      initialSlide: 0,
+      slidesPerView: 1,
+      autoplay:true
+    };
     return {
-      menus, goto, personOutline, homeOutline, menuConnectId
+      menus, goto, personOutline, homeOutline, menuConnectId, sliderOptions
     };
   },
 });
