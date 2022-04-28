@@ -66,10 +66,23 @@ const entityStoreMap = Object.create(null) as {
   }>
 };
 
+
+
 //#region temp help
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const _fieldAs = ['input', 'checkbox', 'radio', 'textarea']; // select, range
 const _fieldInputTypes = [ "text" , "number", "date" , "month" , "email" , "password" , "search" , "tel" , "time" , "url" , "week", "datetime-local" ];
+const entityMappingTitle: Record<Entities, string> = {
+  [Entities.Wirings]: '接线图',
+  [Entities.Segments]: '间隔图',
+  [Entities.Realtime]: '实时数据',
+  [Entities.Operations]:  '控制操作', 
+  [Entities.LightingControl]: '照明管理', 
+  [Entities.Events]: '事件查询',
+  [Entities.SegmentsChild]: 'NUll',
+  [Entities.Empty]: 'NUll',
+
+};
 //#endregion
 
 function getWithCreateEntityStore(entityName: string) {
@@ -138,9 +151,9 @@ function getWithCreateEntityStore(entityName: string) {
               const item: EntityRecord = {
                 id: index,
                 avatar: 'assets/circuit.jpg',
-                displayName: `列表项标题 ${entityName} ${characters[Math.floor(Math.random() * 10)]}`,
-                colA:  `nameA - ${index}`,
-                colB:  `main entity, fixed length content in list item.`,
+                displayName: `标题 ${entityMappingTitle[entityName]} ${index + 1}`,
+                colA:  `字段 ${characters[Math.floor(Math.random() * 10)]}`,
+                colB:  `列表项， 描述文本内容`,
                 colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
               };
               if ([Entities.LightingControl, Entities.Operations].includes(entityName)) {
@@ -169,13 +182,13 @@ function getWithCreateEntityStore(entityName: string) {
             _records.push({
               id: index,
               avatar: 'assets/circuit.jpg',
-              displayName: `Title ${index}`,
-              colA:  `colA ${index} - ${characters[Math.floor(Math.random() * 10)]} `,
-              colB:  `child entity, fixed length content in list item.`,
+              displayName: `标题  ${data.tabId === 't1' ? '遙信' :  data.tabId === 't2' ? '遥测' : '遥脉'} ${index + 1}`,
+              colA:  `字段 ${characters[Math.floor(Math.random() * 10)]} `,
+              colB: `列表项， 描述文本内容`,
               colC: data.tabId === 't1' ? '遙信' :  data.tabId === 't2' ? '遥测' : '遥脉' ,
             } as EntityRecord);
           }
-          of(null).pipe(delay(1500), take(1)).subscribe(() => {
+          of(null).pipe(delay(800), take(1)).subscribe(() => {
             this.$state.records = _records;
             this.pagination.current = 1;
           }); 
@@ -186,10 +199,10 @@ function getWithCreateEntityStore(entityName: string) {
             _records.push({
               id: index,
               avatar: 'assets/circuit.jpg',
-              displayName: `${entityName} Title ${index}`,
-              colA:  `${entityName} colA ${index}`,
-              colB:  `${entityName} colB ${index}`,
-              colC:  `${entityName} colC ${index}`, 
+              displayName: `标题 ${entityMappingTitle[entityName]} ${index + 1}`,
+              colA:  `字段 ${characters[Math.floor(Math.random() * 10)]} `,
+              colB:  `字段 ${characters[Math.floor(Math.random() * 10)]} `,
+              colC:  `列表项， 描述文本内容`,
             } as EntityRecord);
           }
           this.$state.records = _records;
@@ -225,10 +238,10 @@ function getWithCreateEntityStore(entityName: string) {
         }else {
           of(entityName).pipe(delay(100), take(1)).subscribe(() => {
             const forms: FormField[] = [
-              {id: 'factoryName', label: '厂站：', name: 'factoryName', as: 'input', type: 'text', value: '', readonly: false, disabled: false, },
-              {id: 'description', label: '描述：', name: 'description', as: 'textarea', type: '', value: '', readonly: false, disabled: false, },
-              {id: 'location', label: '点名：', name: 'location', as: 'input', type: 'text', value: '',  readonly: false, disabled: false,  },
-              {id: 'currentStatus', label: '当前状态：', name: 'currentStatus', as: 'input', type: 'text', value: '信号复归',  readonly: false, disabled: true,  },
+              {id: 'factoryName', label: '厂站：', name: 'factoryName', as: 'input', type: 'text', value: '临汾铁路', readonly: true, disabled: false, },
+              {id: 'description', label: '描述：', name: 'description', as: 'input', type: '', value: '2号主变高后备314_开关操作', readonly: true, disabled: false, },
+              {id: 'location', label: '点名：', name: 'location', as: 'input', type: 'text', value: '2号主变高后备314_开关操作',  readonly: true, disabled: false,  },
+              {id: 'currentStatus', label: '当前状态：', name: 'currentStatus', as: 'input', type: 'text', value: '信号复归',  readonly: true, disabled: false,  },
               {id: 'controlType', label: '遥控类型：', name: 'currentStatus', as: 'select', type: 'text', value: 'control3',  readonly: false, disabled: false, 
                 options: [
                   {id: 'control1', value: '遥控1'},

@@ -11,8 +11,8 @@
             <ion-img src="assets/user/avatar_1.svg"></ion-img>
           </ion-avatar>
           <ion-label>
-            <h3>User Name</h3>
-            <p>UserAccount@outlook.com</p>
+            <h3>陈志杰</h3>
+            <p>chezhijie@outlook.com</p>
           </ion-label>
         </ion-item>
         </ion-list-header>
@@ -21,16 +21,24 @@
     <ion-content style="--ion-background-color: transparent" color="light">
 
       <ion-list color="light">
-        <ion-item color="light">
-          <ion-icon :icon="homeOutline" class="menu-item-icon" color="medium"></ion-icon>
+        <ion-item color="light" @click="gotoHome()" class="ion-activatable ripple-parent main-menu-item" >
+          <ion-icon :icon="homeOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label class="menu-item-text">首页</ion-label>
+           <ion-ripple-effect></ion-ripple-effect>
+
         </ion-item>
-        <ion-item color="light">
-          <ion-icon :icon="bookOutline" class="menu-item-icon" color="medium"></ion-icon>
-          <ion-label>关于</ion-label>
+         <ion-item color="light" @click="gotoUser()" class="ion-activatable ripple-parent main-menu-item" >
+          <ion-icon :icon="settingsOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
+          <ion-label>修改密码</ion-label>
+           <ion-ripple-effect></ion-ripple-effect>
+        </ion-item>
+        <ion-item color="light" @click="gotoAbout()" class="ion-activatable ripple-parent main-menu-item" >
+          <ion-icon :icon="bookOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
+          <ion-label >关于</ion-label>
+           <ion-ripple-effect></ion-ripple-effect>
         </ion-item>
       </ion-list>
-      <ion-accordion-group>
+      <!-- <ion-accordion-group>
         <ion-accordion value="colors">
           <ion-item slot="header" class="menu-item">
             <ion-icon :icon="settingsOutline" class="menu-item-icon"></ion-icon>
@@ -61,26 +69,31 @@
 
           </ion-list>
         </ion-accordion>
-      </ion-accordion-group>
+      </ion-accordion-group> -->
 
     </ion-content>
+  
+      <ion-footer class="ion-text-center main-menu-footer" >
+        <ion-note text>衍能科技 版本 v1.0.0</ion-note>
+      </ion-footer>
   </ion-menu>
 </template>
 <script lang="ts">
 import { defineComponent, } from 'vue';
 import { toRef } from '@vue/reactivity';
 import {
-  IonHeader, IonListHeader,
-  IonToolbar, IonContent, IonLabel, IonMenu, IonList, IonItem, IonImg, IonAccordionGroup, IonAccordion, IonAvatar, IonIcon, IonToggle
+  IonHeader, IonListHeader, IonFooter, IonNote,
+  IonToolbar, IonContent, IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect,
 } from '@ionic/vue';
 import { settingsOutline, homeOutline, bookOutline } from 'ionicons/icons';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'MainMenus',
   components: {
     IonHeader, IonToolbar,
     IonContent, IonListHeader,
-    IonLabel, IonMenu, IonList, IonItem, IonImg, IonAccordion, IonAccordionGroup, IonAvatar, IonIcon, IonToggle
+    IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonFooter, IonNote, IonRippleEffect,
   },
   props: {
     contentId: {
@@ -89,8 +102,19 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const router = useRouter();
     const menuId = toRef(props, 'contentId');
-    return { menuId, settingsOutline, homeOutline, bookOutline };
+    const gotoHome = () => {
+      router.push('/home');
+    };
+    const gotoUser = () => {
+      router.push('/user');
+    };
+    const gotoAbout = () => {
+      router.push('/about');
+    };
+
+    return { menuId, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout};
   }
 });
 </script>
@@ -117,5 +141,13 @@ export default defineComponent({
 
 .menu-item-icon {
   margin-right: 0.5em;
+}
+.main-main-footer {
+  --background: red;
+  background: red;
+}
+.main-menu-item {
+   /* --padding-start: 0; */
+   --border-color: var(--ion-color-light, #f2f2f2);
 }
 </style>

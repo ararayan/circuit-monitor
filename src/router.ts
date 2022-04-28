@@ -4,6 +4,8 @@ import HomeView from '@/views/HomeView.vue';
 import LoginView from '@/views/LoginView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
 import EntityView from '@/views/EntityView.vue';
+import AboutView from '@/views/AboutView.vue';
+import UserView from '@/views/UserView.vue';
 
 let anyCount = 0;
 export const routes: Array<RouteRecordRaw> = [
@@ -14,6 +16,16 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: '/home',
     component: HomeView,
+    meta: {requireAuth: true}
+  },
+  {
+    path: '/user',
+    component: UserView,
+    meta: {requireAuth: true}
+  },
+  {
+    path: '/about',
+    component: AboutView,
     meta: {requireAuth: true}
   },
   // {

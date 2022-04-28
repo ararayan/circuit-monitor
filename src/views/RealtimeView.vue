@@ -13,7 +13,6 @@
         <ion-item v-for="item in records" :key="item.id" class="entity-list-item">
           <ion-label>
             <h2>{{ item.displayName }}</h2>
-            <p>{{ item.colC }}</p>
             <h3>{{ item.colA }}</h3>
             <p>{{ item.colB }}</p>
           </ion-label>

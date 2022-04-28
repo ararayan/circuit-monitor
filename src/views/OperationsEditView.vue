@@ -23,19 +23,18 @@
 <script lang="ts">
 import EditForm from '@/components/EditForm.vue';
 import { getMatchedEntityInfoByRoute } from '@/share';
-import { getEntityStore } from '@/share/entity';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonButton, loadingController, toastController  } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, loadingController, toastController } from '@ionic/vue';
 import { computed, ref } from '@vue/reactivity';
+import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
 
 export default defineComponent({
   name: 'OperationsEditView',
   components: {
-    IonPage,IonHeader, IonContent,
+    IonPage,IonHeader, IonContent, IonIcon, IonLabel,
     IonButtons, IonBackButton, IonToolbar, IonTitle, IonButton, 
     EditForm, IonFooter
   },
@@ -50,9 +49,7 @@ export default defineComponent({
     const title = computed(() => {
       return menus.value.find(item => item.id === entityName)?.name || '';
     });
-
-    const formRef = ref<any>(null as never);
-       
+ 
     const backto = () => {
       router.push(`/entity/${entityName}`);
     };

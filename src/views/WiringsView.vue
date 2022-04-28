@@ -18,7 +18,7 @@
         </ion-header>
         <ion-content fullscreen :scroll-y="false">
           <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="84" key-field="id"
+            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
                 <ion-item @click="openRecord(item)">
@@ -49,22 +49,17 @@
 </template>
 
 <script lang="ts">
-import { Entities, EntityRecord, getEntityStore } from '@/share/entity';
-import {
-  IonPage, IonHeader, IonContent,
-  IonButtons, IonBackButton, IonToolbar, IonTitle, IonIcon, 
-  IonAvatar, IonLabel, IonItem, IonList, IonInfiniteScroll, IonSplitPane, IonMenuButton,
-  IonInfiniteScrollContent, InfiniteScrollCustomEvent
-} from '@ionic/vue';
+import SearchFormPanel from '@/components/SearchFormPanel.vue';
+import { getMatchedEntityInfoByRoute } from '@/share';
+import { EntityRecord, getEntityStore } from '@/share/entity';
+import { useUserStore } from '@/share/user';
+import { InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { computed, Ref, ref } from '@vue/reactivity';
+import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
-import { computed, Ref, ref } from '@vue/reactivity';
-import { searchCircleOutline, arrowBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { useUserStore } from '@/share/user';
-import SearchFormPanel from '@/components/SearchFormPanel.vue';
-import { getMatchedEntityInfoByRoute } from '@/share';
 
 /* 
   ion-content-scroll-host

@@ -9,8 +9,8 @@
           </ion-toolbar>
         </ion-header>
         <ion-content fullscreen class="ion-padding">
-          <ion-text>under construct...</ion-text>
-           <canvas id="circuit" @click="openModal()"></canvas>
+          <ion-text>未实现画图...</ion-text>
+           <!-- <canvas id="circuit" @click="openModal()"></canvas> -->
         </ion-content>
   </ion-page>
 </template>
@@ -18,7 +18,7 @@
 <script lang="ts">
 import { getMatchedEntityInfoByRoute } from '@/share';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonText } from '@ionic/vue';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonText, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
@@ -210,15 +210,15 @@ export default defineComponent({
       router.push(`/entity/${entityName}`);
     };
     onMounted(() => {
-      const draw = getCircuitCanvas('circuit');
-      draw.beginCircuit(10, 10);
-      draw.drawCapacitor();
-      draw.drawPower();
-      draw.drawInductor();
-      draw.drawResistor();
-      draw.endCircuit();
+      // const draw = getCircuitCanvas('circuit');
+      // draw.beginCircuit(10, 10);
+      // draw.drawCapacitor();
+      // draw.drawPower();
+      // draw.drawInductor();
+      // draw.drawResistor();
+      // draw.endCircuit();
     });
-    const openModal = async function(opts = {}) {
+    const openModal = async function() {
       // const modal = await modalController.create({
       //   component: 'modal-content',
       //   ...opts,

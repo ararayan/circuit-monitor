@@ -31,7 +31,7 @@
             </ion-slide>
 
           </ion-slides>
-          <ion-grid>
+          <ion-grid style="max-width: 920px;">
             <ion-row>
               <template v-for="item in menus" :key="item.id">
                 <ion-col size="6" size-sm="6">
@@ -45,7 +45,7 @@
             </ion-row>
           </ion-grid>
 
-          <ion-grid>
+          <!-- <ion-grid>
             <ion-row>
 
               <ion-col size="12" size-sm="12" size-md="4">
@@ -84,7 +84,7 @@
               </ion-col>
             </ion-row>
           </ion-grid>
-
+ -->
 
 
 
@@ -99,7 +99,7 @@ import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { ref, } from '@vue/reactivity';
 import {
-  IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+  IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton,
   IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonSplitPane, IonSlides, IonSlide,
 } from '@ionic/vue';
 import { useUserStore } from '@/share/user';
@@ -112,7 +112,7 @@ export default defineComponent({
   name: 'HomeView',
   components: {
     IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonIcon, IonGrid, IonRow, IonCol, IonButtons, IonSlides, IonSlide,
-    IonLabel, IonRippleEffect, IonMenuButton, MainMenus, IonSplitPane, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+    IonLabel, IonRippleEffect, IonMenuButton, MainMenus, IonSplitPane, 
   },
   setup() {
     const user = useUserStore();

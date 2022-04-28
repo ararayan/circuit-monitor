@@ -49,22 +49,17 @@
 </template>
 
 <script lang="ts">
-import { Entities, EntityRecord, getEntityStore } from '@/share/entity';
-import {
-  IonPage, IonHeader, IonContent,
-  IonButtons, IonBackButton, IonToolbar, IonTitle, IonIcon, 
-  IonAvatar, IonLabel, IonItem, IonList, IonInfiniteScroll, IonSplitPane, IonMenuButton,
-  IonInfiniteScrollContent, InfiniteScrollCustomEvent
-} from '@ionic/vue';
+import SearchFormPanel from '@/components/SearchFormPanel.vue';
+import { getMatchedEntityInfoByRoute } from '@/share';
+import { EntityRecord, getEntityStore } from '@/share/entity';
+import { useUserStore } from '@/share/user';
+import { InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { computed, Ref, ref } from '@vue/reactivity';
+import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
-import { computed, Ref, ref } from '@vue/reactivity';
-import { searchCircleOutline, arrowBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { useUserStore } from '@/share/user';
-import SearchFormPanel from '@/components/SearchFormPanel.vue';
-import { getMatchedEntityInfoByRoute } from '@/share';
 
 /* 
   ion-content-scroll-host

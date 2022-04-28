@@ -18,7 +18,7 @@
         </ion-header>
         <ion-content fullscreen :scroll-y="false">
           <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="84" key-field="id"
+            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
                 <ion-item>
@@ -27,7 +27,7 @@
                     <h3>{{ item.colA }}</h3>
                     <p>{{ item.colB }}</p>
                   </ion-label>
-                   <ion-toggle slot="end" name="grape" color="tertiary" :checked="item.controlCol"></ion-toggle>
+                   <ion-toggle slot="end" name="grape" color="warning" :checked="item.controlCol"></ion-toggle>
                 </ion-item>
               </template>
               <template #after>
@@ -46,27 +46,23 @@
 </template>
 
 <script lang="ts">
-import { Entities, getEntityStore } from '@/share/entity';
-import {
-  IonPage, IonHeader, IonContent,
-  IonButtons, IonBackButton, IonToolbar, IonTitle, IonIcon, 
-  IonLabel, IonItem, IonList, IonInfiniteScroll, IonSplitPane, IonMenuButton,
-  IonInfiniteScrollContent, InfiniteScrollCustomEvent
-} from '@ionic/vue';
+import SearchFormPanel from '@/components/SearchFormPanel.vue';
+import { getMatchedEntityInfoByRoute } from '@/share';
+import { getEntityStore } from '@/share/entity';
+import { useUserStore } from '@/share/user';
+import { InfiniteScrollCustomEvent, IonBackButton, IonButtons,
+  IonToggle, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { computed, Ref, ref } from '@vue/reactivity';
+import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
-import { computed, Ref, ref } from '@vue/reactivity';
-import { searchCircleOutline, arrowBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { useUserStore } from '@/share/user';
-import SearchFormPanel from '@/components/SearchFormPanel.vue';
-import { getMatchedEntityInfoByRoute } from '@/share';
 
 
 export default defineComponent({
   name: 'LightingControlView', // 分隔图tab
-  components: {
+  components: { IonToggle,
     IonPage,
     IonHeader,
     IonToolbar,

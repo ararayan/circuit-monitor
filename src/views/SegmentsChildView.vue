@@ -14,7 +14,6 @@
               <ion-item v-for="item in records" :key="item.id" class="entity-list-item" >
                 <ion-label>
                     <h2>{{ item.displayName }}</h2>
-                     <p>{{ item.colC }}</p>
                     <h3>{{ item.colA }}</h3>
                     <p>{{ item.colB }}</p>
                 </ion-label>
@@ -60,7 +59,9 @@ import EntityTab from '@/components/EntityTab.vue';
 import { getMatchedEntityInfoByRoute } from '@/share';
 import { getEntityStore } from '@/share/entity';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonRippleEffect, IonSkeletonText, IonThumbnail, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonBackButton, IonButtons, 
+  IonList, IonItem,
+  IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonSkeletonText, IonThumbnail, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
@@ -68,8 +69,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'SegmentsChildView',
-  // eslint-disable-next-line vue/no-unused-components
-  components: { IonPage, IonLabel, IonIcon, IonThumbnail, IonSkeletonText, IonButton, IonFooter, IonRippleEffect, EntityTab,
+  components: { IonPage, IonLabel, IonIcon, IonThumbnail, IonSkeletonText, IonFooter, EntityTab, IonList, IonItem,
     IonContent, IonToolbar, IonTitle, IonButtons, IonHeader,IonBackButton },
   props: {
     tab: { type: String, required: false, default: 't1'}
