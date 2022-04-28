@@ -71,7 +71,7 @@ export default defineComponent({
     }
     userStore.$subscribe((mutation, state) => {
       if (state.isAuth) {
-        router.push('/home');
+        router.replace('/home');
       }
     });
     // eslint-disable-next-line @typescript-eslint/no-empty-function

@@ -24,12 +24,13 @@
 import EditForm from '@/components/EditForm.vue';
 import { getMatchedEntityInfoByRoute } from '@/share';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, loadingController, toastController } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, useBackButton,
+  IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, loadingController, toastController } from '@ionic/vue';
 import { computed, ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
-import { defineComponent } from 'vue';
-import { useRoute, } from 'vue-router';
+import { defineComponent, onUnmounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'OperationsEditView',
@@ -40,6 +41,7 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const { entityName } = getMatchedEntityInfoByRoute(route);
     // 遥控执行
     const operator = ref({id: 'apply_for_edit', value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
@@ -114,6 +116,12 @@ export default defineComponent({
 
       }
     };
+    const result = useBackButton(10, () => {
+      router.back();
+    });
+    onUnmounted(() => {
+      result.unregister();
+    });
     return {entityName, title, defaultHref, operator, applyForEdit, cloudOutline, discOutline, locateOutline};
   }
 });

@@ -60,7 +60,7 @@ import { getMatchedEntityInfoByRoute } from '@/share';
 import { getEntityStore } from '@/share/entity';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, 
-  IonList, IonItem,
+  IonList, IonItem, 
   IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonSkeletonText, IonThumbnail, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { storeToRefs } from 'pinia';
@@ -70,7 +70,7 @@ import { useBackButton } from '@ionic/vue';
 
 export default defineComponent({
   name: 'SegmentsChildView',
-  components: { IonPage, IonLabel, IonIcon, IonThumbnail, IonSkeletonText, IonFooter, EntityTab, IonList, IonItem,
+  components: { IonPage, IonLabel, IonIcon, IonThumbnail, IonSkeletonText, IonFooter, EntityTab, IonList, IonItem, 
     IonContent, IonToolbar, IonTitle, IonButtons, IonHeader,IonBackButton },
   props: {
     tab: { type: String, required: false, default: 't1'}
@@ -108,16 +108,15 @@ export default defineComponent({
       router.replace({ query:  {tab: tab.id } });
    
     }
-    const result = useBackButton(10, (next) => {
-      alert('segment child view use backbutton');
-      next();
+    const result = useBackButton(10, () => {
+      router.back();
     });
     onUnmounted(() => {
       result.unregister();
     });
 
     const skeletonSize: string[] = Array.from({length: 12});
-    return { tabs, title, records, gotoTab, skeletonSize, defaultHref};
+    return { tabs, title, records, gotoTab, skeletonSize, defaultHref, entityName};
   },
 });
 </script>

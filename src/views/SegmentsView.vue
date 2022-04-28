@@ -128,7 +128,6 @@ export default defineComponent({
       }
     }
     const result = useBackButton(11, (next) => {
-      alert('segment view use backbutton');
       next();
     });
     onUnmounted(() => {

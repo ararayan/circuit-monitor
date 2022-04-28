@@ -3,15 +3,13 @@ import { CacheKeys, cacheService } from "@/share";
 
 const authGuards: NavigationGuardWithThis<undefined> = function (to, from, next) {
   if (to.meta.requireAuth) {
-    if (to.path.startsWith('/login') || !!cacheService.get(CacheKeys.AccessToken)) {
+    if (to.path.startsWith('/login') || !!cacheService.get(CacheKeys.User)) {
       next();
     }else {
       // check auth token exist
       next({
         path: '/login',
-        query: {
-          to: to.fullPath,
-        }
+        replace: true,
       });
     }
   }else {

@@ -57,13 +57,13 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: '/:catchAll(.*)',
     redirect: to => {
-      debugger;
+      // debugger;
       anyCount++;
       if (anyCount > 1) {
         anyCount = 0;
         return { path: '/not-found', replace: true, query: {} };
       }
-      return { path: '/home', query: { q: to.path } };
+      return { path: '/home',  replace: true, query: { q: to.path } };
     },
   }
 ];
@@ -72,3 +72,5 @@ export const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 });
+
+

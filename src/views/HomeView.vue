@@ -98,7 +98,7 @@
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { ref, } from '@vue/reactivity';
-import {
+import { 
   IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton,
   IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonSplitPane, IonSlides, IonSlide,
 } from '@ionic/vue';

@@ -7,6 +7,7 @@ export * from './http.service';
 export * from './url';
 export * from './data.meta';
 export * from './util';
+export * from './auth';
 
 
 export function getMatchedEntityInfoByRoute(route: RouteLocationNormalizedLoaded) {

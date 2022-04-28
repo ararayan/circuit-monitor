@@ -26,11 +26,11 @@ export default defineComponent({
     const route = useRoute();
     const dispose = useBackButton(-1, (next) => {
       if (route.path.includes('/home') || route.path.includes('/login')) {
-        alert('exit app');
         App.exitApp();
+      }else {
+        next();
       }
-      alert('check whether is exit app!!!');
-      next();
+
     });
     onUnmounted(() => {
       dispose.unregister();
