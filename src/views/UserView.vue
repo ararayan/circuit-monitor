@@ -3,7 +3,7 @@
       <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home" @click="gotoHome()"></ion-back-button>
+              <ion-back-button default-href="/home"></ion-back-button>
             </ion-buttons>
             <ion-title center>修改密码</ion-title>
           </ion-toolbar>
@@ -28,7 +28,6 @@ import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader,
 import { ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
 import { defineComponent } from 'vue';
-import { useRouter } from 'vue-router';
 import AttrField from '@/components/AttrField.vue';
 
 export default defineComponent({
@@ -40,7 +39,6 @@ export default defineComponent({
     IonFooter
   },
   setup() {
-    const router = useRouter();
     const operator = ref({id: 'apply_for_edit', value: '保存', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
 
     const entityName = 'user' as any;
@@ -49,9 +47,7 @@ export default defineComponent({
       {id: 'password', label: '新密码', name: 'description', as: 'input', type: 'password', value: '******', readonly: false, disabled: false, },
       {id: 'passwordConfirm', label: '确认密码', name: 'location', as: 'input', type: 'password', value: '******',  readonly: false, disabled: false,  },
     ];
-    const gotoHome = () => {
-      router.push(`/home`);
-    };
+
     const presentLoading = async (msg: string) => {
       const loading = await loadingController
         .create({
@@ -86,7 +82,7 @@ export default defineComponent({
         return openToast('密码修改成功.');
       });
     };
-    return {entityName, fields, gotoHome, operator, save, cloudOutline, discOutline, locateOutline};
+    return {entityName, fields, operator, save, cloudOutline, discOutline, locateOutline};
   }
 });
 </script>

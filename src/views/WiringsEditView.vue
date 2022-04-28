@@ -3,7 +3,7 @@
       <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home" @click="backto()"></ion-back-button>
+              <ion-back-button :default-href="defaultHref"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
           </ion-toolbar>
@@ -23,7 +23,7 @@ import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute} from 'vue-router';
 
 const getCircuitCanvas = (id: string) => {
   const wW =window.innerWidth;
@@ -191,24 +191,21 @@ const getCircuitCanvas = (id: string) => {
 
 
 export default defineComponent({
-  name: 'OperationsEditView',
+  name: 'WiringsEditView',
   components: {
     IonPage,IonHeader, IonContent, IonText,
     IonButtons, IonBackButton, IonToolbar, IonTitle,
   },
   setup() {
     const route = useRoute();
-    const router = useRouter();
     const { entityName } = getMatchedEntityInfoByRoute(route);
     const userStore = useUserStore();
     const { menus }  = storeToRefs(userStore);
     const title = computed(() => {
       return menus.value.find(item => item.id === entityName)?.name || '';
     });
-      
-    const backto = () => {
-      router.push(`/entity/${entityName}`);
-    };
+    const defaultHref = entityName ? `/entity/${entityName}` : '/home';
+
     onMounted(() => {
       // const draw = getCircuitCanvas('circuit');
       // draw.beginCircuit(10, 10);
@@ -226,7 +223,7 @@ export default defineComponent({
       // modal.present();
       // return modal;
     };
-    return {entityName, title, backto, cloudOutline, discOutline, locateOutline, openModal};
+    return {entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, openModal};
   }
 });
 </script>

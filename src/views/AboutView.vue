@@ -3,7 +3,7 @@
   <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home" @click="gotoHome()"></ion-back-button>
+              <ion-back-button default-href="/home"></ion-back-button>
             </ion-buttons>
             <ion-title center>关于</ion-title>
           </ion-toolbar>
@@ -26,7 +26,6 @@
 <script lang="ts">
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonImg, IonPage, IonText, IonToolbar, IonTitle, } from '@ionic/vue';
 import { defineComponent } from 'vue';
-import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'AboutView',
@@ -34,14 +33,5 @@ export default defineComponent({
     IonHeader, IonToolbar, IonButtons, IonBackButton, IonImg, IonText, IonTitle,
     IonContent, IonPage,
   },
-
-  setup() {
-    const router = useRouter();
-    const gotoHome = () => {
-      router.push('/home');
-    };
-
-    return {  gotoHome};
-  }
 });
 </script>

@@ -6,7 +6,7 @@
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home" @click="gotoHome()"></ion-back-button>
+              <ion-back-button default-href="/home"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
             <ion-buttons slot="end">
@@ -18,7 +18,7 @@
         </ion-header>
         <ion-content fullscreen :scroll-y="false">
           <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="84" key-field="id"
+            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
                 <ion-item @click="openRecord(item)">
@@ -69,7 +69,7 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 */
 
 export default defineComponent({
-  name: 'OperationsView', // 分隔图tab
+  name: 'OperationsView',
   components: {
     IonPage,
     IonHeader,
@@ -125,11 +125,8 @@ export default defineComponent({
         router.push(`/entity/${entityName}/${recordId}`);
       }
     }
-    function gotoHome() {
-      router.push('/home');
-    }
     return {
-      openRecord, gotoHome, entityName,
+      openRecord, entityName,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

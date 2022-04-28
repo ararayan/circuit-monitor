@@ -6,7 +6,7 @@
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home" @click="gotoHome()"></ion-back-button>
+              <ion-back-button default-href="/home"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
             <ion-buttons slot="end">
@@ -125,11 +125,9 @@ export default defineComponent({
         router.push(`/entity/${entityName}/${recordId}`);
       }
     }
-    function gotoHome() {
-      router.push('/home');
-    }
+
     return {
-      openRecord, gotoHome, entityName,
+      openRecord, entityName,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

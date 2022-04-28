@@ -6,7 +6,7 @@
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home" @click="gotoHome()"></ion-back-button>
+              <ion-back-button default-href="/home"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
             <ion-buttons slot="end">
@@ -78,7 +78,6 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute();
-    const router = useRouter();
     const { entityName } = getMatchedEntityInfoByRoute(route);
     const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
@@ -106,11 +105,8 @@ export default defineComponent({
         // and disable the infinite scroll
       }, 1000);
     }
-    function gotoHome() {
-      router.push('/home');
-    }
     return {
-      gotoHome, entityName,
+      entityName,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

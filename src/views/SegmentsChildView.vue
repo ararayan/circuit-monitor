@@ -4,9 +4,9 @@
          <ion-header translucent>
           <ion-toolbar color="primary">
             <ion-buttons slot="start">
-                <ion-back-button default-href="/home" @click="backTo()"></ion-back-button>
+                <ion-back-button :default-href="defaultHref" ></ion-back-button>
             </ion-buttons>
-            <ion-title center>{{ title }}</ion-title>
+            <ion-title center>{{ title + '列表子项' }}</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content>
@@ -64,8 +64,9 @@ import { IonBackButton, IonButtons,
   IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonSkeletonText, IonThumbnail, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { storeToRefs } from 'pinia';
-import { defineComponent } from 'vue';
+import { defineComponent, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useBackButton } from '@ionic/vue';
 
 export default defineComponent({
   name: 'SegmentsChildView',
@@ -100,22 +101,23 @@ export default defineComponent({
     const title = computed(() => {
       return menus.value.find(item => item.id === parentEntityName)?.name || '';
     });
-    function backTo() {
-      if (parentEntityName) {
-        router.push({path: `/entity/${parentEntityName}`});
-      }else {
-        router.back();
-      }
-      
-    }
+    const defaultHref =  parentEntityName ? `/entity/${parentEntityName}` : '/home';
+
 
     function gotoTab(tab: any) {
       router.replace({ query:  {tab: tab.id } });
    
     }
+    const result = useBackButton(10, (next) => {
+      alert('segment child view use backbutton');
+      next();
+    });
+    onUnmounted(() => {
+      result.unregister();
+    });
 
     const skeletonSize: string[] = Array.from({length: 12});
-    return { tabs, title, backTo, records, gotoTab, skeletonSize};
+    return { tabs, title, records, gotoTab, skeletonSize, defaultHref};
   },
 });
 </script>

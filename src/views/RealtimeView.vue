@@ -3,7 +3,7 @@
     <ion-header translucent>
       <ion-toolbar mode="md" color="primary">
         <ion-buttons slot="start">
-          <ion-back-button default-href="/home" @click="backTo()"></ion-back-button>
+          <ion-back-button default-href="/home"></ion-back-button>
         </ion-buttons>
         <ion-title center>{{ title }}</ion-title>
       </ion-toolbar>
@@ -93,15 +93,12 @@ export default defineComponent({
     const title = computed(() => {
       return menus.value.find(item => item.id === entityName)?.name || '';
     });
-    function backTo() {
-      router.push('/home');
-    }
 
     function gotoTab(tab: any) {
       router.replace({ query: { tab: tab.id } });
     }
     const skeletonSize: string[] = Array.from({length: 12});
-    return { tabs, title, backTo, records, gotoTab, scaleOutline, pulseOutline, radioOutline, skeletonSize };
+    return { tabs, title, records, gotoTab, scaleOutline, pulseOutline, radioOutline, skeletonSize };
   },
 });
 </script>

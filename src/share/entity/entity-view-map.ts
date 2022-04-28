@@ -23,7 +23,7 @@ export const EntityViewMapping: EntityViews = {
   },
   [Entities.Wirings]: {
     [EntityViewType.Browse]: 'WiringsView',
-    [EntityViewType.Edit]: 'SegmentsEditView',
+    [EntityViewType.Edit]: 'WiringsEditView',
   },
   [Entities.Segments]: {
     [EntityViewType.Browse]: 'SegmentsView',

@@ -6,7 +6,7 @@
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home" @click="gotoHome()"></ion-back-button>
+              <ion-back-button default-href="/home"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
             <ion-buttons slot="end">
@@ -57,9 +57,10 @@ import { InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonCon
 import { computed, Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
-import { defineComponent, watch } from 'vue';
+import { defineComponent, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
+import { useBackButton } from '@ionic/vue';
 
 /* 
   ion-content-scroll-host
@@ -126,11 +127,16 @@ export default defineComponent({
         router.push(`/entity/${entityName}/${recordId}`);
       }
     }
-    function gotoHome() {
-      router.push('/home');
-    }
+    const result = useBackButton(11, (next) => {
+      alert('segment view use backbutton');
+      next();
+    });
+    onUnmounted(() => {
+      result.unregister();
+    });
+  
     return {
-      openRecord, gotoHome, entityName,
+      openRecord, entityName,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

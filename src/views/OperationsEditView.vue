@@ -3,7 +3,7 @@
       <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="/home" @click="backto()"></ion-back-button>
+              <ion-back-button default-href="defaultHref" ></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
           </ion-toolbar>
@@ -29,7 +29,7 @@ import { computed, ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, } from 'vue-router';
 
 export default defineComponent({
   name: 'OperationsEditView',
@@ -40,7 +40,6 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute();
-    const router = useRouter();
     const { entityName } = getMatchedEntityInfoByRoute(route);
     // 遥控执行
     const operator = ref({id: 'apply_for_edit', value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
@@ -49,10 +48,7 @@ export default defineComponent({
     const title = computed(() => {
       return menus.value.find(item => item.id === entityName)?.name || '';
     });
- 
-    const backto = () => {
-      router.push(`/entity/${entityName}`);
-    };
+    const defaultHref = entityName ? `/entity/${entityName}` : '/home';
     const presentLoading = async (msg: string) => {
       const loading = await loadingController
         .create({
@@ -118,7 +114,7 @@ export default defineComponent({
 
       }
     };
-    return {entityName, title, backto, operator, applyForEdit, cloudOutline, discOutline, locateOutline};
+    return {entityName, title, defaultHref, operator, applyForEdit, cloudOutline, discOutline, locateOutline};
   }
 });
 </script>
