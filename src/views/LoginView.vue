@@ -43,7 +43,7 @@
 <script lang="ts">
 import { defineComponent, onBeforeUnmount, onUnmounted, reactive } from 'vue';
 import {
-  IonPage, IonContent, IonItem, IonInput, IonButton,
+  IonPage, IonContent, IonItem, IonInput, IonButton, IonImg,
   IonLabel, IonIcon, IonCard, IonCardHeader, IonNote,
   IonCardContent, IonCardTitle
 } from '@ionic/vue';
@@ -54,7 +54,7 @@ import { personCircleOutline, lockClosedOutline, arrowForwardCircleOutline } fro
 export default defineComponent({
   name: 'LoginView',
   components: {
-    IonPage, IonContent, IonItem, IonInput, IonButton, IonLabel, IonIcon, IonCardTitle, IonNote,
+    IonPage, IonContent, IonItem, IonInput, IonButton, IonLabel, IonIcon, IonCardTitle, IonNote, IonImg,
     IonCard, IonCardHeader, IonCardContent
   },
   setup() {

@@ -72,17 +72,14 @@
       </ion-accordion-group> -->
 
     </ion-content>
-  
-      <ion-footer class="ion-text-center main-menu-footer" >
-        <ion-note text>衍能科技 版本 v1.0.0</ion-note>
-      </ion-footer>
+ 
   </ion-menu>
 </template>
 <script lang="ts">
 import { defineComponent, } from 'vue';
 import { toRef } from '@vue/reactivity';
 import {
-  IonHeader, IonListHeader, IonFooter, IonNote,
+  IonHeader, IonListHeader, 
   IonToolbar, IonContent, IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect,
 } from '@ionic/vue';
 import { settingsOutline, homeOutline, bookOutline } from 'ionicons/icons';
@@ -93,7 +90,7 @@ export default defineComponent({
   components: {
     IonHeader, IonToolbar,
     IonContent, IonListHeader,
-    IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonFooter, IonNote, IonRippleEffect,
+    IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon,  IonRippleEffect,
   },
   props: {
     contentId: {
@@ -142,10 +139,7 @@ export default defineComponent({
 .menu-item-icon {
   margin-right: 0.5em;
 }
-.main-main-footer {
-  --background: red;
-  background: red;
-}
+
 .main-menu-item {
    /* --padding-start: 0; */
    --border-color: var(--ion-color-light, #f2f2f2);

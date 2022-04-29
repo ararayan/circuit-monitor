@@ -86,9 +86,13 @@
           </ion-grid>
  -->
 
-
+ 
 
         </ion-content>
+              <ion-footer class="ion-text-center main-menu-footer" mode="md">
+        <ion-note>衍能科技 版本 v1.0.0</ion-note>
+      </ion-footer>
+
       </div>
     </ion-split-pane>
   </ion-page>
@@ -99,7 +103,7 @@ import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { ref, } from '@vue/reactivity';
 import { 
-  IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton,
+  IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton, IonFooter, IonNote,
   IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonSplitPane, IonSlides, IonSlide,
 } from '@ionic/vue';
 import { useUserStore } from '@/share/user';
@@ -111,7 +115,7 @@ import MainMenus from '@/components/MainMenus.vue';
 export default defineComponent({
   name: 'HomeView',
   components: {
-    IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonIcon, IonGrid, IonRow, IonCol, IonButtons, IonSlides, IonSlide,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonIcon, IonGrid, IonRow, IonCol, IonButtons, IonSlides, IonSlide, IonFooter, IonNote,
     IonLabel, IonRippleEffect, IonMenuButton, MainMenus, IonSplitPane, 
   },
   setup() {
@@ -157,5 +161,13 @@ export default defineComponent({
 
 .gridcard-icon {
   font-size: 4em;
+}
+.main-menu-footer {
+  background: #f7f8fb;
+}
+.main-menu-footer > ion-note {
+  font-size: 12px;
+    color: #97a0af;
+    font-style: italic;
 }
 </style>
