@@ -50,7 +50,6 @@
 
 <script lang="ts">
 import SearchFormPanel from '@/components/SearchFormPanel.vue';
-import { getMatchedEntityInfoByRoute } from '@/share';
 import { EntityRecord, getEntityStore } from '@/share/entity';
 import { useUserStore } from '@/share/user';
 import { InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
@@ -58,9 +57,10 @@ import { computed, Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
 import { useBackButton } from '@ionic/vue';
+import { useEntityContext } from '@/share';
 
 /* 
   ion-content-scroll-host
@@ -87,9 +87,8 @@ export default defineComponent({
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
-    const route = useRoute();
     const router = useRouter();
-    const { entityName } = getMatchedEntityInfoByRoute(route);
+    const { entityName } = useEntityContext();
     const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
     const { records, editViewEntityName, pagination } = storeToRefs(entityStore);

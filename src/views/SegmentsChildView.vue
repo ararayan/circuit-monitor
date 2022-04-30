@@ -56,7 +56,7 @@
 
 <script lang="ts">
 import EntityTab from '@/components/EntityTab.vue';
-import { getMatchedEntityInfoByRoute } from '@/share';
+import { useEntityContext } from '@/share';
 import { getEntityStore } from '@/share/entity';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, 
@@ -65,7 +65,7 @@ import { IonBackButton, IonButtons,
 import { computed } from '@vue/reactivity';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useBackButton } from '@ionic/vue';
 
 export default defineComponent({
@@ -76,9 +76,8 @@ export default defineComponent({
     tab: { type: String, required: false, default: 't1'}
   },
   setup(props) {
-    const route = useRoute();
     const router = useRouter();
-    const { entityName, parentEntityName } = getMatchedEntityInfoByRoute(route);
+    const { entityName, parentEntityName } = useEntityContext();
     const entityStore = getEntityStore(entityName);
     entityStore.initEntityTabs(entityName);
     const { entityTabs, records } = storeToRefs(entityStore);

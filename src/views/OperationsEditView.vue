@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import EditForm from '@/components/EditForm.vue';
-import { getMatchedEntityInfoByRoute } from '@/share';
+import { useEntityContext } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButton, IonButtons, useBackButton,
   IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, loadingController, toastController } from '@ionic/vue';
@@ -30,7 +30,7 @@ import { computed, ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'OperationsEditView',
@@ -40,9 +40,8 @@ export default defineComponent({
     EditForm, IonFooter
   },
   setup() {
-    const route = useRoute();
     const router = useRouter();
-    const { entityName } = getMatchedEntityInfoByRoute(route);
+    const { entityName } = useEntityContext();
     // 遥控执行
     const operator = ref({id: 'apply_for_edit', value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
     const userStore = useUserStore();

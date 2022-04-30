@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import EntityTab from '@/components/EntityTab.vue';
-import { getMatchedEntityInfoByRoute } from '@/share';
+import { useEntityContext } from '@/share';
 import { getEntityStore } from '@/share/entity';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonSkeletonText, IonThumbnail, IonTitle, IonToolbar } from '@ionic/vue';
@@ -55,7 +55,7 @@ import { computed } from '@vue/reactivity';
 import { pulseOutline, radioOutline, scaleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 
 export default defineComponent({
@@ -68,9 +68,8 @@ export default defineComponent({
     tab: { type: String, required: false, default: 't1' }
   },
   setup(props) {
-    const route = useRoute();
     const router = useRouter();
-    const { entityName } = getMatchedEntityInfoByRoute(route);
+    const { entityName } = useEntityContext();
     const entityStore = getEntityStore(entityName);
     entityStore.initEntityTabs(entityName);
     const { entityTabs, records } = storeToRefs(entityStore);

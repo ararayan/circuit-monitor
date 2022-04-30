@@ -16,14 +16,13 @@
 </template>
 
 <script lang="ts">
-import { getMatchedEntityInfoByRoute } from '@/share';
+import { useEntityContext } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonText, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onMounted } from 'vue';
-import { useRoute} from 'vue-router';
 
 const getCircuitCanvas = (id: string) => {
   const wW =window.innerWidth;
@@ -197,8 +196,7 @@ export default defineComponent({
     IonButtons, IonBackButton, IonToolbar, IonTitle,
   },
   setup() {
-    const route = useRoute();
-    const { entityName } = getMatchedEntityInfoByRoute(route);
+    const { entityName } = useEntityContext();
     const userStore = useUserStore();
     const { menus }  = storeToRefs(userStore);
     const title = computed(() => {

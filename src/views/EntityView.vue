@@ -5,10 +5,8 @@
 
 <script lang="ts">
 import { defineComponent, defineAsyncComponent } from 'vue';
-import { useRoute } from 'vue-router';
-import { computed } from '@vue/reactivity';
 import { EntityViewType, getViewNameByEntityName } from '@/share/entity';
-import { getMatchedEntityInfoByRoute } from '@/share';
+import { useEntityContext } from '@/share';
 
 export default defineComponent({
   name: 'EntityView',
@@ -17,15 +15,12 @@ export default defineComponent({
     tab: { type: String, required: false }
   },
   setup(props) {
-    const route = useRoute();
-    const entityComponent = computed(() => {
-      const { entityName, recordId } = getMatchedEntityInfoByRoute(route);
-      const type = recordId === '' ? EntityViewType.Browse : EntityViewType.Edit;
-      const viewName = getViewNameByEntityName(entityName, type);
-      return defineAsyncComponent(() =>
-        import(`@/views/${viewName}.vue`)
-      );
-    });
+    const { entityName, recordId } = useEntityContext();
+    const type = recordId === '' ? EntityViewType.Browse : EntityViewType.Edit;
+    const viewName = getViewNameByEntityName(entityName, type);
+    const entityComponent = defineAsyncComponent(() =>
+      import(`@/views/${viewName}.vue`)
+    );
     return {
       entityComponent,
       props

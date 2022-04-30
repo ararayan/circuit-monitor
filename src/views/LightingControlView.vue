@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import SearchFormPanel from '@/components/SearchFormPanel.vue';
-import { getMatchedEntityInfoByRoute } from '@/share';
+import { useEntityContext } from '@/share';
 import { getEntityStore } from '@/share/entity';
 import { useUserStore } from '@/share/user';
 import { InfiniteScrollCustomEvent, IonBackButton, IonButtons,
@@ -56,7 +56,6 @@ import { computed, Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 
@@ -77,8 +76,7 @@ export default defineComponent({
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
-    const route = useRoute();
-    const { entityName } = getMatchedEntityInfoByRoute(route);
+    const { entityName } = useEntityContext();
     const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
     const { records } = storeToRefs(entityStore);

@@ -104,7 +104,7 @@ import { useRouter } from 'vue-router';
 import { ref, } from '@vue/reactivity';
 import { 
   IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton, IonFooter, IonNote,
-  IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonSplitPane, IonSlides, IonSlide,
+  IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonSplitPane, IonSlides, IonSlide, onIonViewWillEnter, onIonViewDidEnter, onIonViewWillLeave, onIonViewDidLeave,
 } from '@ionic/vue';
 import { useUserStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
@@ -127,16 +127,27 @@ export default defineComponent({
       router.push('/entity/' + path);
     }
     (window as any).tt = router;
-    // const route = useRoute();
-    // watch(route, (to, from) => {});
-    // onBeforeRouteLeave((to, from) => {})
-    // onBeforeRouteUpdate(async (to) => {});
     const menuConnectId = ref('home-menu-connect');
     const sliderOptions = {
       initialSlide: 0,
       slidesPerView: 1,
       autoplay:true
     };
+
+    
+    onIonViewWillEnter(() => {
+      // ionic view will enter;
+    });
+    onIonViewDidEnter(() => {
+      // ionic view did enter;
+    });
+    onIonViewWillLeave(() => {
+      // ionic view will leave;
+    });
+    onIonViewDidLeave(() => {
+      // ionic view did leave;
+    });
+
     return {
       menus, goto, personOutline, homeOutline, menuConnectId, sliderOptions
     };
