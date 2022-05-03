@@ -1,9 +1,9 @@
 <template>
-      <ion-menu side="end" :menuId="menuId"  style="--side-max-width: 400px">
+      <ion-menu side="end" :menuId="ionMenuId"  style="--side-max-width: 400px">
         <ion-header mode="md" collapse="fade">
           <ion-toolbar color="primary">
             <ion-buttons slot="start" >
-              <ion-menu-button autoHide="false">
+              <ion-menu-button autoHide="false" :menu="menuId">
                 <ion-icon :icon="closeOutline"></ion-icon>
               </ion-menu-button>
             </ion-buttons>
@@ -31,7 +31,7 @@ import { Entities } from '@/share/entity';
 import { IonButton, IonButtons, IonContent,
 
   IonFooter, IonHeader, IonIcon, IonItem, IonList, IonMenu, IonMenuButton, IonTitle, IonToolbar, loadingController, toastController   } from '@ionic/vue';
-import { ref } from '@vue/reactivity';
+import { ref, toRefs } from '@vue/reactivity';
 import { closeOutline } from 'ionicons/icons';
 import { defineComponent, PropType } from 'vue';
 import SearchForm, { SysFormComponent } from './SearchForm.vue';
@@ -57,10 +57,11 @@ export default defineComponent({
   },
   props: {
     entityName: {type: String as PropType<Entities>, required: true},
+    menuId: {type: String, required: true }
   },
   setup(props) {
     const formRef = ref<SysFormComponent>(null as never);
-    const menuId = `${props.entityName}_search_form_sidebar_${Math.random() * 1000}`;
+    const { menuId: ionMenuId } = toRefs(props);
     const presentLoading = async (msg: string) => {
       const loading = await loadingController
         .create({
@@ -85,7 +86,7 @@ export default defineComponent({
     };
     const submitForm = () => {
       formRef.value?.onSubmit();
-      menuController.close(menuId);
+      menuController.close(ionMenuId.value);
       presentLoading('searching...').then(loading => {
         return new Promise((resolve) => {
           setTimeout(() => {
@@ -111,7 +112,7 @@ export default defineComponent({
       });
     };
     return {
-      menuId,
+      ionMenuId,
       closeOutline,
       submitForm,
       resetForm,

@@ -1,8 +1,8 @@
 <template>
   <ion-page>
-    <ion-split-pane content-id="mainabc">
-      <search-form-panel :entityName="entityName" content-id="mainabc"></search-form-panel>
-      <div class="ion-page segments-view" id="mainabc">
+    <ion-split-pane :contentId="contentId">
+      <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
+      <div class="ion-page segments-view" :id="contentId">
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
@@ -10,7 +10,7 @@
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
             <ion-buttons slot="end">
-              <ion-menu-button autoHide="false">
+              <ion-menu-button autoHide="false" :menu="menuId">
                 <ion-icon :icon="searchCircleOutline"></ion-icon>
               </ion-menu-button>
             </ion-buttons>
@@ -46,13 +46,11 @@
 
 <script lang="ts">
 import SearchFormPanel from '@/components/SearchFormPanel.vue';
-import { useEntityContext } from '@/share';
+import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
 import { getEntityStore } from '@/share/entity';
-import { useUserStore } from '@/share/user';
-import { InfiniteScrollCustomEvent, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
-import { computed, Ref, ref } from '@vue/reactivity';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { storeToRefs } from 'pinia';
 import { defineComponent } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
@@ -83,33 +81,17 @@ export default defineComponent({
     const { entityName } = useEntityContext();
     const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
-    const { records } = storeToRefs(entityStore);
     entityStore.initEditViewEntity(entityName);
     entityStore.getSearchForm(entityName);
-    const userStore = useUserStore();
-    const { menus }  = storeToRefs(userStore);
-    const title = computed(() => {
-      return menus.value.find(item => item.id === entityName)?.name || '';
-    });
 
-    entityStore.getRecords(entityName, {init: true, nextPage: true });
- 
-    function loadData(evt: InfiniteScrollCustomEvent) {
-      // load data 
-      setTimeout(() => {
-        entityStore.getRecords(entityName, { nextPage: true });
-        console.log('Loaded data');
-        if (virtualScroller.value) {
-          virtualScroller.value?.['updateVisibleItems'](true);
-        }
-        evt.target.complete();
-        // App logic to determine if all data is loaded
-        // and disable the infinite scroll
-      }, 1000);
-    }
+    const menuId = ref(`${entityName}_menu`);
+    const contentId = ref(`${entityName}_panel`);
+    const { title } = useEntityDisplayName(entityName);
+
+    const { loadData, records } = useEntityRecords(entityName, virtualScroller);
 
     return {
-      entityName,
+      entityName, menuId, contentId,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

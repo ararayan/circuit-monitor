@@ -1,13 +1,13 @@
 <template>
   <ion-app>
-    <router-view />
+     <ion-router-outlet></ion-router-outlet>
   </ion-app>
 </template>
 
 <script lang="ts">
-import { IonApp } from '@ionic/vue';
+import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { defineComponent, onUnmounted } from 'vue';
-import { RouterView, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useBackButton } from '@ionic/vue';
 import { App } from '@capacitor/app';
 
@@ -15,13 +15,9 @@ export default defineComponent({
   name: 'App',
   components: {
     IonApp,
-    RouterView
+    IonRouterOutlet,
   },  
-  // async created() {
-  //   return Promise.resolve(true).then(() => {
-  //     // debugger;
-  //   });
-  // },
+  // beforeCreate(() => {}),
   setup() {
     const route = useRoute();
     const dispose = useBackButton(-1, (next) => {
@@ -36,5 +32,10 @@ export default defineComponent({
       dispose.unregister();
     });
   }
+  // async created() {
+  //   return Promise.resolve(true).then(() => {
+  //     // debugger;
+  //   });
+  // },
 });
 </script>

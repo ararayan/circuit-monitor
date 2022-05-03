@@ -11,12 +11,9 @@ import { useEntityContext } from '@/share';
 export default defineComponent({
   name: 'EntityView',
   components: {},
-  props: {
-    tab: { type: String, required: false }
-  },
   setup(props) {
     const { entityName, recordId } = useEntityContext();
-    const type = recordId === '' ? EntityViewType.Browse : EntityViewType.Edit;
+    const type = recordId === undefined || recordId === '' ? EntityViewType.Browse : EntityViewType.Edit;
     const viewName = getViewNameByEntityName(entityName, type);
     const entityComponent = defineAsyncComponent(() =>
       import(`@/views/${viewName}.vue`)

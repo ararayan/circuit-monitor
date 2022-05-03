@@ -37,6 +37,16 @@ export const routes: Array<RouteRecordRaw> = [
     path: '/entity/:parentEntityName?/:parentRecordId?/:entityName?/:recordId?',
     component: EntityView,
     meta: {requireAuth: true},
+    /** 
+    * ionic route outlet will cache the props calc by performance, below is the source code comment
+    * Since IonRouterOutlet renders multiple components,
+    * each render will cause all props functions to be
+    * called again. As a result, we need to cache the function
+    * result and provide it on each render so that the props
+    * are not lost when navigating from and back to a page.
+    * When a component is destroyed and re-created, the
+    * function is called again.
+    */
     props: route => {
       return { tab: route.query.tab };
     }

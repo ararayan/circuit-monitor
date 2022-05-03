@@ -1,5 +1,6 @@
 import { defineStore, Store, _StoreWithGetters } from 'pinia';
 import { delay, of, take } from 'rxjs';
+import { DataStatus } from '../data.meta';
 import { Entities } from './entity-view-map';
 
 export interface EntityRecord {
@@ -36,8 +37,10 @@ export interface EntityState {
     entityName: string;
     editViewEntityName: Entities;
     records: EntityRecord[];
+    isRecordsInited: boolean;
     pagination: {current: number; pageSize: number; total: number;},
     entityTabs: EntityTabInfo[];
+    entityTabsLoadStatus: DataStatus,
     searchForm: FormField[];
     editForm: FormField[];
 }
@@ -45,10 +48,12 @@ export interface EntityState {
 const initialState: EntityState = { 
   entityName: '', 
   records: [] as EntityRecord[],
+  isRecordsInited: false,
   searchForm: []  as FormField[],
   editForm: []  as FormField[],
   editViewEntityName: Entities.Empty,
   entityTabs: [],
+  entityTabsLoadStatus: DataStatus.Unloaded,
   pagination: {
     current: 0,
     pageSize: 20,
@@ -59,11 +64,13 @@ const initialState: EntityState = {
 const entityStoreMap = Object.create(null) as {
   [key: string]: Store<string, EntityState, _StoreWithGetters<any>, {
     initEditViewEntity(type: Entities): void;
-    initEntityTabs(entityName: Entities): void;
+    getEntityTabs(entityName: Entities): void;
+    selectEntityTab(tabId: string): void;
     getRecords(entityName: Entities, data: any): void;
+    clearRecords(): void;
     getSearchForm(entityName: Entities): void;
     getEditForm(entityName: Entities): void;
-  }>
+  }>;
 };
 
 
@@ -109,35 +116,44 @@ function getWithCreateEntityStore(entityName: string) {
 
         });
       },
-      initEntityTabs(entityName: Entities) {
-        of(entityName).pipe(take(1)).subscribe(() => {
-          this.entityTabs = [
-            {
-              colName: 'colC',
-              id: 't1',
-              value: 't1',
-              displayName: '遙信',
-              selected: true
-            },
-            {
-              colName: 'colC',
-              id: 't2',
-              value: 't2',
-              displayName: '遥测',
-              selected: false
-            },
-            {
-              colName: 'colC',
-              id: 't3',
-              value: 't3',
-              displayName: '遥脉',
-              selected: false
-            },
-          ];
-        });
+      getEntityTabs(entityName: Entities) {
+        if (this.entityTabsLoadStatus === DataStatus.Unloaded) {
+          of(entityName).pipe(take(1)).subscribe(() => {
+            const tabs = [
+              {
+                colName: 'colC',
+                id: 't1',
+                value: 't1',
+                displayName: '遙信',
+                selected: true
+              },
+              {
+                colName: 'colC',
+                id: 't2',
+                value: 't2',
+                displayName: '遥测',
+                selected: false
+              },
+              {
+                colName: 'colC',
+                id: 't3',
+                value: 't3',
+                displayName: '遥脉',
+                selected: false
+              },
+            ];
+            this.$patch({
+              entityTabs: tabs,
+              entityTabsLoadStatus: DataStatus.Loaded
+            });
+          });
+        }
       },
       getRecords(entityName: Entities, data: {init?: boolean, nextPage?: boolean, tabId?: string, search?: Record<string, any>}) {
         //WIP
+        // if (this.records.length) {
+
+        // }
         if (data.search || data.init) {
           this.records = [];
           this.pagination.current = 0;
@@ -209,6 +225,13 @@ function getWithCreateEntityStore(entityName: string) {
           this.pagination.current = 1;
         }
       },
+      clearRecords() {
+        this.records = [];
+        if (this.pagination) {
+          this.pagination.current = 0;
+        }
+
+      },
       getSearchForm(entityName: Entities) {
         if (this.$state.searchForm.length) {
           of(entityName).pipe(delay(100), take(1)).subscribe();
@@ -260,6 +283,9 @@ function getWithCreateEntityStore(entityName: string) {
         }
 
       },
+      selectEntityTab(tabId: string) {
+        this.entityTabs.forEach(tab => tab.selected = tab.id === tabId);
+      }
     }
   });
   const _store = store();
@@ -270,6 +296,7 @@ function getWithCreateEntityStore(entityName: string) {
 export function destoryEntityStore(entityName: string) {
   const store = entityStoreMap[entityName];
   store?.$dispose();
+  delete entityStoreMap[entityName];
 }
 
 export function getEntityStore(entityName: string) {

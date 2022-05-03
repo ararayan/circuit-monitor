@@ -11,12 +11,12 @@ const useEntityContext = () => {
     parentEntityName: Entities.Empty,
     parentRecordId: '', 
     entityName: Entities.Empty,
-    recordId: ''
+    recordId: '',
   };
-  if (entityName === '' && recordId === '' && parentEntityName !== '') {
+  if (!entityName && !recordId && !!parentEntityName) {
     matched.entityName = parentEntityName as Entities;
     matched.recordId = parentRecordId;
-  }else if (parentEntityName !== '' && parentRecordId !== '' && entityName !== '') {
+  }else if (!!parentEntityName && !!parentRecordId && !!entityName) {
     matched.parentEntityName = parentEntityName as Entities;
     matched.parentRecordId = parentRecordId;
     matched.entityName = entityName as Entities;

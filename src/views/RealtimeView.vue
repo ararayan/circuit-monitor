@@ -9,95 +9,38 @@
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <ion-list :class="{ 'ion-hide': !!!records.length }">
-        <ion-item v-for="item in records" :key="item.id" class="entity-list-item">
-          <ion-label>
-            <h2>{{ item.displayName }}</h2>
-            <h3>{{ item.colA }}</h3>
-            <p>{{ item.colB }}</p>
-          </ion-label>
-          <ion-icon slot="end" color="medium"></ion-icon>
-        </ion-item>
-      </ion-list>
-      <ion-list :class="{ 'ion-hide': !!records.length }">
-        <ion-item v-for="(item, index) in skeletonSize" :key="index">
-          <ion-thumbnail slot="start">
-            <ion-skeleton-text></ion-skeleton-text>
-          </ion-thumbnail>
-          <ion-label>
-            <h3>
-              <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-            </h3>
-            <p>
-              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-            </p>
-            <p>
-              <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-            </p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
+      <entity-list></entity-list>
     </ion-content>
     <ion-footer>
-      <entity-tab :tabList="tabs" @goto-tab="gotoTab($event)"></entity-tab>
+      <entity-tab :tabList="entityTabs" @goto-tab="gotoTab($event)"></entity-tab>
     </ion-footer>
 
   </ion-page>
 </template>
 
 <script lang="ts">
+import EntityList from '@/components/EntityList.vue';
 import EntityTab from '@/components/EntityTab.vue';
-import { useEntityContext } from '@/share';
-import { getEntityStore } from '@/share/entity';
-import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonSkeletonText, IonThumbnail, IonTitle, IonToolbar } from '@ionic/vue';
-import { computed } from '@vue/reactivity';
-import { pulseOutline, radioOutline, scaleOutline } from 'ionicons/icons';
-import { storeToRefs } from 'pinia';
-import { defineComponent } from 'vue';
-import { useRouter } from 'vue-router';
+import { destoryEntityStore } from '@/share/entity';
+import { useEntityContext, useEntityDisplayName, useEntityTab } from '@/share/hooks';
+import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+import { defineComponent, onUnmounted } from 'vue';
 
 
 export default defineComponent({
   name: 'RealtimeView',
   components: {
-    IonPage, IonLabel, IonIcon, IonThumbnail, IonSkeletonText, EntityTab,
-    IonFooter, IonList, IonItem, IonContent, IonToolbar, IonTitle, IonButtons, IonHeader, IonBackButton
+    IonPage,  EntityTab, EntityList,
+    IonFooter, IonContent, IonToolbar, IonTitle, IonButtons, IonHeader, IonBackButton
   },
-  props: {
-    tab: { type: String, required: false, default: 't1' }
-  },
-  setup(props) {
-    const router = useRouter();
+  setup() {
     const { entityName } = useEntityContext();
-    const entityStore = getEntityStore(entityName);
-    entityStore.initEntityTabs(entityName);
-    const { entityTabs, records } = storeToRefs(entityStore);
-    entityStore.getRecords(entityName, { tabId: props.tab });
-    const tabs = computed(() => {
-      if (props.tab) {
-        return entityTabs.value.map(x => {
-          if (x.id === props.tab) {
-            x.selected = true;
-          } else {
-            x.selected = false;
-          }
-          return x;
-        });
-      }
-      return entityTabs.value;
+    const { gotoTab, entityTabs } = useEntityTab(entityName);
+    const { title } = useEntityDisplayName(entityName);
+    onUnmounted(() => {
+      destoryEntityStore(entityName);
     });
-    const userStore = useUserStore();
-    const { menus } = storeToRefs(userStore);
-    const title = computed(() => {
-      return menus.value.find(item => item.id === entityName)?.name || '';
-    });
-
-    function gotoTab(tab: any) {
-      router.replace({ query: { tab: tab.id } });
-    }
-    const skeletonSize: string[] = Array.from({length: 12});
-    return { tabs, title, records, gotoTab, scaleOutline, pulseOutline, radioOutline, skeletonSize };
+    return { title, gotoTab, entityTabs };
   },
 });
 </script>

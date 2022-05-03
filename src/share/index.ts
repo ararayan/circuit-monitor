@@ -6,3 +6,4 @@ export * from './data.meta';
 export * from './util';
 export * from './auth';
 export * from './hooks';
+export * from './entity';

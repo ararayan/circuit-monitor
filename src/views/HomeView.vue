@@ -35,7 +35,7 @@
             <ion-row>
               <template v-for="item in menus" :key="item.id">
                 <ion-col size="6" size-sm="6">
-                  <div class="gridcard ion-activatable ripple-parent" @click="goto(item.id)">
+                  <div class="gridcard ion-activatable ripple-parent" @click="gotoEntityView(item.id)">
                     <ion-icon :src="`assets/home/${item.id}.svg`" color="primary" class="gridcard-icon"></ion-icon>
                     <ion-label class="gridcard-text" style="padding-top: 0.75em;">{{ item.name }}</ion-label>
                     <ion-ripple-effect></ion-ripple-effect>
@@ -100,11 +100,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useRouter } from 'vue-router';
 import { ref, } from '@vue/reactivity';
 import { 
   IonPage, IonHeader, IonGrid, IonRow, IonCol, IonButtons, IonMenuButton, IonFooter, IonNote,
-  IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonSplitPane, IonSlides, IonSlide, onIonViewWillEnter, onIonViewDidEnter, onIonViewWillLeave, onIonViewDidLeave,
+  IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonRippleEffect, IonSplitPane, IonSlides, IonSlide, onIonViewWillEnter, onIonViewDidEnter, onIonViewWillLeave, onIonViewDidLeave, useIonRouter,
 } from '@ionic/vue';
 import { useUserStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
@@ -120,10 +119,9 @@ export default defineComponent({
   },
   setup() {
     const user = useUserStore();
-    // user.getUserMenu();
     const { menus } = storeToRefs(user);
-    const router = useRouter();
-    function goto(path: string) {
+    const router = useIonRouter();
+    function gotoEntityView(path: string) {
       router.push('/entity/' + path);
     }
     (window as any).tt = router;
@@ -136,20 +134,24 @@ export default defineComponent({
 
     
     onIonViewWillEnter(() => {
+      // debugger;
       // ionic view will enter;
     });
     onIonViewDidEnter(() => {
+      // debugger;
       // ionic view did enter;
     });
     onIonViewWillLeave(() => {
+      // debugger;
       // ionic view will leave;
     });
     onIonViewDidLeave(() => {
+      // debugger;
       // ionic view did leave;
     });
 
     return {
-      menus, goto, personOutline, homeOutline, menuConnectId, sliderOptions
+      menus, gotoEntityView, personOutline, homeOutline, menuConnectId, sliderOptions
     };
   },
 });
