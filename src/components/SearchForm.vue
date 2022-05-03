@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Entities, getEntityStore } from '@/share/entity';
+import { Entities, EntityAttrType, getEntityStore } from '@/share/entity';
 import { IonList } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
 import { defineComponent, PropType } from 'vue';
@@ -61,9 +61,9 @@ export default defineComponent({
     });
     const onReset = () => {
       fields.value.forEach(field => {
-        if (field.as === 'input') {
+        if ([EntityAttrType.Text, EntityAttrType.Textarea, EntityAttrType.Url].includes(field.type)) {
           field.value = '';
-        }else if (field.as === 'checkbox') {
+        }else if ([EntityAttrType.Checkbox, EntityAttrType.Radio].includes(field.type)) {
           field.value = false;
         }
         

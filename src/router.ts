@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import HomeView from '@/views/HomeView.vue';
 import LoginView from '@/views/LoginView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
-import EntityView from '@/views/EntityView.vue';
+import EntityView from '@/views/entity/EntityView.vue';
 import AboutView from '@/views/AboutView.vue';
 import UserView from '@/views/UserView.vue';
 

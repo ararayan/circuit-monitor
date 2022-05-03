@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { FormField } from '@/share/entity';
+import { EntityAttrType, FormField } from '@/share/entity';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonList, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, loadingController, toastController } from '@ionic/vue';
 import { ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
@@ -43,9 +43,9 @@ export default defineComponent({
 
     const entityName = 'user' as any;
     const fields: FormField[] = [
-      {id: 'userName', label: '用户名', name: 'factoryName', as: 'input', type: 'text', value: '陈志杰', readonly: true, disabled: true, },
-      {id: 'password', label: '新密码', name: 'description', as: 'input', type: 'password', value: '******', readonly: false, disabled: false, },
-      {id: 'passwordConfirm', label: '确认密码', name: 'location', as: 'input', type: 'password', value: '******',  readonly: false, disabled: false,  },
+      {id: 'userName', label: '用户名', name: 'factoryName', type: EntityAttrType.Text, value: '陈志杰', readonly: true, disabled: true, },
+      {id: 'password', label: '新密码', name: 'description', type: EntityAttrType.Password, value: '******', readonly: false, disabled: false, },
+      {id: 'passwordConfirm', label: '确认密码', name: 'location', type: EntityAttrType.Password, value: '******',  readonly: false, disabled: false,  },
     ];
 
     const presentLoading = async (msg: string) => {

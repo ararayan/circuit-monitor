@@ -25,12 +25,11 @@ import EditForm from '@/components/EditForm.vue';
 import { useEntityContext } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButton, IonButtons, useBackButton,
-  IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, loadingController, toastController } from '@ionic/vue';
+  IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, loadingController, toastController, useIonRouter } from '@ionic/vue';
 import { computed, ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'OperationsEditView',
@@ -40,7 +39,7 @@ export default defineComponent({
     EditForm, IonFooter
   },
   setup() {
-    const router = useRouter();
+    const router = useIonRouter();
     const { entityName } = useEntityContext();
     // 遥控执行
     const operator = ref({id: 'apply_for_edit', value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
@@ -116,7 +115,11 @@ export default defineComponent({
       }
     };
     const result = useBackButton(10, () => {
-      router.back();
+      if (router.canGoBack() ) {
+        router.back();
+      }else {
+        router.push(defaultHref);
+      }
     });
     onUnmounted(() => {
       result.unregister();

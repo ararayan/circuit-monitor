@@ -16,7 +16,7 @@ export default defineComponent({
     const type = recordId === undefined || recordId === '' ? EntityViewType.Browse : EntityViewType.Edit;
     const viewName = getViewNameByEntityName(entityName, type);
     const entityComponent = defineAsyncComponent(() =>
-      import(`@/views/${viewName}.vue`)
+      import(`@/views/entity/${viewName}.vue`)
     );
     return {
       entityComponent,

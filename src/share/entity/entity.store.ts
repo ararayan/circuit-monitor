@@ -1,7 +1,8 @@
 import { defineStore, Store, _StoreWithGetters } from 'pinia';
 import { delay, of, take } from 'rxjs';
 import { DataStatus } from '../data.meta';
-import { Entities } from './entity-view-map';
+import { Entities } from './entityViewMap';
+import { EntityAttrType } from './attributes';
 
 export interface EntityRecord {
     id: number;
@@ -15,10 +16,7 @@ export interface FormField{
   id: string;
   label: string;
   name: string;
-  // input, select, checkbox, radio, range
-  as: string; 
-  // type: "date" ｜ "datetime-local" ｜ "email" ｜ "month" ｜ "number" ｜ "password" ｜ "search" ｜ "tel" ｜ "text" ｜ "time" ｜ "url" ｜ "week"
-  type: string; 
+  type: EntityAttrType; 
   value: string | number | boolean;
   readonly: boolean;
   disabled: boolean;
@@ -77,8 +75,11 @@ const entityStoreMap = Object.create(null) as {
 
 //#region temp help
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const _fieldAs = ['input', 'checkbox', 'radio', 'textarea']; // select, range
-const _fieldInputTypes = [ "text" , "number", "date" , "month" , "email" , "password" , "search" , "tel" , "time" , "url" , "week", "datetime-local" ];
+const _fieldInputTypes = [
+  EntityAttrType.Text, EntityAttrType.Numeric, EntityAttrType.Checkbox, EntityAttrType.Radio, EntityAttrType.RadioGroup,
+  EntityAttrType.Select, EntityAttrType.Textarea, 
+  EntityAttrType.DateTime, EntityAttrType.Date, EntityAttrType.Time, 
+  EntityAttrType.Tel, EntityAttrType.Url];
 const entityMappingTitle: Record<Entities, string> = {
   [Entities.Wirings]: '接线图',
   [Entities.Segments]: '间隔图',
@@ -236,15 +237,19 @@ function getWithCreateEntityStore(entityName: string) {
         if (this.$state.searchForm.length) {
           of(entityName).pipe(delay(100), take(1)).subscribe();
         }else {
-          const formFieldLabelTest = ['记录名：', '数量：', '生效日期：', '实施中'];
+          const fakeFields = [
+            {text: '记录名：', type: EntityAttrType.Text, value: '', }, 
+            {text:  '数量：', type: EntityAttrType.Text, value: '', }, 
+            {text:  '日期：', type: EntityAttrType.Date, value: '', }, 
+            {text:  '实施中', type: EntityAttrType.Checkbox, value: false, }, 
+          ];
           of(entityName).pipe(delay(100), take(1)).subscribe(() => {
             const forms = Array.from({ length: 4 }).map((_, i) => ({
               id: `col${i}`,
-              label: `${formFieldLabelTest[i]}`,
+              label: fakeFields[i].text,
               name: `col${i}`,
-              as: i === 3 ? 'checkbox' : 'input',
-              type: i === 3 ?  'checkbox' : _fieldInputTypes[i % _fieldInputTypes.length],
-              value: i === 3  ?  false : '',
+              type: fakeFields[i].type,
+              value: fakeFields[i].value,
               labelPosition: 'fixed', // fixed, floating, stacked
               rules: {},
               readonly: false,
@@ -261,18 +266,18 @@ function getWithCreateEntityStore(entityName: string) {
         }else {
           of(entityName).pipe(delay(100), take(1)).subscribe(() => {
             const forms: FormField[] = [
-              {id: 'factoryName', label: '厂站：', name: 'factoryName', as: 'input', type: 'text', value: '临汾铁路', readonly: true, disabled: false, },
-              {id: 'description', label: '描述：', name: 'description', as: 'input', type: '', value: '2号主变高后备314_开关操作', readonly: true, disabled: false, },
-              {id: 'location', label: '点名：', name: 'location', as: 'input', type: 'text', value: '2号主变高后备314_开关操作',  readonly: true, disabled: false,  },
-              {id: 'currentStatus', label: '当前状态：', name: 'currentStatus', as: 'input', type: 'text', value: '信号复归',  readonly: true, disabled: false,  },
-              {id: 'controlType', label: '遥控类型：', name: 'currentStatus', as: 'select', type: 'text', value: 'control3',  readonly: false, disabled: false, 
+              {id: 'factoryName', label: '厂站：', name: 'factoryName', type: EntityAttrType.Text, value: '临汾铁路', readonly: true, disabled: false, },
+              {id: 'description', label: '描述：', name: 'description', type: EntityAttrType.Text, value: '2号主变高后备314_开关操作', readonly: true, disabled: false, },
+              {id: 'location', label: '点名：', name: 'location', type: EntityAttrType.Text, value: '2号主变高后备314_开关操作',  readonly: true, disabled: false,  },
+              {id: 'currentStatus', label: '当前状态：', name: 'currentStatus', type: EntityAttrType.Text, value: '信号复归',  readonly: true, disabled: false,  },
+              {id: 'controlType', label: '遥控类型：', name: 'currentStatus', type: EntityAttrType.Select, value: 'control3',  readonly: false, disabled: false, 
                 options: [
                   {id: 'control1', value: '遥控1'},
                   {id: 'control2', value: '遥控2'},
                   {id: 'control3', value: '其它'},
                 ]
               },
-              {id: 'powerSwitch', label: '对应：', name: 'powerSwitch', as: 'radioGroup', type: '', value: 'open1',  readonly: false, disabled: false,
+              {id: 'powerSwitch', label: '对应：', name: 'powerSwitch', type: EntityAttrType.RadioGroup, value: 'open1',  readonly: false, disabled: false,
                 options: [
                   {id: 'open1', value: '分闸'},
                   {id: 'close2', value: '合闸'},

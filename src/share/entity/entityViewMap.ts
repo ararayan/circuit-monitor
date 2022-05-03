@@ -54,3 +54,4 @@ export const EntityViewMapping: EntityViews = {
 export function getViewNameByEntityName(entityName: string, type: EntityViewType) {
   return EntityViewMapping[entityName as Entities]?.[type];
 }
+
