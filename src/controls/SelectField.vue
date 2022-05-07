@@ -1,6 +1,6 @@
 
 <template>
-  <ion-item :lines="['input', 'textarea'].includes(attrField.type) ? undefined : 'none'" >
+ <ion-item :lines="attrField.layout?.fieldLines" >
     <ion-label :for="attrField.id">{{ attrField.label }}</ion-label>
      <ion-select @update:modelValue="change(attrField, $event)" :value="attrField.value" :name="attrField.name"
         ok-text="Ok" cancel-text="Cancel" :readonly='attrField.readonly' :disabled="attrField.disabled">

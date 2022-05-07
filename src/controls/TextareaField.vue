@@ -1,5 +1,5 @@
 <template>
-  <ion-item :lines="['input', 'textarea'].includes(attrField.type) ? undefined : 'none'" >
+  <ion-item :lines="attrField.layout?.fieldLines" >
     <ion-label :for="attrField.id">{{ attrField.label }}</ion-label>
       <ion-textarea :value="attrField.value" :readonly='attrField.readonly' :disabled="attrField.disabled" rows="2"
         :name="attrField.name" :id="attrField.id" @update:modelValue="change(attrField, $event)" :debounce="500">

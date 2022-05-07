@@ -8,9 +8,9 @@
             <ion-title center>{{ title }}</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content fullscreen class="ion-padding">
-          <ion-text>未实现画图...</ion-text>
-           <!-- <canvas id="circuit" @click="openModal()"></canvas> -->
+        <ion-content class="ion-padding" style="position: relative;">
+          <canvas id="base-layer-canvas" width="480" height="768"></canvas>
+          <canvas id="dynamic-layer-canvas" width="480" height="768"></canvas>
         </ion-content>
   </ion-page>
 </template>
@@ -18,7 +18,7 @@
 <script lang="ts">
 import { useEntityContext } from '@/share';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonText, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
@@ -192,7 +192,7 @@ const getCircuitCanvas = (id: string) => {
 export default defineComponent({
   name: 'WiringsEditView',
   components: {
-    IonPage,IonHeader, IonContent, IonText,
+    IonPage,IonHeader, IonContent,
     IonButtons, IonBackButton, IonToolbar, IonTitle,
   },
   setup() {
@@ -212,7 +212,35 @@ export default defineComponent({
       // draw.drawInductor();
       // draw.drawResistor();
       // draw.endCircuit();
+      const baseLayerCanvas = document.querySelector('#base-layer-canvas') as HTMLCanvasElement;
+      const baseLayerCtx = baseLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
+      const dynamicLayerCanvas = document.querySelector('#dynamic-layer-canvas') as HTMLCanvasElement;
+      const dynamicLayerCtx = dynamicLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+      const mainViewImage = new Image();
+      mainViewImage.src = 'assets/wirings/Mainview.bmp';
+      mainViewImage.onload = () => {
+        const width = mainViewImage.naturalWidth;
+        const height = mainViewImage.naturalHeight;
+        baseLayerCtx.drawImage(mainViewImage, 0, 0, width, height);
+      };
+      const open0357 = new Image();
+      open0357.src = 'assets/wirings/0357_open.bmp';
+      open0357.onload = () => {
+        const width = open0357.naturalWidth;
+        const height = open0357.naturalHeight;
+        dynamicLayerCtx.drawImage(open0357, 53, 81, width, height);
+      };
+
+      const cls0358 = new Image();
+      cls0358.src = 'assets/wirings/0358_cls.bmp';
+      cls0358.onload = () => {
+        const width = cls0358.naturalWidth;
+        const height = cls0358.naturalHeight;
+        dynamicLayerCtx.drawImage(cls0358, 34, 117, width, height);
+      };
     });
+
     const openModal = async function() {
       // const modal = await modalController.create({
       //   component: 'modal-content',
@@ -232,5 +260,15 @@ export default defineComponent({
 
 .bg-contrast-success {
   background-color: let(--ion-color-success-contrast, #fff);
+}
+#base-layer-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+#dynamic-layer-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>

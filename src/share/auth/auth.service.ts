@@ -18,8 +18,8 @@ class AuthService {
   login(user: RequestUserInfo) {
     return httpService.post<ResponseUserInfo>(APP_URL.Login, user).pipe(
       tap(() => {
-        const abc = {...user, token: '__test_token__'};
-        cacheService.set(CacheKeys.User, abc);
+        cacheService.set(CacheKeys.User, user);
+        cacheService.set(CacheKeys.AccessToken,  '__test_token__');
       })
     );
   }

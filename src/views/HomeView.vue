@@ -34,7 +34,7 @@
           <ion-grid style="max-width: 920px;">
             <ion-row>
               <template v-for="item in menus" :key="item.id">
-                <ion-col size="6" size-sm="6">
+                <ion-col size="4" size-sm="4">
                   <div class="gridcard ion-activatable ripple-parent" @click="gotoEntityView(item.id)">
                     <ion-icon :src="`assets/home/${item.id}.svg`" color="primary" class="gridcard-icon"></ion-icon>
                     <ion-label class="gridcard-text" style="padding-top: 0.75em;">{{ item.name }}</ion-label>

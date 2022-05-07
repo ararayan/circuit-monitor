@@ -1,5 +1,5 @@
 <template>
-  <ion-item :lines="['input', 'textarea'].includes(attrField.type) ? undefined : 'none'" >
+ <ion-item :lines="attrField.layout?.fieldLines" >
     <ion-label :for="attrField.id">{{ attrField.label }}</ion-label>
 <ion-input :readonly='attrField.readonly' :disabled="attrField.disabled" type="time"
         :value="attrField.value" :name="attrField.name" :id="attrField.id"

@@ -22,7 +22,8 @@ const useEntityContext = () => {
     matched.entityName = entityName as Entities;
     matched.recordId = recordId;
   }
-  return matched;
+  
+  return {...matched};
 };
 
 

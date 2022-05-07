@@ -5,38 +5,48 @@
         <!-- <ion-title size="large" class="drawer-header-title">衍能科技</ion-title> -->
       </ion-toolbar>
       <ion-list>
-             <ion-list-header>
+        <ion-list-header>
           <ion-item class="drawer-header-userinfo ion-margin-bottom" lines="none">
-          <ion-avatar slot="start">
-            <ion-img src="assets/user/avatar_1.svg"></ion-img>
-          </ion-avatar>
-          <ion-label>
-            <h3>陈志杰</h3>
-            <p>chezhijie@outlook.com</p>
-          </ion-label>
-        </ion-item>
+            <ion-avatar slot="start">
+              <ion-img src="assets/user/avatar_1.svg"></ion-img>
+            </ion-avatar>
+            <ion-label>
+              <h3>陈志杰</h3>
+              <p>chezhijie@outlook.com</p>
+            </ion-label>
+          </ion-item>
         </ion-list-header>
       </ion-list>
     </ion-header>
     <ion-content style="--ion-background-color: transparent" color="light">
 
       <ion-list color="light">
-        <ion-item color="light" @click="gotoHome()" class="ion-activatable ripple-parent main-menu-item" >
+        <ion-item color="light" @click="gotoHome()" class="ion-activatable ripple-parent main-menu-item">
           <ion-icon :icon="homeOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label class="menu-item-text">首页</ion-label>
-           <ion-ripple-effect></ion-ripple-effect>
+          <ion-ripple-effect></ion-ripple-effect>
 
         </ion-item>
-         <ion-item color="light" @click="gotoUser()" class="ion-activatable ripple-parent main-menu-item" >
+        <ion-item color="light" @click="gotoUser()" class="ion-activatable ripple-parent main-menu-item">
           <ion-icon :icon="settingsOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label>修改密码</ion-label>
-           <ion-ripple-effect></ion-ripple-effect>
+          <ion-ripple-effect></ion-ripple-effect>
         </ion-item>
-        <ion-item color="light" @click="gotoAbout()" class="ion-activatable ripple-parent main-menu-item" >
+        <ion-item color="light" @click="gotoAbout()" class="ion-activatable ripple-parent main-menu-item">
           <ion-icon :icon="bookOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
-          <ion-label >关于</ion-label>
-           <ion-ripple-effect></ion-ripple-effect>
+          <ion-label>关于</ion-label>
+          <ion-ripple-effect></ion-ripple-effect>
         </ion-item>
+        <ion-item color="light" class="ion-activatable ripple-parent main-menu-item">
+          <ion-icon :icon="colorFilterOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
+          <ion-label>版本检查</ion-label>
+          <ion-ripple-effect></ion-ripple-effect>
+        </ion-item>
+        <ion-item>
+          <ion-label>是否推送通知</ion-label>
+          <ion-toggle slot="end" name="grape" color="tertiary" checked></ion-toggle>
+        </ion-item>
+
       </ion-list>
       <!-- <ion-accordion-group>
         <ion-accordion value="colors">
@@ -72,17 +82,17 @@
       </ion-accordion-group> -->
 
     </ion-content>
- 
+
   </ion-menu>
 </template>
 <script lang="ts">
 import { defineComponent, } from 'vue';
 import { toRef } from '@vue/reactivity';
 import {
-  IonHeader, IonListHeader, 
-  IonToolbar, IonContent, IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect,
+  IonHeader, IonListHeader,
+  IonToolbar, IonContent, IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect, IonToggle,
 } from '@ionic/vue';
-import { settingsOutline, homeOutline, bookOutline } from 'ionicons/icons';
+import { settingsOutline, homeOutline, bookOutline, colorFilterOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
@@ -90,7 +100,7 @@ export default defineComponent({
   components: {
     IonHeader, IonToolbar,
     IonContent, IonListHeader,
-    IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon,  IonRippleEffect,
+    IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect, IonToggle,
   },
   props: {
     contentId: {
@@ -111,7 +121,7 @@ export default defineComponent({
       router.push('/about');
     };
 
-    return { menuId, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout};
+    return { menuId, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout, colorFilterOutline };
   }
 });
 </script>
@@ -122,7 +132,8 @@ export default defineComponent({
   background-size: cover;
   padding-top: 1em;
   --background: transparent;
-  height: 11.25em; /*180px*/
+  height: 11.25em;
+  /*180px*/
 }
 
 .drawer-header-title {
@@ -141,7 +152,7 @@ export default defineComponent({
 }
 
 .main-menu-item {
-   /* --padding-start: 0; */
-   --border-color: var(--ion-color-light, #f2f2f2);
+  /* --padding-start: 0; */
+  --border-color: var(--ion-color-light, #f2f2f2);
 }
 </style>

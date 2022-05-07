@@ -1,6 +1,6 @@
 <template>
-    <ion-list v-for="field in fields" :key="field.id">
-      <attr-field :field="field" :entityName="entityName"></attr-field>
+    <ion-list v-for="field in fields" :key="field.id" class="ion-padding-start ion-padding-end">
+        <attr-field :field="field" :entityName="entityName" style="--padding-start: 0; --padding-end: 0"></attr-field>
     </ion-list> 
 </template>
 

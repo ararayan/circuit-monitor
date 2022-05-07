@@ -3,8 +3,8 @@
     <ion-page mode="md">
          <ion-header translucent>
           <ion-toolbar color="primary">
-            <ion-buttons slot="start">
-                <ion-back-button :default-href="defaultHref" ></ion-back-button>
+            <ion-buttons slot="start" >
+                <ion-back-button :default-href="defaultHref"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title + '列表子项' }}</ion-title>
           </ion-toolbar>

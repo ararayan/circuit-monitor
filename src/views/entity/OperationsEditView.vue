@@ -3,7 +3,7 @@
       <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button default-href="defaultHref" ></ion-back-button>
+              <ion-back-button :default-href="defaultHref"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
           </ion-toolbar>
@@ -40,7 +40,8 @@ export default defineComponent({
   },
   setup() {
     const router = useIonRouter();
-    const { entityName } = useEntityContext();
+    const { entityName} = useEntityContext();
+    const defaultHref = entityName ? `/entity/${entityName}` : '/home';
     // 遥控执行
     const operator = ref({id: 'apply_for_edit', value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
     const userStore = useUserStore();
@@ -48,7 +49,6 @@ export default defineComponent({
     const title = computed(() => {
       return menus.value.find(item => item.id === entityName)?.name || '';
     });
-    const defaultHref = entityName ? `/entity/${entityName}` : '/home';
     const presentLoading = async (msg: string) => {
       const loading = await loadingController
         .create({

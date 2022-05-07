@@ -1,6 +1,6 @@
 <template>
-  <ion-item :lines="['input', 'textarea'].includes(attrField.type) ? undefined : 'none'" >
-    <ion-label :for="attrField.id">{{ attrField.label }}</ion-label>
+  <ion-item :lines="attrField.layout?.fieldLines" >
+    <ion-label :for="attrField.id" :position="attrField.layout?.labelPosition">{{ attrField.label }}</ion-label>
       <ion-checkbox slot="start" @update:modelValue="change(attrField, $event)" :value="attrField.value"
         :readonly='attrField.readonly' :disabled="attrField.disabled" :name="attrField.name">
       </ion-checkbox>

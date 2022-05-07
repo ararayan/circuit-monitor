@@ -25,9 +25,11 @@ import './theme/variables.css';
 import { router } from './router';
 import { createPinia } from 'pinia';
 import VueVirtualScroller from 'vue-virtual-scroller';
-import { authGuards } from '@/share';
+import { authGuards, httpService, authInterceptor } from '@/share';
 
 router.beforeEach(authGuards);
+
+httpService.addRequestInterceptor(authInterceptor);
 
 const app = createApp(App)
   .use(IonicVue)

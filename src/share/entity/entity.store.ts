@@ -22,6 +22,10 @@ export interface FormField{
   disabled: boolean;
   options?: Record<string, string>[];
   rules?: any;
+  layout?: {
+    fieldLines: 'full' | 'inset' | 'none';
+    labelPosition: 'stacked' | 'fixed' | 'floating';
+  }
 }
 export interface EntityTabInfo {
   colName: string;
@@ -30,32 +34,46 @@ export interface EntityTabInfo {
   displayName: string;
   selected: boolean;
 }
+enum EntityTrackDataType {
+  Records = 'records',
+  SearchForm = 'searchForm',
+  EditForm = 'editForm',
+  EntityTabs = 'entityTabs',
+}
 
-export interface EntityState {
+interface EntityTrackData extends Record<EntityTrackDataType, unknown>{
+  records: EntityRecord[],
+  searchForm: FormField[],
+  editForm: FormField[],
+  entityTabs: EntityTabInfo[],
+  meta: Record<EntityTrackDataType, DataStatus>
+}
+
+export interface EntityState extends EntityTrackData {
     entityName: string;
     editViewEntityName: Entities;
-    records: EntityRecord[];
     isRecordsInited: boolean;
     pagination: {current: number; pageSize: number; total: number;},
-    entityTabs: EntityTabInfo[];
-    entityTabsLoadStatus: DataStatus,
-    searchForm: FormField[];
-    editForm: FormField[];
 }
 
 const initialState: EntityState = { 
   entityName: '', 
-  records: [] as EntityRecord[],
-  isRecordsInited: false,
-  searchForm: []  as FormField[],
-  editForm: []  as FormField[],
-  editViewEntityName: Entities.Empty,
+  records: [],
+  searchForm: [],
+  editForm: [],
   entityTabs: [],
-  entityTabsLoadStatus: DataStatus.Unloaded,
+  isRecordsInited: false,
+  editViewEntityName: Entities.Empty,
   pagination: {
     current: 0,
     pageSize: 20,
     total: 10
+  },
+  meta: {
+    records: DataStatus.Unloaded,
+    searchForm: DataStatus.Unloaded,
+    editForm: DataStatus.Unloaded,
+    entityTabs: DataStatus.Unloaded,
   }
 };
 
@@ -118,7 +136,7 @@ function getWithCreateEntityStore(entityName: string) {
         });
       },
       getEntityTabs(entityName: Entities) {
-        if (this.entityTabsLoadStatus === DataStatus.Unloaded) {
+        if (this.meta[EntityTrackDataType.EntityTabs] === DataStatus.Unloaded) {
           of(entityName).pipe(take(1)).subscribe(() => {
             const tabs = [
               {
@@ -145,7 +163,9 @@ function getWithCreateEntityStore(entityName: string) {
             ];
             this.$patch({
               entityTabs: tabs,
-              entityTabsLoadStatus: DataStatus.Loaded
+              meta: {
+                [EntityTrackDataType.EntityTabs]: DataStatus.Loaded
+              }
             });
           });
         }
@@ -240,21 +260,25 @@ function getWithCreateEntityStore(entityName: string) {
           const fakeFields = [
             {text: '记录名：', type: EntityAttrType.Text, value: '', }, 
             {text:  '数量：', type: EntityAttrType.Text, value: '', }, 
-            {text:  '日期：', type: EntityAttrType.Date, value: '', }, 
+            {text:  '开始日期：', type: EntityAttrType.DateTime, value: '', }, 
+            {text:  '结束日期：', type: EntityAttrType.DateTime, value: '', }, 
             {text:  '实施中', type: EntityAttrType.Checkbox, value: false, }, 
           ];
           of(entityName).pipe(delay(100), take(1)).subscribe(() => {
-            const forms = Array.from({ length: 4 }).map((_, i) => ({
+            const forms = Array.from({ length: 5 }).map((_, i) => ({
               id: `col${i}`,
               label: fakeFields[i].text,
               name: `col${i}`,
               type: fakeFields[i].type,
               value: fakeFields[i].value,
-              labelPosition: 'fixed', // fixed, floating, stacked
+              layout: {
+                fieldLines:[EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(fakeFields[i].type) ? 'none' : 'full',
+                labelPosition: [EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(fakeFields[i].type) ? 'fixed' :'stacked', // fixed, floating, stacked
+              },
               rules: {},
               readonly: false,
               disabled: false,
-            }));
+            } as FormField));
             this.$state.searchForm = forms;
           });
         }
