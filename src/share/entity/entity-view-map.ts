@@ -1,20 +1,4 @@
-export const enum Entities {
-    Empty = 'empty',
-    Wirings = 'wirings',
-    Segments = 'segments',
-    SegmentsChild = 'segmentsChild',
-    Realtime = 'realtime',
-    Operations = 'operations',
-    LightingControl = 'lightcontrol',
-    // Telesignalling = 'telesignalling',
-    // Telemetry = 'telemetry',
-    Events = 'events',
-}
-export const enum EntityViewType {
-  Browse = 'browse',
-  Edit = 'edit',
-}
-export type EntityViews  =  Record<Entities,{ [EntityViewType.Browse]: string, [EntityViewType.Edit]: string }>;
+import { Entities, EntityViews, EntityViewType } from "./entity.types";
 
 export const EntityViewMapping: EntityViews = {
   [Entities.Empty]: {
