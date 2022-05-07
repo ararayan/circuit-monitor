@@ -108,7 +108,7 @@ import {
 import { useUserStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
 import { personOutline, homeOutline } from 'ionicons/icons';
-import MainMenus from '@/components/MainMenus.vue';
+import MainMenus from '@/components/main-menus.vue';
 
 
 export default defineComponent({

@@ -5,19 +5,19 @@
 <script lang="ts">
 import { Entities, EntityAttrType, FormField } from '@/share/entity';
 import { DefineComponent, defineComponent, PropType } from 'vue';
-import CheckboxField from '@/controls/CheckboxField.vue';
-import DateField from '@/controls/DateField.vue';
-import DateTimeField from '@/controls/DateTimeField.vue';
-import NumericField from '@/controls/NumericField.vue';
-import RadioField from '@/controls/RadioField.vue';
-import RadioGroupField from '@/controls/RadioGroupField.vue';
-import SelectField from '@/controls/SelectField.vue';
-import TelField from '@/controls/TelField.vue';
-import TextareaField from '@/controls/TextareaField.vue';
-import TextField from '@/controls/TextField.vue';
-import TimeField from '@/controls/TimeField.vue';
-import UrlField from '@/controls/UrlField.vue';
-import PasswordField from '@/controls/PasswordField.vue';
+import CheckboxField from '@/controls/checkbox-field.vue';
+import DateField from '@/controls/date-field.vue';
+import DateTimeField from '@/controls/date-time-field.vue';
+import NumericField from '@/controls/numeric-field.vue';
+import RadioField from '@/controls/radio-field.vue';
+import RadioGroupField from '@/controls/radio-group-field.vue';
+import SelectField from '@/controls/select-field.vue';
+import TelField from '@/controls/tel-field.vue';
+import TextareaField from '@/controls/textarea-field.vue';
+import TextField from '@/controls/text-field.vue';
+import TimeField from '@/controls/time-field.vue';
+import UrlField from '@/controls/url-field.vue';
+import PasswordField from '@/controls/password-field.vue';
 
 const EntityAttrControlMap: Record<EntityAttrType, DefineComponent<any, any, any>> = {
   [EntityAttrType.Text]: TextField,

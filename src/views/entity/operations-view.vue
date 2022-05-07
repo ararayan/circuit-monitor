@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-split-pane :contentId="contentId">
-      <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
+       <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
       <div class="ion-page segments-view" :id="contentId">
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts">
-import SearchFormPanel from '@/components/SearchFormPanel.vue';
+import SearchFormPanel from '@/components/search-form-panel.vue';
 import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
 import { getEntityStore } from '@/share/entity';
 import { IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
@@ -66,7 +66,7 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 */
 
 export default defineComponent({
-  name: 'WiringsView', // 分隔图tab
+  name: 'OperationsView',
   components: {
     IonPage,
     IonHeader,
@@ -88,7 +88,7 @@ export default defineComponent({
     const virtualScroller = ref(null) as Ref<any>;
     entityStore.initEditViewEntity(entityName);
     entityStore.getSearchForm(entityName);
-    
+
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
     const { title } = useEntityDisplayName(entityName);

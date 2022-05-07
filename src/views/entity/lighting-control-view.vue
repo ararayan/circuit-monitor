@@ -1,5 +1,5 @@
 <template>
-  <ion-page mode="md">
+  <ion-page>
     <ion-split-pane :contentId="contentId">
       <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
       <div class="ion-page segments-view" :id="contentId">
@@ -21,16 +21,13 @@
             <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
-                <ion-item @click="openRecord(item)" class="entity-list-item">
-                  <ion-avatar slot="start">
-                    <img :src="item.avatar" />
-                  </ion-avatar>
-                  <ion-label siz>
+                <ion-item>
+                  <ion-label>
                     <h2>{{ item.displayName }}</h2>
-                    <i>{{ item.colA }}</i>
+                    <h3>{{ item.colA }}</h3>
                     <p>{{ item.colB }}</p>
                   </ion-label>
-                  <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
+                   <ion-toggle slot="end" name="grape" color="warning" :checked="item.controlCol"></ion-toggle>
                 </ion-item>
               </template>
               <template #after>
@@ -49,25 +46,19 @@
 </template>
 
 <script lang="ts">
-import SearchFormPanel from '@/components/SearchFormPanel.vue';
+import SearchFormPanel from '@/components/search-form-panel.vue';
 import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
-import { destoryEntityStore, getEntityStore } from '@/share/entity';
-import { IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
+import { getEntityStore } from '@/share/entity';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToggle, IonToolbar } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { defineComponent, onUnmounted } from 'vue';
+import { defineComponent } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
-/* 
-  ion-content-scroll-host
-  Ionic Framework requires that features such as collapsible large titles,
-  ion-infinite-scroll, ion-refresher, and ion-reorder-group be used within an ion-content.
-  To use these experiences with virtual scrolling, you must add the .ion-content-scroll-host class to the virtual scroll viewport.
-*/
 
 export default defineComponent({
-  name: 'SegmentsView', // 分隔图tab
-  components: {
+  name: 'LightingControlView', // 分隔图tab
+  components: { IonToggle,
     IonPage,
     IonHeader,
     IonToolbar,
@@ -75,7 +66,6 @@ export default defineComponent({
     IonList,
     IonItem,
     IonContent,
-    IonAvatar,
     IonLabel,
     SearchFormPanel,
     RecycleScroller,
@@ -89,22 +79,14 @@ export default defineComponent({
     entityStore.initEditViewEntity(entityName);
     entityStore.getSearchForm(entityName);
 
-    const { title } = useEntityDisplayName(entityName);
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
 
-    const { loadData, openRecord, records } = useEntityRecords(entityName, virtualScroller);
+    const { title } = useEntityDisplayName(entityName);
 
-    const result = useBackButton(11, (next) => {
-      next();
-    });
-    onUnmounted(() => {
-      result.unregister();
-      destoryEntityStore(entityName);
-    });
-  
+    const { loadData, records } = useEntityRecords(entityName, virtualScroller);
     return {
-      openRecord, entityName, menuId, contentId,
+      entityName, menuId, contentId,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
@@ -114,8 +96,5 @@ export default defineComponent({
 .scroller {
   /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
   height: 100%;
-}
-.entity-list-item {
-  --border-color: var(--ion-color-light, #f2f2f2);
 }
 </style>

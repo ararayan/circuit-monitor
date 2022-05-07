@@ -18,36 +18,36 @@ export type EntityViews  =  Record<Entities,{ [EntityViewType.Browse]: string, [
 
 export const EntityViewMapping: EntityViews = {
   [Entities.Empty]: {
-    [EntityViewType.Browse]: 'NotFoundView',
-    [EntityViewType.Edit]: 'NotFoundView',
+    [EntityViewType.Browse]: 'not-found-view',
+    [EntityViewType.Edit]: 'not-found-view',
   },
   [Entities.Wirings]: {
-    [EntityViewType.Browse]: 'WiringsView',
-    [EntityViewType.Edit]: 'WiringsEditView',
+    [EntityViewType.Browse]: 'wirings-view',
+    [EntityViewType.Edit]: 'wirings-edit-view',
   },
   [Entities.Segments]: {
-    [EntityViewType.Browse]: 'SegmentsView',
-    [EntityViewType.Edit]: 'SegmentsEditView',
+    [EntityViewType.Browse]: 'segments-view',
+    [EntityViewType.Edit]: 'segments-view',
   },
   [Entities.SegmentsChild]: {
-    [EntityViewType.Browse]: 'SegmentsChildView',
-    [EntityViewType.Edit]: 'SegmentsChildEditView',
+    [EntityViewType.Browse]: 'segments-child-view',
+    [EntityViewType.Edit]: 'segments-child-view',
   },
   [Entities.Realtime]: {
-    [EntityViewType.Browse]: 'RealtimeView',
-    [EntityViewType.Edit]: '',
+    [EntityViewType.Browse]: 'realtime-view',
+    [EntityViewType.Edit]: 'realtime-view',
   },
   [Entities.Operations]: {
-    [EntityViewType.Browse]: 'OperationsView',
-    [EntityViewType.Edit]: 'OperationsEditView',
+    [EntityViewType.Browse]: 'operations-view',
+    [EntityViewType.Edit]: 'operations-edit-view',
   },
   [Entities.LightingControl]: {
-    [EntityViewType.Browse]: 'LightingControlView',
-    [EntityViewType.Edit]: '',
+    [EntityViewType.Browse]: 'lighting-control-view',
+    [EntityViewType.Edit]: 'lighting-control-view',
   },
   [Entities.Events]: {
-    [EntityViewType.Browse]: 'EventsView',
-    [EntityViewType.Edit]: '',
+    [EntityViewType.Browse]: 'events-view',
+    [EntityViewType.Edit]: 'events-view',
   },
 };
 

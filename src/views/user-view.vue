@@ -28,7 +28,7 @@ import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader,
 import { ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { defineComponent } from 'vue';
-import AttrField from '@/components/AttrField.vue';
+import AttrField from '@/components/attr-field.vue';
 
 export default defineComponent({
   name: 'UserView',

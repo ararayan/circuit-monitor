@@ -1,7 +1,7 @@
 import { defineStore, Store, _StoreWithGetters } from 'pinia';
 import { delay, of, take } from 'rxjs';
 import { DataStatus } from '../data.meta';
-import { Entities } from './entityViewMap';
+import { Entities } from './entity-view-map';
 import { EntityAttrType } from './attributes';
 
 export interface EntityRecord {

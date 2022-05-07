@@ -1,11 +1,11 @@
 import { RouteRecordRaw } from "vue-router";
 import { createRouter, createWebHistory } from '@ionic/vue-router';
-import HomeView from '@/views/HomeView.vue';
-import LoginView from '@/views/LoginView.vue';
-import NotFoundView from '@/views/NotFoundView.vue';
-import EntityView from '@/views/entity/EntityView.vue';
-import AboutView from '@/views/AboutView.vue';
-import UserView from '@/views/UserView.vue';
+import HomeView from '@/views/home-view.vue';
+import LoginView from '@/views/login-view.vue';
+import NotFoundView from '@/views/not-found-view.vue';
+import EntityView from '@/views/entity/entity-view.vue';
+import AboutView from '@/views/about-view.vue';
+import UserView from '@/views/user-view.vue';
 
 let anyCount = 0;
 export const routes: Array<RouteRecordRaw> = [

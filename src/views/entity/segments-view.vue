@@ -1,5 +1,5 @@
 <template>
-  <ion-page>
+  <ion-page mode="md">
     <ion-split-pane :contentId="contentId">
       <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
       <div class="ion-page segments-view" :id="contentId">
@@ -21,12 +21,16 @@
             <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
-                <ion-item>
-                  <ion-label>
+                <ion-item @click="openRecord(item)" class="entity-list-item">
+                  <ion-avatar slot="start">
+                    <img :src="item.avatar" />
+                  </ion-avatar>
+                  <ion-label siz>
                     <h2>{{ item.displayName }}</h2>
-                    <h3>{{ item.colA }}</h3>
+                    <i>{{ item.colA }}</i>
                     <p>{{ item.colB }}</p>
                   </ion-label>
+                  <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
                 </ion-item>
               </template>
               <template #after>
@@ -45,13 +49,13 @@
 </template>
 
 <script lang="ts">
-import SearchFormPanel from '@/components/SearchFormPanel.vue';
+import SearchFormPanel from '@/components/search-form-panel.vue';
 import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
-import { getEntityStore } from '@/share/entity';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { destoryEntityStore, getEntityStore } from '@/share/entity';
+import { IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { defineComponent } from 'vue';
+import { defineComponent, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 /* 
@@ -62,7 +66,7 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 */
 
 export default defineComponent({
-  name: 'EventsView', 
+  name: 'SegmentsView', // 分隔图tab
   components: {
     IonPage,
     IonHeader,
@@ -71,6 +75,7 @@ export default defineComponent({
     IonList,
     IonItem,
     IonContent,
+    IonAvatar,
     IonLabel,
     SearchFormPanel,
     RecycleScroller,
@@ -84,14 +89,22 @@ export default defineComponent({
     entityStore.initEditViewEntity(entityName);
     entityStore.getSearchForm(entityName);
 
+    const { title } = useEntityDisplayName(entityName);
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
-    const { title } = useEntityDisplayName(entityName);
 
-    const { loadData, records } = useEntityRecords(entityName, virtualScroller);
+    const { loadData, openRecord, records } = useEntityRecords(entityName, virtualScroller);
 
+    const result = useBackButton(11, (next) => {
+      next();
+    });
+    onUnmounted(() => {
+      result.unregister();
+      destoryEntityStore(entityName);
+    });
+  
     return {
-      entityName, menuId, contentId,
+      openRecord, entityName, menuId, contentId,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
@@ -101,5 +114,8 @@ export default defineComponent({
 .scroller {
   /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
   height: 100%;
+}
+.entity-list-item {
+  --border-color: var(--ion-color-light, #f2f2f2);
 }
 </style>

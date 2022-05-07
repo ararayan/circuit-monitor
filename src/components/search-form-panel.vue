@@ -34,7 +34,7 @@ import { IonButton, IonButtons, IonContent,
 import { ref, toRefs } from '@vue/reactivity';
 import { closeOutline } from 'ionicons/icons';
 import { defineComponent, PropType } from 'vue';
-import SearchForm, { SysFormComponent } from './SearchForm.vue';
+import SearchForm, { SysFormComponent } from './search-form.vue';
 import { menuController } from "@ionic/vue";
 
 

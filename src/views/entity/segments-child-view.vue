@@ -19,8 +19,8 @@
 </template>
 
 <script lang="ts">
-import EntityList from '@/components/EntityList.vue';
-import EntityTab from '@/components/EntityTab.vue';
+import EntityList from '@/components/entity-list.vue';
+import EntityTab from '@/components/entity-tab.vue';
 import { destoryEntityStore } from '@/share/entity';
 import { useEntityContext, useEntityDisplayName, useEntityTab } from '@/share/hooks';
 import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonPage, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';

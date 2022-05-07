@@ -1,3 +1,3 @@
 export * from './entity.store';
-export * from './entityViewMap';
+export * from './entity-view-map';
 export * from './attributes';

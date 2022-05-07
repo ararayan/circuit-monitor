@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import EditForm from '@/components/EditForm.vue';
+import EditForm from '@/components/edit-form.vue';
 import { useEntityContext } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButton, IonButtons, useBackButton,

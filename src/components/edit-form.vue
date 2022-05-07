@@ -11,7 +11,7 @@ import { storeToRefs } from 'pinia';
 import { defineComponent, PropType } from 'vue';
 // import { useForm } from "vee-validate";
 // import { computed } from '@vue/reactivity';
-import AttrField from './AttrField.vue';
+import AttrField from '@/components/attr-field.vue';
 
 
 // not export interface: node_modules\vee-validate\dist\vee-validate.d.ts
