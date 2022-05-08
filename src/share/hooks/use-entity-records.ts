@@ -24,7 +24,6 @@ const useEntityRecords = (entityName: Entities, virtualScroller: Ref<any>) => {
     }, 1000);
   }
   function openRecord(item: EntityRecord) {
-    entityStore.editViewEntityName;
     if (entityStore.editViewEntityName !== entityName) {
       const parentRecordId = item.id;
       const parentEntityName = entityName;

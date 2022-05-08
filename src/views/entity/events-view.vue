@@ -79,10 +79,7 @@ export default defineComponent({
   },
   setup() {
     const { entityName } = useEntityContext();
-    const entityStore = getEntityStore(entityName);
     const virtualScroller = ref(null) as Ref<any>;
-    entityStore.initEditViewEntity(entityName);
-    entityStore.getSearchForm(entityName);
 
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);

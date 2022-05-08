@@ -66,7 +66,6 @@ export interface EntityTrackData extends Record<EntityTrackDataType, unknown>{
 export interface EntityState extends EntityTrackData {
     entityName: string;
     editViewEntityName: Entities;
-    isRecordsInited: boolean;
     pagination: {current: number; pageSize: number; total: number;},
 }
 

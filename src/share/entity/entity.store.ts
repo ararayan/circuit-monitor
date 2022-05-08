@@ -1,5 +1,5 @@
 import { defineStore, Store, _StoreWithGetters } from 'pinia';
-import { delay, of, take } from 'rxjs';
+import { catchError, delay, of, take } from 'rxjs';
 import { DataStatus } from '../data.meta';
 import { getEditForm$, getSearchForm$ } from './entity.service';
 import { Entities, EntityRecord, EntityState, EntityTrackDataType } from './entity.types';
@@ -13,7 +13,6 @@ const initialState: EntityState = {
   searchForm: [],
   editForm: [],
   entityTabs: [],
-  isRecordsInited: false,
   editViewEntityName: Entities.Empty,
   pagination: {
     current: 0,
@@ -30,7 +29,6 @@ const initialState: EntityState = {
 
 const entityStoreMap = Object.create(null) as {
   [key: string]: Store<string, EntityState, _StoreWithGetters<any>, {
-    initEditViewEntity(type: Entities): void;
     getEntityTabs(entityName: Entities): void;
     selectEntityTab(tabId: string): void;
     getRecords(entityName: Entities, data: any): void;
@@ -58,65 +56,16 @@ const entityMappingTitle: Record<Entities, string> = {
 };
 //#endregion
 
-function getWithCreateEntityStore(entityName: string) {
+function getWithCreateEntityStore(entityName: Entities) {
   if(entityStoreMap[entityName]) {
     return entityStoreMap[entityName];
   }
   const store = defineStore(entityName, {
     state: () => {
-      return {...initialState, entityName};
-    },
-    getters: {
-      isAllRecordsLoaded: (state) => {
-        return state.pagination.current === state.pagination.total;
-      }
+      const editViewEntityName =  entityName === Entities.Segments ?  Entities.SegmentsChild : entityName;
+      return {...initialState, entityName, editViewEntityName};
     },
     actions: {
-      initEditViewEntity(entityName: Entities) {
-        of(entityName).pipe(take(1)).subscribe(() => {
-          if (entityName === Entities.Segments) {
-            this.$state.editViewEntityName = Entities.SegmentsChild;
-          }else {
-            this.$state.editViewEntityName = entityName;
-          }
-
-        });
-      },
-      getEntityTabs(entityName: Entities) {
-        if (this.meta[EntityTrackDataType.EntityTabs] === DataStatus.Unloaded) {
-          of(entityName).pipe(take(1)).subscribe(() => {
-            const tabs = [
-              {
-                colName: 'colC',
-                id: 't1',
-                value: 't1',
-                displayName: '遙信',
-                selected: true
-              },
-              {
-                colName: 'colC',
-                id: 't2',
-                value: 't2',
-                displayName: '遥测',
-                selected: false
-              },
-              {
-                colName: 'colC',
-                id: 't3',
-                value: 't3',
-                displayName: '遥脉',
-                selected: false
-              },
-            ];
-            this.$patch({
-              entityTabs: tabs,
-              meta: {
-                [EntityTrackDataType.EntityTabs]: DataStatus.Loaded
-              }
-            });
-          });
-        }
-      },
       getRecords(entityName: Entities, data: {init?: boolean, nextPage?: boolean, tabId?: string, search?: Record<string, any>}) {
         //WIP
         // if (this.records.length) {
@@ -200,17 +149,82 @@ function getWithCreateEntityStore(entityName: string) {
         }
 
       },
+      getEntityTabs(entityName: Entities) {
+        if (![DataStatus.Loaded, DataStatus.Loading].includes(this.$state.meta[EntityTrackDataType.EntityTabs])) {
+          of(entityName).pipe(take(1)).subscribe(() => {
+            const tabs = [
+              {
+                colName: 'colC',
+                id: 't1',
+                value: 't1',
+                displayName: '遙信',
+                selected: true
+              },
+              {
+                colName: 'colC',
+                id: 't2',
+                value: 't2',
+                displayName: '遥测',
+                selected: false
+              },
+              {
+                colName: 'colC',
+                id: 't3',
+                value: 't3',
+                displayName: '遥脉',
+                selected: false
+              },
+            ];
+            this.$patch({
+              [EntityTrackDataType.EntityTabs]: tabs,
+              meta: {
+                [EntityTrackDataType.EntityTabs]: DataStatus.Loaded
+              }
+            });
+          });
+        }
+      },
       getSearchForm(entityName: Entities) {
-        if (!this.$state.searchForm.length) {
-          getSearchForm$(entityName).subscribe(forms => {
-            this.$state.searchForm = forms;
+        if (![DataStatus.Loaded, DataStatus.Loading].includes(this.$state.meta[EntityTrackDataType.SearchForm])) {
+          getSearchForm$(entityName).pipe(
+            catchError(err => {
+              this.$patch({
+                meta: {
+                  [EntityTrackDataType.SearchForm]: DataStatus.Error
+                }
+              });
+              return of(err);
+            }),
+            take(1),
+          ).subscribe(forms => {
+            this.$patch({
+              [EntityTrackDataType.SearchForm]: forms,
+              meta: {
+                [EntityTrackDataType.SearchForm]: DataStatus.Loaded
+              }
+            });
           });
         }
       },
       getEditForm(entityName: Entities) {
-        if (!this.$state.editForm.length) {
-          getEditForm$(entityName).subscribe(forms => {
-            this.$state.editForm = forms;
+        if (![DataStatus.Loaded, DataStatus.Loading].includes(this.$state.meta[EntityTrackDataType.EditForm])){
+          getEditForm$(entityName).pipe(
+            catchError(err => {
+              this.$patch({
+                meta: {
+                  [EntityTrackDataType.EditForm]: DataStatus.Error
+                }
+              });
+              return of(err);
+            }),
+            take(1),
+          ).subscribe(forms => {
+            this.$patch({
+              [EntityTrackDataType.EditForm]: forms,
+              meta: {
+                [EntityTrackDataType.EditForm]: DataStatus.Loaded
+              }
+            });
           });
         }
       },
@@ -224,12 +238,12 @@ function getWithCreateEntityStore(entityName: string) {
   return _store;
 }
 
-export function destoryEntityStore(entityName: string) {
+export function destoryEntityStore(entityName: Entities) {
   const store = entityStoreMap[entityName];
   store?.$dispose();
   delete entityStoreMap[entityName];
 }
 
-export function getEntityStore(entityName: string) {
+export function getEntityStore(entityName: Entities) {
   return getWithCreateEntityStore(entityName);
 }
