@@ -1,6 +1,6 @@
 <template>
     <ion-list v-for="field in fields" :key="field.id" class="ion-padding-start ion-padding-end">
-        <attr-field :field="field" :entityName="entityName" style="--padding-start: 0; --padding-end: 0"></attr-field>
+        <attr-field :field="field" :formName="entityName" style="--padding-start: 0; --padding-end: 0"></attr-field>
     </ion-list> 
 </template>
 
@@ -43,6 +43,7 @@ export default defineComponent({
   setup(props) {
     const entityStore = getEntityStore(props.entityName);
     const { searchForm: fields } = storeToRefs(entityStore);
+    entityStore.getSearchForm(props.entityName);
     // validate
     function validateFn(value: any, ctx: FieldValidationMetaInfo) {
       return true;

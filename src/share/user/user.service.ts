@@ -67,6 +67,14 @@ class UserService {
       }),
     );
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  checkPassword(useId: string, password: string) {
+    return httpService.post<{canAccess: boolean}>(APP_URL.CheckPassword).pipe(
+      map(() => {
+        return !!((Math.random() * 10) % 2);
+      }),
+    );
+  }
 }
 
 export const userService = new UserService();

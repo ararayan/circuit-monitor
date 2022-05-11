@@ -19,7 +19,7 @@ import TimeField from '@/controls/time-field.vue';
 import UrlField from '@/controls/url-field.vue';
 import PasswordField from '@/controls/password-field.vue';
 
-const EntityAttrControlMap: Record<EntityAttrType, DefineComponent<any, any, any>> = {
+const EntityAttrControlMap: Record<EntityAttrType, any> = {
   [EntityAttrType.Text]: TextField,
   [EntityAttrType.Password]: PasswordField,
   [EntityAttrType.Numeric]: NumericField,
@@ -39,7 +39,7 @@ export default defineComponent({
   name: 'AttrField',
   components: {CheckboxField, DateField, DateTimeField, NumericField, RadioField, RadioGroupField, SelectField, TelField, TextareaField, TextField, TimeField, UrlField },
   props: {
-    entityName: { type: String as PropType<Entities>, required: true },
+    formName: { type: String as PropType<Entities>, required: true },
     field: { type: Object as PropType<FormField>, required: true }
   },
   setup(props) {

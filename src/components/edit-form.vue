@@ -1,6 +1,6 @@
 <template>
     <ion-list v-for="field in fields" :key="field.id">
-      <attr-field :field="field" :entityName="entityName"></attr-field>
+      <attr-field :field="field" :formName="entityName"></attr-field>
     </ion-list> 
 </template>
 

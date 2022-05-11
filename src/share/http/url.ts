@@ -3,4 +3,5 @@ export enum APP_URL {
     Login = '/login',
     Logout = '/logout',
     GetUserMenus = '/getUserMenus',
+    CheckPassword = '/checkPassword',
 }

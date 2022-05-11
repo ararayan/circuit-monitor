@@ -18,7 +18,7 @@ import { Entities, FormField } from '@/share/entity';
 import { IonSelect, IonSelectOption, IonLabel, IonItem, } from '@ionic/vue';
 import { toRefs } from '@vue/reactivity';
 import { defineComponent, PropType } from 'vue';
-import { useVeeField } from './useVeeField';
+import { UpdateValueEventName, useVeeField } from './useVeeField';
 
 
 
@@ -26,13 +26,13 @@ export default defineComponent({
   name: 'SelectField',
   components: { IonSelect, IonSelectOption, IonLabel, IonItem },
   props: {
-    entityName: { type: String as PropType<Entities>, required: true },
+    formName: { type: String as PropType<Entities | string>, required: true },
     field: { type: Object as PropType<FormField>, required: true },
-    labelPosition: { type: String, required: false, default: 'fixed' }
   },
-  setup(props) {
+  emits: [UpdateValueEventName],
+  setup(props, {emit}) {
     const { field: attrField } = toRefs(props);
-    const { change } = useVeeField(attrField, props.entityName);
+    const { change } = useVeeField(attrField, props.formName, emit);
 
     return {
       attrField,

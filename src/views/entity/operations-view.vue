@@ -21,7 +21,7 @@
             <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
-                <ion-item @click="openRecord(item)">
+                <ion-item @click="editRecord(item)">
                   <ion-avatar slot="start">
                     <img :src="item.avatar" />
                   </ion-avatar>
@@ -45,19 +45,21 @@
         </ion-content>
       </div>
     </ion-split-pane>
+    
+  <ensure-password-modal :is-open="isOpenEnsurePwModal" @update:password="submitPassword($event)"></ensure-password-modal>
   </ion-page>
 </template>
 
 <script lang="ts">
+import EnsurePasswordModal from '@/components/ensure-password-modal.vue';
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
-import { getEntityStore } from '@/share/entity';
+import { EntityRecord, FormField, useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
+import { useEnsurePassword } from '@/share/hooks/use-ensure-password';
 import { IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { defineComponent } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
-
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -79,21 +81,49 @@ export default defineComponent({
     IonLabel,
     SearchFormPanel,
     RecycleScroller,
-    IonInfiniteScroll, 
+    IonInfiniteScroll, EnsurePasswordModal,
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
     const { entityName } = useEntityContext();
     const virtualScroller = ref(null) as Ref<any>;
-
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
     const { title } = useEntityDisplayName(entityName);
-
+    const isOpenEnsurePwModal = ref(false);
     const { loadData, openRecord, records } = useEntityRecords(entityName, virtualScroller);
-
+    const { setPendingOpenRecord, openRecordByCheckPassword } = useEnsurePassword(openRecord);
+    const editRecord = (item: EntityRecord) => {
+      isOpenEnsurePwModal.value = true;
+      setPendingOpenRecord(item);
+    };
+    function submitPassword(password: FormField) {
+      openRecordByCheckPassword(password.value as string);
+      isOpenEnsurePwModal.value = false;
+    }
+    // const openModal = async function() {
+    //   const modal = await modalController
+    //     .create({
+    //       id: 'pw_modal_1',
+    //       cssClass: 'auto-height',
+    //       backdropDismiss: true,
+    //       swipeToClose: true,
+    //       component: EnsurePasswordModal,
+    //       componentProps: {
+    //         modalId: 'pw_modal_1'
+    //       },
+    //     }) as Components.IonModal;
+    //   await modal.present();
+    //   modal.canDismiss = () => {
+    //     return Promise.resolve(false);
+    //   };
+    //   debugger;
+    //   const abc =  await modal.onDidDismiss<string>();
+    //   debugger;
+    //   return abc;
+    // };
     return {
-      openRecord, entityName, menuId, contentId,
+      openRecord, entityName, menuId, contentId, editRecord, isOpenEnsurePwModal, submitPassword,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
@@ -104,4 +134,18 @@ export default defineComponent({
   /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
   height: 100%;
 }
+
+ion-modal.auto-height {
+    --height: auto;
+}
+ion-modal.auto-height .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+}
+ion-modal.auto-height .ion-page .inner-content {
+    max-height: 80vh;
+    overflow: auto;
+}
+
 </style>

@@ -1,11 +1,22 @@
-import { AxiosRequestConfig } from 'axios';
-import { CacheKeys, cacheService } from '../cache.service';
+import { router } from '@/router';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { YNCacheKey, cacheService } from '../cache.service';
 
-function authInterceptor (config: AxiosRequestConfig) {
-  const token = cacheService.get(CacheKeys.AccessToken);
+function authRequestInterceptor (config: AxiosRequestConfig) {
+  const token = cacheService.get(YNCacheKey.AccessToken);
   config.headers = config.headers || {};
   config.headers['x-token'] = token;
-  return Promise.resolve(config);
+  return config;
 }
 
-export { authInterceptor };
+async function authResponseErrorInterceptor (error: AxiosResponse) {
+  const originalConfig = error.config;
+  if (error.status === 401) {
+    router.replace({
+      path: '/login',
+      query: {redirect: router.currentRoute.value.fullPath}
+    });
+  }
+  return Promise.reject(error);
+}
+export { authRequestInterceptor, authResponseErrorInterceptor };

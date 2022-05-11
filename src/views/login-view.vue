@@ -28,6 +28,12 @@
             </ion-label>
             <ion-input name="password" type="password" v-model="form.password"></ion-input>
           </ion-item>
+                     <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none">
+    <ion-label for="test1" >记住密码</ion-label>
+      <ion-checkbox slot="start" v-model="form.remenberPassword"
+       id="test1">
+      </ion-checkbox>
+  </ion-item>
           <ion-button size="large" type="submit" expand="block" @click="login()" class="ion-margin">
             <ion-label>登陆</ion-label>
             <ion-icon slot="end" :icon="arrowForwardCircleOutline"></ion-icon>
@@ -41,31 +47,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeUnmount, onUnmounted, reactive } from 'vue';
+import { defineComponent, onBeforeUnmount, onUnmounted } from 'vue';
 import {
   IonPage, IonContent, IonItem, IonInput, IonButton, IonImg,
-  IonLabel, IonIcon, IonCard, IonCardHeader, IonNote,
+  IonLabel, IonIcon, IonCard, IonCardHeader, IonNote, IonCheckbox,
   IonCardContent, IonCardTitle
 } from '@ionic/vue';
 import { useUserStore } from '@/share/user';
 import { useRouter } from 'vue-router';
 import { personCircleOutline, lockClosedOutline, arrowForwardCircleOutline } from 'ionicons/icons';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
   name: 'LoginView',
   components: {
     IonPage, IonContent, IonItem, IonInput, IonButton, IonLabel, IonIcon, IonCardTitle, IonNote, IonImg,
-    IonCard, IonCardHeader, IonCardContent
+    IonCard, IonCardHeader, IonCardContent, IonCheckbox,
   },
   setup() {
     const userStore = useUserStore();
+    const { user: form } = storeToRefs(userStore);
     const router = useRouter();
-    const form = reactive({
-      userName: '',
-      password: ''
-    });
     function login() {
-      const data = { ...form };
+      const data = { 
+        userName: form.value.userName,
+        password: form.value.password,
+        remenberPassword: form.value.remenberPassword,
+      };
       userStore.login(data);
 
     }

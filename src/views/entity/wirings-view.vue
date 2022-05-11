@@ -51,7 +51,6 @@
 <script lang="ts">
 import SearchFormPanel from '@/components/search-form-panel.vue';
 import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
-import { getEntityStore } from '@/share/entity';
 import { IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
