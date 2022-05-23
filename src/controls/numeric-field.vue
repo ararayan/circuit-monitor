@@ -1,6 +1,6 @@
 <template>
-<ion-item :lines="attrField.layout?.fieldLines" >
-    <ion-label :for="attrField.id">{{ attrField.label }}</ion-label>
+<ion-item :lines="attrField.layout?.fieldLines" :class="{'fill-wrapper': attrField.layout?.isHideLabel}">
+    <ion-label :for="attrField.id" :hidden="attrField.layout?.isHideLabel">{{ attrField.label }}</ion-label>
 <ion-input :readonly='attrField.readonly' :disabled="attrField.disabled" type="number"
         :value="attrField.value" :name="attrField.name" :id="attrField.id"
         @update:modelValue="change(attrField, $event)"></ion-input>
@@ -35,3 +35,10 @@ export default defineComponent({
   },
 });
 </script>
+
+<style>
+.fill-wrapper{
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+</style>

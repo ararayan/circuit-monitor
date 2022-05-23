@@ -35,8 +35,9 @@ export interface FormField{
   options?: Record<string, string>[];
   rules?: any;
   layout?: {
-    fieldLines: 'full' | 'inset' | 'none';
-    labelPosition: 'stacked' | 'fixed' | 'floating';
+    fieldLines?: 'full' | 'inset' | 'none';
+    labelPosition?: 'stacked' | 'fixed' | 'floating';
+    isHideLabel?: boolean;
   }
 }
 export interface EntityTabInfo {

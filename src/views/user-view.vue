@@ -10,7 +10,7 @@
         </ion-header>
         <ion-content fullscreen class="ion-padding">
             <ion-list v-for="field in fields" :key="field.id">
-                <attr-field :field="field" :entityName="entityName"></attr-field>
+                <attr-field :field="field" :formName="entityName"></attr-field>
             </ion-list> 
         </ion-content>
         <ion-footer style="padding: 0.4em 1em; display: flex; width: 100%; justify-content: center;" :class="[operator.cssClass]">

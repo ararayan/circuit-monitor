@@ -10,7 +10,7 @@
         </ion-header>
         <ion-content class="ion-padding" style="position: relative;">
           <canvas id="base-layer-canvas" width="480" height="768"></canvas>
-          <canvas id="dynamic-layer-canvas" width="480" height="768"></canvas>
+          <canvas id="dynamic-layer-canvas" width="480" height="768" @pointerdown="edit($event)"></canvas>
         </ion-content>
   </ion-page>
 </template>
@@ -188,6 +188,9 @@ const getCircuitCanvas = (id: string) => {
   };
 };
 
+function isPointInRect(point: {x: number; y: number;}, rect: {left: number; top: number; right: number; bottom: number} ) {
+  return rect.left <= point.x && point.x <= rect.right && rect.top <= point.y && point.y <= rect.bottom;
+}
 
 export default defineComponent({
   name: 'WiringsEditView',
@@ -240,6 +243,11 @@ export default defineComponent({
         dynamicLayerCtx.drawImage(cls0358, 34, 117, width, height);
       };
     });
+    const edit = function (event: PointerEvent) {
+      const x = event.clientX;
+      const y = event.clientY;
+      
+    };
 
     const openModal = async function() {
       // const modal = await modalController.create({
@@ -249,7 +257,7 @@ export default defineComponent({
       // modal.present();
       // return modal;
     };
-    return {entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, openModal};
+    return {entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, openModal, edit};
   }
 });
 </script>

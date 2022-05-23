@@ -46,7 +46,7 @@
       </div>
     </ion-split-pane>
     
-  <ensure-password-modal :is-open="isOpenEnsurePwModal" @update:password="submitPassword($event)"></ensure-password-modal>
+  <ensure-password-modal :is-open="isOpenEnsurePwModal" @update:password="submitPassword($event)" @update:close="modalClose()"></ensure-password-modal>
   </ion-page>
 </template>
 
@@ -122,8 +122,13 @@ export default defineComponent({
     //   debugger;
     //   return abc;
     // };
+    function modalClose() {
+      debugger;
+      isOpenEnsurePwModal.value = false;
+    }
+    
     return {
-      openRecord, entityName, menuId, contentId, editRecord, isOpenEnsurePwModal, submitPassword,
+      openRecord, entityName, menuId, contentId, editRecord, isOpenEnsurePwModal, submitPassword, modalClose,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

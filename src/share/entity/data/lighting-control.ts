@@ -17,6 +17,7 @@ export const searchForm = Array.from({ length: 5 }).map((_, i) => ({
   layout: {
     fieldLines:[EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(fakeFields[i].type) ? 'none' : 'full',
     labelPosition: [EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(fakeFields[i].type) ? 'fixed' :'stacked', // fixed, floating, stacked
+    isHideLabel: false,
   },
   rules: {},
   readonly: false,
