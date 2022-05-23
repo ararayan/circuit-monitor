@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, Axio
 import { delay, from, Observable, of, catchError } from 'rxjs';
 import { authRequestInterceptor } from '../auth';
 import { YNCacheKey, cacheService } from '../cache.service';
-import { loadingService } from '../loading-service';
+import { loadingService } from '../loading.service';
 import { APP_URL } from './url';
 
 const _axios = axios.create({
