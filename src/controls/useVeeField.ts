@@ -8,6 +8,7 @@ function useVeeField<T extends (name: typeof UpdateValueEventName, ...args: any[
   const { value: veeField } = useField<FormField>(`${formName}.${attrField.value.name}`);
 
   const change = (attr: FormField, value: string) => {
+    attr.persistent = false;
     attr.value = value;
     veeField.value = attr;
     emit(UpdateValueEventName, value);

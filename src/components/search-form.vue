@@ -57,7 +57,7 @@ export default defineComponent({
     const { handleSubmit, resetForm } = useForm({
       validationSchema: schema
     });
-    const onSubmit = handleSubmit(values => {
+    const onSubmit = handleSubmit(values => {      
       entityStore.getRecords(props.entityName, {search: true, nextPage: true});
     });
     const onReset = () => {

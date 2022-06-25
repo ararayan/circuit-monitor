@@ -32,6 +32,7 @@ export interface FormField{
   value: string | number | boolean;
   readonly: boolean;
   disabled: boolean;
+  persistent: boolean,
   options?: Record<string, string>[];
   rules?: any;
   layout?: {
@@ -48,27 +49,44 @@ export interface EntityTabInfo {
   selected: boolean;
 }
 
-export enum EntityTrackDataType {
-  Records = 'records',
-  SearchForm = 'searchForm',
-  EditForm = 'editForm',
-  EntityTabs = 'entityTabs',
-}
-
-
-export interface EntityTrackData extends Record<EntityTrackDataType, unknown>{
-    records: EntityRecord[],
-    searchForm: FormField[],
-    editForm: FormField[],
-    entityTabs: EntityTabInfo[],
-    meta: Record<EntityTrackDataType, DataStatus>
+// export enum EntityTrackDataType {
+//   Records = 'records',
+//   SearchForm = 'searchForm',
+//   EditForm = 'editForm',
+//   EntityTabs = 'entityTabs',
+// }
+// export interface EntityTrackData extends Partial<Record<EntityTrackDataType, unknown>>{
+//   records: EntityRecord[],
+//   searchForm: FormField[],
+//   editForm?: FormField[],
+//   entityTabs?: EntityTabInfo[],
+//   meta: Partial<Record<EntityTrackDataType, DataStatus>>
+// }
+export interface abc {
+  editForm: FormField[],
+  entityTabs: EntityTabInfo[],
+  meta: {
+    editForm: DataStatus,
+    entityTabs: DataStatus,
   }
-  
-export interface EntityState extends EntityTrackData {
-    entityName: string;
-    editViewEntityName: Entities;
-    pagination: {current: number; pageSize: number; total: number;},
 }
+
+
+export type EntityBaseTrackData<T = object> = {
+  entityName: string;
+  editViewEntityName: Entities;
+  pagination: {current: number; pageSize: number; total: number;},
+  records: EntityRecord[],
+  searchForm: FormField[],
+  editForm: FormField[],
+  meta: {
+    records: DataStatus,
+    searchForm: DataStatus,
+    editForm: DataStatus,
+  }
+} & { [P in keyof T]: T[P] };
+
+export type EntityState = EntityBaseTrackData<abc>;
 
 
 export const enum Entities {

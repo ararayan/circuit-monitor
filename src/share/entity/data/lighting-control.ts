@@ -22,4 +22,5 @@ export const searchForm = Array.from({ length: 5 }).map((_, i) => ({
   rules: {},
   readonly: false,
   disabled: false,
+  persistent: true,
 } as FormField));

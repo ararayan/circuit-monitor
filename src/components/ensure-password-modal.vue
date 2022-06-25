@@ -38,7 +38,7 @@ export default defineComponent({
   setup() {
     const password: FormField = {
       layout: { isHideLabel: true },
-      id: 'password_1', label: '请输入用户密码', name: 'description', type: EntityAttrType.Password, value: '', readonly: false, disabled: false,
+      id: 'password_1', label: '请输入用户密码', name: 'description', type: EntityAttrType.Password, value: '', readonly: false, disabled: false, persistent: true 
     };
     const pwValue = ref(password.value as string);
     // const modal =  getOverlay(document, 'ion-modal', props.modalId);

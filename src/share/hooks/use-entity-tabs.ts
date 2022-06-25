@@ -7,7 +7,7 @@ const useEntityTab = (entityName: Entities) => {
   entityStore.getEntityTabs(entityName);
   const { entityTabs } = storeToRefs(entityStore);
   const selectTabId =  computed(() => {
-    return entityTabs.value.find(tab => tab.selected)?.id || '';
+    return entityTabs.value.find((tab: any) => tab.selected)?.id || '';
   });
   watch(selectTabId, (next) => {
     entityStore.clearRecords();

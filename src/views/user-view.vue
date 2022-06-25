@@ -43,9 +43,9 @@ export default defineComponent({
 
     const entityName = 'user' as any;
     const fields: FormField[] = [
-      {id: 'userName', label: '用户名', name: 'factoryName', type: EntityAttrType.Text, value: '陈志杰', readonly: true, disabled: true, },
-      {id: 'password', label: '新密码', name: 'description', type: EntityAttrType.Password, value: '******', readonly: false, disabled: false, },
-      {id: 'passwordConfirm', label: '确认密码', name: 'location', type: EntityAttrType.Password, value: '******',  readonly: false, disabled: false,  },
+      {id: 'userName', label: '用户名', name: 'factoryName', type: EntityAttrType.Text, value: '陈志杰', readonly: true, disabled: true, persistent: true },
+      {id: 'password', label: '新密码', name: 'description', type: EntityAttrType.Password, value: '******', readonly: false, disabled: false, persistent: true },
+      {id: 'passwordConfirm', label: '确认密码', name: 'location', type: EntityAttrType.Password, value: '******',  readonly: false, disabled: false, persistent: true  },
     ];
 
     const presentLoading = async (msg: string) => {
