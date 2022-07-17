@@ -2,10 +2,7 @@ import { defineStore } from 'pinia';
 import { of, take } from 'rxjs';
 import { DataStatus } from '../data.meta';
 import { Entities, EntityTabInfo } from './entity.types';
-
-
-
-
+import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 
 const initialState = {
   entityName: '', 
@@ -18,8 +15,9 @@ const initialState = {
 
 
 
-export function useEntityTabStore(entityName: Entities, tabId: string) {
-  const store = defineStore(tabId, {
+export function useEntityTabStore(entityName: Entities) {
+  const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.Tab);
+  const store = defineStore(storeId, {
     state: () => {
       return {...initialState, entityName};
     },

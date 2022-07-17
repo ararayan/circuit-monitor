@@ -2,12 +2,7 @@ import { defineStore } from "pinia";
 import { DataStatus } from "../data.meta";
 import { Entities, EntityRecord } from "./entity.types";
 import { getRecords } from './entity.service';
-
-const StoreAffix_Record = 'record';
-
-function getEntityRecordStoreId(entityName: Entities) {
-  return `${entityName}_${StoreAffix_Record}`;
-}
+import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 
 const initialState = { 
   entityName: '', 
@@ -24,7 +19,7 @@ const initialState = {
 
 
 export function useEntityRecordsStore(entityName: Entities) {
-  const storeId = getEntityRecordStoreId(entityName);
+  const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.Record);
   return defineStore(storeId, {
     state: () => {
       return {...initialState, entityName};

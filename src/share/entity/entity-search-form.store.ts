@@ -1,15 +1,9 @@
 import { defineStore } from "pinia";
 import { DataStatus } from "../data.meta";
-import { Entities, EntityRecord, FormField } from "./entity.types";
+import { Entities, FormField } from "./entity.types";
 import { getSearchForm$ } from './entity.service';
 import { catchError, of, take } from 'rxjs';
-
-
-const StoreAffix_Record = 'record';
-
-function getEntityRecordStoreId(entityName: Entities) {
-  return `${entityName}_${StoreAffix_Record}`;
-}
+import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 
 const initialState = { 
   entityName: '', 
@@ -20,7 +14,7 @@ const initialState = {
 };
 
 export function useEntitySearchFormStore(entityName: Entities) {
-  const storeId = getEntityRecordStoreId(entityName);
+  const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.SearchForm);
   return defineStore(storeId, {
     state: () => {
       return {...initialState, entityName};

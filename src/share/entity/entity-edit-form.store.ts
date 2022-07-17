@@ -1,15 +1,11 @@
 import { defineStore } from "pinia";
 import { DataStatus } from "../data.meta";
-import { Entities, EntityRecord, FormField } from "./entity.types";
+import { Entities, FormField } from "./entity.types";
 import { getEditForm$ } from './entity.service';
 import { catchError, of, take } from 'rxjs';
+import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 
 
-const StoreAffix_Record = 'record';
-
-function getEntityRecordStoreId(entityName: Entities) {
-  return `${entityName}_${StoreAffix_Record}`;
-}
 
 const initialState = { 
   entityName: '', 
@@ -20,7 +16,7 @@ const initialState = {
 };
 
 export function useEntityEditFormStore(entityName: Entities) {
-  const storeId = getEntityRecordStoreId(entityName);
+  const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.EditForm);
   return defineStore(storeId, {
     state: () => {
       return {...initialState, entityName};

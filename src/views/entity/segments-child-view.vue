@@ -13,7 +13,7 @@
           <entity-list></entity-list>
         </ion-content>
         <ion-footer>
-          <entity-tab :tabList="entityTabs" @goto-tab="gotoTab($event)"></entity-tab>
+          <entity-tab :tabList="entityTabs" @goto-tab="selectEntityTab($event)"></entity-tab>
         </ion-footer>
     </ion-page>
 </template>
@@ -21,8 +21,8 @@
 <script lang="ts">
 import EntityList from '@/components/entity-list.vue';
 import EntityTab from '@/components/entity-tab.vue';
-import { destoryEntityStore } from '@/share/entity';
-import { useEntityContext, useEntityDisplayName, useEntityTab } from '@/share/hooks';
+import { useEntityTabStore } from '@/share/entity';
+import { useEntityContext, useEntityDisplayName } from '@/share/hooks';
 import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonPage, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
 import { defineComponent, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -34,7 +34,8 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const { entityName, parentEntityName } = useEntityContext();
-    const { gotoTab, entityTabs } = useEntityTab(entityName);
+    const entityTabStore = useEntityTabStore(entityName);
+    const { selectEntityTab, entityTabs } = entityTabStore;
 
     const { title } = useEntityDisplayName(entityName);
  
@@ -45,9 +46,9 @@ export default defineComponent({
     });
     onUnmounted(() => {
       result.unregister();
-      destoryEntityStore(entityName);
+      entityTabStore.$dispose();
     });
-    return { entityTabs, title,  gotoTab,  defaultHref};
+    return { entityTabs, title,  selectEntityTab,  defaultHref};
   },
 });
 </script>

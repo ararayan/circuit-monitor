@@ -51,7 +51,7 @@
 <script lang="ts">
 import SearchFormPanel from '@/components/search-form-panel.vue';
 import { useEntityContext, useEntityDisplayName } from '@/share';
-import { destoryEntityStore, EntityRecord, useEntityRecordsStore, useEntitySearchFormStore } from '@/share/entity';
+import { destoryEntityStore, EntityRecord, useEntityRecordsStore, useEntityRelationStore, useEntitySearchFormStore } from '@/share/entity';
 import { useIonRouter, IonAvatar, IonBackButton, IonButtons, IonContent,
   IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, InfiniteScrollCustomEvent,
   IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
@@ -99,6 +99,9 @@ export default defineComponent({
     const searchFormStore = useEntitySearchFormStore(entityName);
     const { searchForm } = storeToRefs(searchFormStore);
 
+    const relationEntity = useEntityRelationStore(entityName);
+    const { editViewEntityName } = storeToRefs(relationEntity);
+
     function loadData (evt: InfiniteScrollCustomEvent) {
       // load data 
       setTimeout(() => {
@@ -114,14 +117,14 @@ export default defineComponent({
     }
 
     function openRecord (item: EntityRecord) {
-      // if (entityStore.editViewEntityName !== entityName) {
-      //   const parentRecordId = item.id;
-      //   const parentEntityName = entityName;
-      //   router.push(`/entity/${parentEntityName}/${parentRecordId}/${entityStore.editViewEntityName}`);
-      // }else {
-      //   const recordId = item.id;
-      //   router.push(`/entity/${entityName}/${recordId}`);
-      // }
+      if (editViewEntityName.value !== entityName) {
+        const parentRecordId = item.id;
+        const parentEntityName = entityName;
+        router.push(`/entity/${parentEntityName}/${parentRecordId}/${editViewEntityName.value}`);
+      }else {
+        const recordId = item.id;
+        router.push(`/entity/${entityName}/${recordId}`);
+      }
     }
 
     const result = useBackButton(11, (next) => {
