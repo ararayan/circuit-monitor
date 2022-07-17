@@ -50,14 +50,16 @@
 
 <script lang="ts">
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
-import { destoryEntityStore, getEntityStore } from '@/share/entity';
-import { IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
+import { useEntityContext, useEntityDisplayName } from '@/share';
+import { destoryEntityStore, EntityRecord, useEntityRecordsStore, useEntitySearchFormStore } from '@/share/entity';
+import { useIonRouter, IonAvatar, IonBackButton, IonButtons, IonContent,
+  IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, InfiniteScrollCustomEvent,
+  IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { defineComponent, onUnmounted } from 'vue';
+import { defineComponent, onMounted, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
-
+import { storeToRefs } from 'pinia';
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -83,6 +85,7 @@ export default defineComponent({
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
+    const router = useIonRouter();
     const { entityName } = useEntityContext();
     const virtualScroller = ref(null) as Ref<any>;
 
@@ -90,14 +93,49 @@ export default defineComponent({
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
 
-    const { loadData, openRecord, records } = useEntityRecords(entityName, virtualScroller);
+    const recordStore = useEntityRecordsStore(entityName);
+    const { records } = storeToRefs(recordStore);
+    
+    const searchFormStore = useEntitySearchFormStore(entityName);
+    const { searchForm } = storeToRefs(searchFormStore);
+
+    function loadData (evt: InfiniteScrollCustomEvent) {
+      // load data 
+      setTimeout(() => {
+        recordStore.getRecords(entityName, { criteria: searchForm, });
+        console.log('Loaded data');
+        if (virtualScroller.value) {
+          virtualScroller.value?.['updateVisibleItems'](true);
+        }
+        evt.target.complete();
+        // App logic to determine if all data is loaded
+        // and disable the infinite scroll
+      }, 1000);
+    }
+
+    function openRecord (item: EntityRecord) {
+      // if (entityStore.editViewEntityName !== entityName) {
+      //   const parentRecordId = item.id;
+      //   const parentEntityName = entityName;
+      //   router.push(`/entity/${parentEntityName}/${parentRecordId}/${entityStore.editViewEntityName}`);
+      // }else {
+      //   const recordId = item.id;
+      //   router.push(`/entity/${entityName}/${recordId}`);
+      // }
+    }
 
     const result = useBackButton(11, (next) => {
       next();
     });
+
+    // init 
+    recordStore.getRecords(entityName, {});
+    // onMounted(() => {
+      
+    // });
     onUnmounted(() => {
       result.unregister();
-      destoryEntityStore(entityName);
+      recordStore.$dispose();
     });
   
     return {
@@ -106,6 +144,7 @@ export default defineComponent({
     };
   },
 });
+
 </script>
 <style>
 .scroller {
