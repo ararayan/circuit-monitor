@@ -2,7 +2,7 @@
     <div class="cs-tablist">
         <div class="cs-tab-item ripple-parent ion-activatable" lines="none" color="light"
             :class="{ 'cs-tab-item-selected': tab.selected }" v-for="tab in tabs" :key="tab.id"
-            @click="$emit('gotoTab', tab)">
+            @click="$emit('gotoTab', tab.id)">
             <ion-icon :icon="tab.id == 't1' ? radioOutline : tab.id == 't2' ? scaleOutline : pulseOutline" size="small" slot="start"
                 class="cs-tab-icon"></ion-icon>
             <ion-label class="cs-tab-label">{{ tab.displayName }}</ion-label>
@@ -17,7 +17,7 @@ import { EntityTabInfo } from '@/share/entity';
 import { IonIcon, IonLabel, IonRippleEffect } from '@ionic/vue';
 import { toRefs } from '@vue/reactivity';
 import { pulseOutline, radioOutline, scaleOutline } from 'ionicons/icons';
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, PropType, watch } from 'vue';
 
 
 export default defineComponent({
@@ -29,8 +29,14 @@ export default defineComponent({
     tabList: { type: Array as PropType<EntityTabInfo[]>, required: true }
   },
   emits: ['gotoTab'],
-  setup(props) {
+  setup(props,  { emit }) {
     const { tabList: tabs } = toRefs(props);
+    watch(tabs, () => {
+      debugger;
+      const selectedTab = tabs.value.find(tab => tab.selected);
+      emit('gotoTab', selectedTab?.id);
+    }, {immediate: true});
+
     return { tabs, scaleOutline, pulseOutline, radioOutline, };
   },
 });

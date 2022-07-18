@@ -1,13 +1,27 @@
 <template>
-  <ion-list :class="{ 'ion-hide': !!!records.length }">
-    <ion-item v-for="item in records" :key="item.id" class="entity-list-item">
-      <ion-label>
-        <h2>{{ item.displayName }}</h2>
-        <h3>{{ item.colA }}</h3>
-        <p>{{ item.colB }}</p>
-      </ion-label>
-      <ion-icon slot="end" color="medium"></ion-icon>
-    </ion-item>
+  <ion-list :scroll-y="false" style="height: 100%" :class="{ 'ion-hide': !!!records.length }">
+    <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
+      ref="virtualScroller">
+      <template #default="{ item }">
+        <ion-item @click="openRecord(item)" class="entity-list-item">
+          <ion-avatar slot="start">
+            <img :src="item.avatar" />
+          </ion-avatar>
+          <ion-label siz>
+            <h2>{{ item.displayName }}</h2>
+            <i>{{ item.colA }}</i>
+            <p>{{ item.colB }}</p>
+          </ion-label>
+          <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
+        </ion-item>
+      </template>
+      <template #after>
+        <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll">
+          <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading more data...">
+          </ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      </template>
+    </RecycleScroller>
   </ion-list>
   <ion-list :class="{ 'ion-hide': !!records.length }">
     <ion-item v-for="(item, index) in skeletonSize" :key="index">
@@ -30,31 +44,82 @@
 </template>
 
 <script lang="ts">
-import { useEntityContext } from '@/share';
-import { getEntityStore } from '@/share/entity';
-import { IonIcon, IonItem, IonLabel, IonList, IonSkeletonText, IonThumbnail } from '@ionic/vue';
-import { pulseOutline, radioOutline, scaleOutline } from 'ionicons/icons';
-import { storeToRefs } from 'pinia';
-import { defineComponent } from 'vue';
+import { DataStatus, Entities } from '@/share';
+import { EntityRecord, useEntityRecordsStore } from '@/share/entity';
+import { InfiniteScrollCustomEvent, IonIcon, IonItem, IonLabel, IonList, 
+  IonInfiniteScroll, IonInfiniteScrollContent, IonAvatar,
+  IonSkeletonText, IonThumbnail } from '@ionic/vue';
+import { toRefs } from '@vue/reactivity';
+import { pulseOutline, radioOutline, scaleOutline, chevronForwardOutline } from 'ionicons/icons';
+import { storeToRefs, MutationType } from 'pinia';
+import { defineComponent, onUnmounted, PropType, Ref, ref, watch } from 'vue';
 
+import { RecycleScroller } from 'vue-virtual-scroller';
 
 export default defineComponent({
   name: 'EntityList',
   components: {
-    IonLabel, IonIcon, IonThumbnail, IonSkeletonText, IonList, IonItem
+    IonLabel, IonIcon, IonThumbnail, IonSkeletonText, IonList, IonItem, RecycleScroller,
+    IonInfiniteScroll, IonAvatar,
+    IonInfiniteScrollContent
   },
-  setup() {
-    const { entityName } = useEntityContext();
-    const entityStore = getEntityStore(entityName);
-    const { records } = storeToRefs(entityStore);
+  props: {
+    entityName: { type: String as PropType<Entities>, required: true },
+    tabId: {type: String, required: true },
+  },
+  setup(props) {
+    const { entityName, tabId } = toRefs(props);
+    const recordStore = useEntityRecordsStore(entityName.value);
+    const { records }  = storeToRefs(recordStore);
     const skeletonSize: string[] = Array.from({ length: 12 });
+    const virtualScroller = ref(null) as Ref<any>;
 
-    return { records, scaleOutline, pulseOutline, radioOutline, skeletonSize };
+    watch(tabId, () => {
+      if (tabId.value) {
+        recordStore.getRecords(props.entityName, {criteria: {tabId: tabId.value}, isInit: true });
+      }
+    }, {immediate: true});
+
+   
+
+    function loadData (evt: InfiniteScrollCustomEvent) {
+      // load data 
+      setTimeout(() => {
+        const subscription = recordStore.$subscribe((mutation, state) => {
+          if (mutation.type === MutationType.patchObject) {
+            if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
+              console.log('Loaded data');
+              if (virtualScroller.value) {
+                virtualScroller.value?.['updateVisibleItems'](true);
+              }
+              evt.target.complete();
+              subscription();
+            }
+          }
+        }, {detached: true});
+
+        recordStore.getRecords(props.entityName, { criteria: {tabId: tabId.value} });
+        // App logic to determine if all data is loaded
+        // and disable the infinite scroll
+      }, 500);
+    }
+
+    function openRecord (item: EntityRecord) {
+      // debugger;
+    }
+    onUnmounted(() => {
+      recordStore.$dispose();
+    });
+    return { records, scaleOutline, pulseOutline, radioOutline, chevronForwardOutline, loadData, skeletonSize, openRecord };
   },
 });
 </script>
 
 <style>
+.scroller {
+  /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
+  height: 100%;
+}
 .entity-list-item {
   --border-color: var(--ion-color-light, #f2f2f2);
 }

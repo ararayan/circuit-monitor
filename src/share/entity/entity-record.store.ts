@@ -25,20 +25,35 @@ export function useEntityRecordsStore(entityName: Entities) {
       return {...initialState, entityName};
     },
     actions: {
-      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, pageIndex?: number}) {
-        this.$patch({
-          meta: {
-            records: DataStatus.Loading
-          }
-        });
-        let { criteria, pageIndex } = params;
-        criteria = criteria || {};
-        pageIndex = pageIndex === undefined ? 1 : pageIndex;
-        getRecords(entityName, criteria, {current: pageIndex || this.pagination.current + 1, pageSize: this.pagination.pageSize}).subscribe(result => {
+      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean}) {
+        const { criteria, isInit } = params;
+        if (isInit) {
+          this.$patch({
+            records: [],
+            pagination: {
+              current: 0,
+              pageSize: 20,
+              total: 1
+            },
+            meta: {
+              records: DataStatus.Loading
+            }
+          });
+        }else {
+          this.$patch({
+            meta: {
+              records: DataStatus.Loading
+            }
+          });
+        }
+
+  
+        const queryPageIndex = isInit ? 1 : this.pagination.current + 1;
+        getRecords(entityName, criteria || {}, {current: queryPageIndex, pageSize: this.pagination.pageSize}).subscribe(result => {
           this.$patch({
             records: [...this.records, ...(result || [])],
             pagination: {
-              current: pageIndex || this.pagination.current + 1
+              current: queryPageIndex
             },
             meta: {
               records: DataStatus.Loaded

@@ -1,7 +1,7 @@
-import { Entities, EntityRecord, FormField } from "./entity.types";
-import { catchError, delay, of, take } from 'rxjs';
+import { delay, of, take } from 'rxjs';
 import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
 import { characters, entityMappingTitle } from "./entity.store";
+import { Entities, EntityRecord, FormField } from "./entity.types";
 
 
 export function getSearchForm$(entityName: Entities) {
@@ -49,7 +49,7 @@ export function getRecords(entityName: Entities, criteria?: any, pagination?: {c
   const _records: EntityRecord[] = [];
   if (pagination) {
     if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
-      for(let index = 0; index < 50; index++) {
+      for(let index = 0; index < 20; index++) {
         _records.push({
           id: index,
           avatar: 'assets/circuit.jpg',

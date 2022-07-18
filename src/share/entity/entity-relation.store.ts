@@ -8,12 +8,19 @@ const initialState = {
 };
 
 
-export function useEntityRelationStore(entityName: Entities) {
+export function useEntityRelationStore(entityName: Entities, ) {
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.Relation);
   const store = defineStore(storeId, {
     state: () => {
       return {...initialState, entityName};
     },
+    actions: {
+      setEditViewRelateEntity(entityName: Entities) {
+        this.$patch({
+          editViewEntityName: entityName
+        });
+      }
+    }
   });
   const _store = store();
   return _store;

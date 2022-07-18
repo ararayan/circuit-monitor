@@ -50,14 +50,14 @@
 
 <script lang="ts">
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { useEntityContext, useEntityDisplayName } from '@/share';
-import { destoryEntityStore, EntityRecord, useEntityRecordsStore, useEntityRelationStore, useEntitySearchFormStore } from '@/share/entity';
+import { Entities, useEntityContext, useEntityDisplayName } from '@/share';
+import { EntityRecord, useEntityRecordsStore, useEntityRelationStore, useEntitySearchFormStore } from '@/share/entity';
 import { useIonRouter, IonAvatar, IonBackButton, IonButtons, IonContent,
   IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, InfiniteScrollCustomEvent,
   IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { defineComponent, onMounted, onUnmounted } from 'vue';
+import { defineComponent, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 import { storeToRefs } from 'pinia';
 /* 
@@ -101,6 +101,7 @@ export default defineComponent({
 
     const relationEntity = useEntityRelationStore(entityName);
     const { editViewEntityName } = storeToRefs(relationEntity);
+    relationEntity.setEditViewRelateEntity(Entities.SegmentsChild);
 
     function loadData (evt: InfiniteScrollCustomEvent) {
       // load data 

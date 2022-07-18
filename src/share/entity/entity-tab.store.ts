@@ -22,7 +22,7 @@ export function useEntityTabStore(entityName: Entities) {
       return {...initialState, entityName};
     },
     actions: {
-      getEntityTabs(entityName: Entities) {
+      getTabs(entityName: Entities) {
         if (![DataStatus.Loaded, DataStatus.Loading].includes(this.$state.meta['entityTabs'])) {
           of(entityName).pipe(take(1)).subscribe(() => {
             const tabs = [
@@ -57,8 +57,17 @@ export function useEntityTabStore(entityName: Entities) {
           });
         }
       },
+      setTabSelected(tabId: string) {
+        const tabs = this.entityTabs.map(tab => {
+          tab.selected = tab.id === tabId;
+          return {...tab};
+        });
+        this.$patch({
+          entityTabs: tabs
+        });
+      },
       selectEntityTab(tabId: string) {
-        this.entityTabs.forEach(tab => tab.selected = tab.id === tabId);
+        this.tabId = tabId || '';
       }
     }
   });

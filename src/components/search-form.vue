@@ -5,13 +5,13 @@
 </template>
 
 <script lang="ts">
-import { Entities, EntityAttrType, getEntityStore } from '@/share/entity';
-import { IonList } from '@ionic/vue';
-import { storeToRefs } from 'pinia';
-import { defineComponent, PropType } from 'vue';
-import { useForm } from "vee-validate";
-import { computed } from '@vue/reactivity';
 import AttrField from '@/components/attr-field.vue';
+import { Entities, EntityAttrType, useEntityRecordsStore, useEntitySearchFormStore } from '@/share/entity';
+import { IonList } from '@ionic/vue';
+import { computed } from '@vue/reactivity';
+import { storeToRefs } from 'pinia';
+import { useForm } from "vee-validate";
+import { defineComponent, onUnmounted, PropType } from 'vue';
 
 
 // not export interface: node_modules\vee-validate\dist\vee-validate.d.ts
@@ -41,9 +41,10 @@ export default defineComponent({
     entityName: { type: String as PropType<Entities>, required: true },
   },
   setup(props) {
-    const entityStore = getEntityStore(props.entityName);
-    const { searchForm: fields } = storeToRefs(entityStore);
-    entityStore.getSearchForm(props.entityName);
+    const searchFormStore = useEntitySearchFormStore(props.entityName);
+    const recordStore = useEntityRecordsStore(props.entityName);
+    const { searchForm: fields } = storeToRefs(searchFormStore);
+    searchFormStore.getSearchForm(props.entityName);
     // validate
     function validateFn(value: any, ctx: FieldValidationMetaInfo) {
       return true;
@@ -58,7 +59,7 @@ export default defineComponent({
       validationSchema: schema
     });
     const onSubmit = handleSubmit(values => {      
-      entityStore.getRecords(props.entityName, {search: true, nextPage: true});
+      recordStore.getRecords(props.entityName, {});
     });
     const onReset = () => {
       fields.value.forEach(field => {
@@ -71,12 +72,15 @@ export default defineComponent({
       });
       resetForm();
 
-      entityStore.getRecords(props.entityName, {search: true, nextPage: true});
+      recordStore.getRecords(props.entityName, {});
     };
     const componentInterface: SysFormComponent = {
       onSubmit,
       onReset,
     };
+    onUnmounted(() => {
+      searchFormStore.$dispose();
+    });
     return {
       fields,
       ...componentInterface,

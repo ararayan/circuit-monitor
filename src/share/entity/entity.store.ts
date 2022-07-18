@@ -1,8 +1,8 @@
 import { defineStore, Store, _StoreWithGetters } from 'pinia';
-import { catchError, delay, of, take } from 'rxjs';
+import { catchError, of, take } from 'rxjs';
 import { DataStatus } from '../data.meta';
 import { getEditForm$, getRecords, getSearchForm$ } from './entity.service';
-import { Entities, EntityBaseTrackData, EntityRecord } from './entity.types';
+import { Entities, EntityBaseTrackData } from './entity.types';
 import { segmentsStore } from './segments.store';
 
 
@@ -66,6 +66,7 @@ function getWithCreateEntityStore(entityName: Entities) {
   let _entityStore: BaseEntityStoreDefinition;
   switch(entityName) {
   case Entities.Segments:
+    debugger;
     _entityStore = segmentsStore();
     break;
   default: 

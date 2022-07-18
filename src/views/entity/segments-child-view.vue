@@ -9,11 +9,11 @@
             <ion-title center>{{ title + '列表子项' }}</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content>
-          <entity-list></entity-list>
+        <ion-content :scroll-y="false">
+          <entity-list :entity-name="entityName" :tab-id="tabId"></entity-list>
         </ion-content>
         <ion-footer>
-          <entity-tab :tabList="entityTabs" @goto-tab="selectEntityTab($event)"></entity-tab>
+          <entity-tab :tabList="entityTabs" @goto-tab="gotoTab($event)"></entity-tab>
         </ion-footer>
     </ion-page>
 </template>
@@ -24,6 +24,7 @@ import EntityTab from '@/components/entity-tab.vue';
 import { useEntityTabStore } from '@/share/entity';
 import { useEntityContext, useEntityDisplayName } from '@/share/hooks';
 import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonPage, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
+import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -35,7 +36,8 @@ export default defineComponent({
     const router = useRouter();
     const { entityName, parentEntityName } = useEntityContext();
     const entityTabStore = useEntityTabStore(entityName);
-    const { selectEntityTab, entityTabs } = entityTabStore;
+    const { entityTabs, tabId } = storeToRefs(entityTabStore);
+    entityTabStore.getTabs(entityName);
 
     const { title } = useEntityDisplayName(entityName);
  
@@ -44,11 +46,21 @@ export default defineComponent({
     const result = useBackButton(10, () => {
       router.back();
     });
+
+    function gotoTab(tabId: string) {
+      const selectedTab = entityTabs.value.find(tab => tab.selected);
+      if (selectedTab?.id !== tabId) {
+        entityTabStore.setTabSelected(tabId);
+      }else {
+        entityTabStore.selectEntityTab(tabId);
+      }
+    }
+
     onUnmounted(() => {
       result.unregister();
       entityTabStore.$dispose();
     });
-    return { entityTabs, title,  selectEntityTab,  defaultHref};
+    return { entityTabs, title,  gotoTab,  defaultHref, entityName, tabId};
   },
 });
 </script>
