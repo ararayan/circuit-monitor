@@ -7,10 +7,12 @@ import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 const initialState = { 
   entityName: '', 
   records: [] as EntityRecord[],
+  prevPool: [] as EntityRecord[],
+  nextPool: [] as EntityRecord[],
   pagination: {
     current: 1,
     pageSize: 20,
-    cacheRadius: 1
+    cacheRadius: 1,
   },
   meta: {
     records: DataStatus.Unloaded,
@@ -26,14 +28,13 @@ export function useEntityRecordsStore(entityName: Entities) {
     },
     actions: {
       // getPreviousRecords
-      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean}) {
+      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean, forward?: boolean}) {
         const { criteria, isInit } = params;
         if (isInit) {
           this.$patch({
             records: [],
             pagination: {
               current: 0,
-              pageSize: 20,
             },
             meta: {
               records: DataStatus.Loading
@@ -49,6 +50,7 @@ export function useEntityRecordsStore(entityName: Entities) {
         const queryPageIndex = isInit ? 1 : this.pagination.current + 1;
         getRecords(entityName, criteria || {}, {current: queryPageIndex, pageSize: this.pagination.pageSize}).subscribe(result => {
           // split 
+          queryPageIndex + this.pagination.cacheRadius;
           this.$patch({
             records: [...this.records, ...(result || [])],
             pagination: {
@@ -63,9 +65,12 @@ export function useEntityRecordsStore(entityName: Entities) {
       clearRecords() {
         this.$patch({
           records: [],
+          prevPool: [],
+          nextPool: [],
           pagination: {
             current: 0,
-            pageSize: 20
+            pageSize: 20,
+            cacheRadius: 1
           },
           meta: {
             records: DataStatus.Unloaded

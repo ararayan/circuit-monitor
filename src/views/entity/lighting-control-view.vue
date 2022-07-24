@@ -47,11 +47,12 @@
 
 <script lang="ts">
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToggle, IonToolbar } from '@ionic/vue';
+import { DataStatus, useEntityContext, useEntityDisplayName, useEntityRecordsStore } from '@/share';
+import { InfiniteScrollCustomEvent, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToggle, IonToolbar } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { defineComponent } from 'vue';
+import { MutationType, storeToRefs } from 'pinia';
+import { defineComponent, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 
@@ -77,10 +78,36 @@ export default defineComponent({
 
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
-
     const { title } = useEntityDisplayName(entityName);
 
-    const { loadData, records } = useEntityRecords(entityName, virtualScroller);
+    const recordStore = useEntityRecordsStore(entityName);
+    const { records } = storeToRefs(recordStore);
+
+    function loadData (evt: InfiniteScrollCustomEvent) {
+      // load data 
+      setTimeout(() => {
+        const subscription = recordStore.$subscribe((mutation, state) => {
+          if (mutation.type === MutationType.patchObject) {
+            if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
+              console.log('Loaded data');
+              if (virtualScroller.value) {
+                virtualScroller.value?.['updateVisibleItems'](true);
+              }
+              evt.target.complete();
+              subscription();
+            }
+          }
+        }, {detached: true});
+
+        recordStore.getRecords(entityName, { criteria: {} });
+      }, 500);
+    }
+    // init 
+    recordStore.getRecords(entityName, {isInit: true});
+
+    onUnmounted(() => {
+      recordStore.$dispose();
+    });
     return {
       entityName, menuId, contentId,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline

@@ -53,12 +53,13 @@
 <script lang="ts">
 import EnsurePasswordModal from '@/components/ensure-password-modal.vue';
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { EntityRecord, FormField, useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
+import { DataStatus, EntityRecord, FormField, useEntityContext, useEntityDisplayName, useEntityRecordsStore } from '@/share';
 import { useEnsurePassword } from '@/share/hooks/use-ensure-password';
-import { IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { defineComponent } from 'vue';
+import { MutationType, storeToRefs } from 'pinia';
+import { defineComponent, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 /* 
   ion-content-scroll-host
@@ -85,14 +86,25 @@ export default defineComponent({
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
+    const router = useIonRouter();
     const { entityName } = useEntityContext();
     const virtualScroller = ref(null) as Ref<any>;
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
     const { title } = useEntityDisplayName(entityName);
     const isOpenEnsurePwModal = ref(false);
-    const { loadData, openRecord, records } = useEntityRecords(entityName, virtualScroller);
+
+    const recordStore = useEntityRecordsStore(entityName);
+    const { records } = storeToRefs(recordStore);
+
+
+    function openRecord (item: EntityRecord) {
+      const recordId = item.id;
+      router.push(`/entity/${entityName}/${recordId}`);
+    }
+
     const { setPendingOpenRecord, openRecordByCheckPassword } = useEnsurePassword(openRecord);
+    
     const editRecord = (item: EntityRecord) => {
       isOpenEnsurePwModal.value = true;
       setPendingOpenRecord(item);
@@ -100,6 +112,26 @@ export default defineComponent({
     function submitPassword(password: FormField) {
       openRecordByCheckPassword(password.value as string);
       isOpenEnsurePwModal.value = false;
+    }
+
+    function loadData (evt: InfiniteScrollCustomEvent) {
+      // load data 
+      setTimeout(() => {
+        const subscription = recordStore.$subscribe((mutation, state) => {
+          if (mutation.type === MutationType.patchObject) {
+            if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
+              console.log('Loaded data');
+              if (virtualScroller.value) {
+                virtualScroller.value?.['updateVisibleItems'](true);
+              }
+              evt.target.complete();
+              subscription();
+            }
+          }
+        }, {detached: true});
+
+        recordStore.getRecords(entityName, { criteria: {} });
+      }, 500);
     }
     // const openModal = async function() {
     //   const modal = await modalController
@@ -126,7 +158,12 @@ export default defineComponent({
       debugger;
       isOpenEnsurePwModal.value = false;
     }
+    // init 
+    recordStore.getRecords(entityName, {isInit: true});
     
+    onUnmounted(() => {
+      recordStore.$dispose();
+    });
     return {
       openRecord, entityName, menuId, contentId, editRecord, isOpenEnsurePwModal, submitPassword, modalClose,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline

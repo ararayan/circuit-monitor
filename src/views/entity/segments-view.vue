@@ -52,14 +52,15 @@
 import SearchFormPanel from '@/components/search-form-panel.vue';
 import { Entities, useEntityContext, useEntityDisplayName } from '@/share';
 import { EntityRecord, useEntityRecordsStore, useEntityRelationStore, useEntitySearchFormStore } from '@/share/entity';
-import { useIonRouter, IonAvatar, IonBackButton, IonButtons, IonContent,
-  IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, InfiniteScrollCustomEvent,
-  IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
+import {
+  InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonContent,
+  IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton, useIonRouter
+} from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
+import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
-import { storeToRefs } from 'pinia';
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -101,7 +102,6 @@ export default defineComponent({
 
     const relationEntity = useEntityRelationStore(entityName);
     const { editViewEntityName } = storeToRefs(relationEntity);
-    relationEntity.setEditViewRelateEntity(Entities.SegmentsChild);
 
     function loadData (evt: InfiniteScrollCustomEvent) {
       // load data 
@@ -133,7 +133,9 @@ export default defineComponent({
     });
 
     // init 
-    recordStore.getRecords(entityName, {});
+    relationEntity.setEditViewRelateEntity(Entities.SegmentsChild);
+    recordStore.getRecords(entityName, {isInit: true});
+    
     // onMounted(() => {
       
     // });

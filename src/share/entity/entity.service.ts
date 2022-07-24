@@ -60,7 +60,7 @@ export function getRecords(entityName: Entities, criteria?: any, pagination?: {c
         } as EntityRecord);
       }
     }else {
-      for(let index = pagination.current * pagination.pageSize; index < pagination.pageSize * (pagination.current + 1); index++) {
+      for(let index = (pagination.current - 1) * pagination.pageSize; index < pagination.pageSize * pagination.current; index++) {
         const item: EntityRecord = {
           id: index,
           avatar: 'assets/circuit.jpg',

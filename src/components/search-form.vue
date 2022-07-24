@@ -59,7 +59,7 @@ export default defineComponent({
       validationSchema: schema
     });
     const onSubmit = handleSubmit(values => {      
-      recordStore.getRecords(props.entityName, {});
+      recordStore.getRecords(props.entityName, {isInit: true});
     });
     const onReset = () => {
       fields.value.forEach(field => {

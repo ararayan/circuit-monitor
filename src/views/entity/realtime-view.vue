@@ -21,7 +21,7 @@
 <script lang="ts">
 import EntityList from '@/components/entity-list.vue';
 import EntityTab from '@/components/entity-tab.vue';
-import { destoryEntityStore, useEntityTabStore } from '@/share/entity';
+import { useEntityTabStore } from '@/share/entity';
 import { useEntityContext, useEntityDisplayName } from '@/share/hooks';
 import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
@@ -52,7 +52,6 @@ export default defineComponent({
     }
 
     onUnmounted(() => {
-      destoryEntityStore(entityName);
       entityTabStore.$dispose();
     });
     return { title, gotoTab, entityTabs, entityName, tabId };

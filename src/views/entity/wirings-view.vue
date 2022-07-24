@@ -20,6 +20,12 @@
           <ion-list :scroll-y="false" style="height: 100%">
             <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
               ref="virtualScroller">
+               <template #before>
+                <ion-infinite-scroll @ionInfinite="loadData($event, 'top')" threshold="10%" id="infinite-scroll" position="top" :disabled="pagination.current < 3 ">
+                  <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading previous data...">
+                  </ion-infinite-scroll-content>
+                </ion-infinite-scroll>
+              </template>
               <template #default="{ item }">
                 <ion-item @click="openRecord(item)">
                   <ion-avatar slot="start">
@@ -34,7 +40,7 @@
                 </ion-item>
               </template>
               <template #after>
-                <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll">
+                <ion-infinite-scroll @ionInfinite="loadData($event, 'bottom')" threshold="10%" id="infinite-scroll">
                   <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading more data...">
                   </ion-infinite-scroll-content>
                 </ion-infinite-scroll>
@@ -50,11 +56,14 @@
 
 <script lang="ts">
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { useEntityContext, useEntityDisplayName, useEntityRecords } from '@/share';
-import { IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { DataStatus, EntityRecord, useEntityContext, useEntityDisplayName, useEntityRecordsStore } from '@/share';
+import {
+  InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useIonRouter
+} from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { defineComponent } from 'vue';
+import { MutationType, storeToRefs } from 'pinia';
+import { defineComponent, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 /* 
@@ -82,6 +91,7 @@ export default defineComponent({
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
+    const router = useIonRouter();
     const { entityName } = useEntityContext();
     const virtualScroller = ref(null) as Ref<any>;
     
@@ -89,10 +99,44 @@ export default defineComponent({
     const contentId = ref(`${entityName}_panel`);
     const { title } = useEntityDisplayName(entityName);
 
-    const { loadData, openRecord, records } = useEntityRecords(entityName, virtualScroller);
 
+    const recordStore = useEntityRecordsStore(entityName);
+    const { records, pagination } = storeToRefs(recordStore);  
+
+    function loadData (evt: InfiniteScrollCustomEvent, diretctoin: 'top' | 'bottom') {
+      // load data 
+      setTimeout(() => {
+        const subscription = recordStore.$subscribe((mutation, state) => {
+          if (mutation.type === MutationType.patchObject) {
+            if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
+              console.log('Loaded data');
+            
+              if (virtualScroller.value) {
+                (window as any).tt = virtualScroller.value;
+                virtualScroller.value?.['updateVisibleItems'](true);
+              }
+              evt.target.complete();
+              subscription();
+            }
+          }
+        }, {detached: true});
+
+        recordStore.getRecords(entityName, { criteria: {} });
+      }, 500);
+    }
+
+    function openRecord (item: EntityRecord) {
+      const recordId = item.id;
+      router.push(`/entity/${entityName}/${recordId}`);
+    }
+
+    recordStore.getRecords(entityName, {isInit: true});
+
+    onUnmounted(() => {
+      recordStore.$dispose();
+    });
     return {
-      openRecord, entityName, menuId, contentId,
+      openRecord, entityName, menuId, contentId, pagination,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
