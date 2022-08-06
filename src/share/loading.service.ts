@@ -1,5 +1,6 @@
 import { Components } from '@ionic/core';
 import { loadingController } from '@ionic/vue';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 
 class LoadingService {
@@ -37,4 +38,26 @@ class LoadingService {
 }
 
 const loadingService = new LoadingService();
-export { loadingService };
+
+const loadingRequestInterceptor = [
+  (config: AxiosRequestConfig) => {
+    loadingService.show();
+    return config;
+  },
+  (error: any) => {
+    loadingService.hide();
+    return Promise.reject(error);
+  }
+];
+
+const loadingResponseInterceptor = [
+  (config: AxiosResponse) => {
+    loadingService.hide();
+    return config;
+  }, (error: any) => {
+    loadingService.hide();
+    return Promise.reject(error);
+  }
+];
+
+export { loadingService, loadingRequestInterceptor, loadingResponseInterceptor };

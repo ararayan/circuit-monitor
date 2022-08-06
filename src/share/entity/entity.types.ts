@@ -17,11 +17,11 @@ export const enum EntityAttrType {
   }
 
 export interface EntityRecord {
-    id: number;
-    avatar: string;
-    displayName: string;
-    colA:  string;
-    colB:  string;
+    id: string | number;
+    avatar?: string;
+    displayName?: string;
+    colA?:  string;
+    colB?:  string;
     [key: string]: any;
 }
 export interface FormField{
@@ -103,6 +103,6 @@ export const enum Entities {
 }
 export const enum EntityViewType {
   Browse = 'browse',
-  Edit = 'edit',
+  Detail = 'detail',
 }
-export type EntityViews  =  Record<Entities,{ [EntityViewType.Browse]: string, [EntityViewType.Edit]: string }>;
+export type EntityViews  =  Record<Entities,{ [EntityViewType.Browse]: string, [EntityViewType.Detail]: string }>;

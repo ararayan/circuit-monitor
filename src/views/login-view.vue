@@ -2,43 +2,45 @@
   <ion-page>
     <ion-content class="linear-blue">
 
-      <ion-card >
+      <ion-card>
         <ion-card-header>
           <ion-card-title style="text-align: center; --color: #fff"></ion-card-title>
         </ion-card-header>
 
 
-        <ion-card-content>
+        <ion-card-content class="login-card">
           <ion-item lines="none">
             <ion-img src="assets/yanneng.jpg" style="height: 30vh; min-height: 200px; margin: 0 auto;"></ion-img>
           </ion-item>
-          <ion-item style="background: #fff" class="ion-padding-horizontal">
+          <ion-item style="background: #fff" class="ion-padding-horizontal" :class="{ 'ion-invalid': invalid }" >
             <ion-label position="floating">
               <ion-icon size="large" color="medium" :icon="personCircleOutline" slot="start"
                 style="vertical-align: bottom; margin-right: 0.25em"></ion-icon>
               <ion-note color="medium">用户名</ion-note>
             </ion-label>
-            <ion-input name="name" type="text" v-model="form.userName"></ion-input>
+            <ion-input name="name" type="text" v-model="form.userName" @change="onUserInfoChanged()"></ion-input>
           </ion-item>
-          <ion-item style="background: #fff" class="ion-padding-horizontal ion-margin-bottom">
+          <ion-item style="background: #fff" class="ion-padding-horizontal ion-margin-bottom" :class="{ 'ion-invalid': invalid }">
             <ion-label position="floating">
               <ion-icon size="large" color="medium" :icon="lockClosedOutline" slot="start"
                 style="vertical-align: bottom; margin-right: 0.25em"></ion-icon>
               <ion-note color="medium">密码</ion-note>
             </ion-label>
-            <ion-input name="password" type="password" v-model="form.password"></ion-input>
+            <ion-input name="password" type="password" v-model="form.password" @change="onUserInfoChanged()" ></ion-input>
           </ion-item>
-                     <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none">
-    <ion-label for="test1" >记住密码</ion-label>
-      <ion-checkbox slot="start" v-model="form.remenberPassword"
-       id="test1">
-      </ion-checkbox>
-  </ion-item>
+          <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none">
+            <ion-label for="test1">记住密码</ion-label>
+            <ion-checkbox slot="start" v-model="form.remenberPassword" id="test1">
+            </ion-checkbox>
+          </ion-item>
           <ion-button size="large" type="submit" expand="block" @click="login()" class="ion-margin">
             <ion-label>登陆</ion-label>
             <ion-icon slot="end" :icon="arrowForwardCircleOutline"></ion-icon>
           </ion-button>
 
+          <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none" v-if="invalid">
+            <ion-label color="danger">{{loginErrorMsg}}</ion-label>
+          </ion-item>
         </ion-card-content>
       </ion-card>
 
@@ -66,10 +68,10 @@ export default defineComponent({
   },
   setup() {
     const userStore = useUserStore();
-    const { user: form } = storeToRefs(userStore);
+    const { user: form, loginErrorMsg, invalid } = storeToRefs(userStore);
     const router = useRouter();
     function login() {
-      const data = { 
+      const data = {
         userName: form.value.userName,
         password: form.value.password,
         remenberPassword: form.value.remenberPassword,
@@ -82,6 +84,11 @@ export default defineComponent({
         router.replace('/home');
       }
     });
+    function onUserInfoChanged() {
+      if (invalid) {
+        userStore.emptyLoginErrorMsg();
+      }
+    }
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onBeforeUnmount(() => { });
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -89,6 +96,9 @@ export default defineComponent({
     return {
       form,
       login,
+      onUserInfoChanged,
+      invalid,
+      loginErrorMsg,
       personCircleOutline,
       arrowForwardCircleOutline,
       lockClosedOutline,
@@ -104,5 +114,8 @@ export default defineComponent({
 
 .gb-blue {
   background-image: linear-gradient(135deg, rgb(13, 4, 178) 0%, rgb(13, 4, 178) 12.5%, rgb(17, 25, 182) 12.5%, rgb(17, 25, 182) 25%, rgb(20, 46, 185) 25%, rgb(20, 46, 185) 37.5%, rgb(24, 67, 189) 37.5%, rgb(24, 67, 189) 50%, rgb(28, 87, 192) 50%, rgb(28, 87, 192) 62.5%, rgb(32, 108, 196) 62.5%, rgb(32, 108, 196) 75%, rgb(35, 129, 199) 75%, rgb(35, 129, 199) 87.5%, rgb(39, 150, 203) 87.5%, rgb(39, 150, 203) 100%);
+}
+.login-card .item-has-value .label-floating.sc-ion-label-md-h {
+    transform: translateY(30%) scale(0.75);
 }
 </style>

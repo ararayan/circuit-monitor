@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Entities, getEntityStore } from '@/share/entity';
+import { Entities, useEntityEditFormStore } from '@/share/entity';
 import { IonList } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
 import { defineComponent, PropType } from 'vue';
@@ -35,9 +35,10 @@ export default defineComponent({
   },
   props: {
     entityName: { type: String as PropType<Entities>, required: true },
+    recordId: { type: String, required: true },
   },
   setup(props) {
-    const entityStore = getEntityStore(props.entityName);
+    const entityStore = useEntityEditFormStore(props.entityName, props.recordId);
     entityStore.getEditForm(props.entityName);
     const { editForm: fields } = storeToRefs(entityStore);
     // validate

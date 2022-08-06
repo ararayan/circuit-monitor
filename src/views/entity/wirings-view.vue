@@ -32,9 +32,8 @@
                     <img :src="item.avatar" />
                   </ion-avatar>
                   <ion-label>
-                    <h2>{{ item.displayName }}</h2>
-                    <h3>{{ item.colA }}</h3>
-                    <p>{{ item.colB }}</p>
+                    <h2>{{ item.name }}</h2>
+                    <h3>{{ item.note }}</h3>
                   </ion-label>
                   <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
                 </ion-item>
@@ -101,6 +100,7 @@ export default defineComponent({
 
 
     const recordStore = useEntityRecordsStore(entityName);
+
     const { records, pagination } = storeToRefs(recordStore);  
 
     function loadData (evt: InfiniteScrollCustomEvent, diretctoin: 'top' | 'bottom') {
@@ -127,6 +127,7 @@ export default defineComponent({
 
     function openRecord (item: EntityRecord) {
       const recordId = item.id;
+      recordStore.setOpenRecord(recordId);
       router.push(`/entity/${entityName}/${recordId}`);
     }
 

@@ -6,8 +6,10 @@ export enum EntityStoreFeature {
   EditForm = 'editForm',
   SearchForm = 'searchForm',
   Tab = 'tab',
+  PCB = 'pcb',
+  PCBStatus = 'pcbStatus',
 }
 
-export function getEntityRecordStoreId(entityName: Entities, feature: EntityStoreFeature) {
-  return `${entityName}_${feature}`;
+export function getEntityRecordStoreId(entityName: Entities, feature: EntityStoreFeature, recordId?: string) {
+  return recordId ? `${entityName}_${recordId}_${feature}` : `${entityName}_${feature}`;
 }

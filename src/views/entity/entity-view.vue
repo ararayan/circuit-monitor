@@ -13,7 +13,7 @@ export default defineComponent({
   components: {},
   setup(props) {
     const { entityName, recordId } = useEntityContext();
-    const type = recordId === undefined || recordId === '' ? EntityViewType.Browse : EntityViewType.Edit;
+    const type = recordId === undefined || recordId === '' ? EntityViewType.Browse : EntityViewType.Detail;
     const viewName = getViewNameByEntityName(entityName, type);
     const entityComponent = defineAsyncComponent(() =>
       import(`@/views/entity/${viewName}.vue`)

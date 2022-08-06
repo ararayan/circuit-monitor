@@ -15,8 +15,8 @@ const initialState = {
   }
 };
 
-export function useEntityEditFormStore(entityName: Entities) {
-  const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.EditForm);
+export function useEntityEditFormStore(entityName: Entities, recordId: string) {
+  const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.EditForm, recordId);
   return defineStore(storeId, {
     state: () => {
       return {...initialState, entityName};

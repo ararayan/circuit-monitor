@@ -3,13 +3,13 @@
       <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-back-button :default-href="defaultHref"></ion-back-button>
+              <ion-back-button :default-href="backToHref"></ion-back-button>
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content fullscreen class="ion-padding">
-           <edit-form :entityName="entityName" ref="formRef"></edit-form>
+           <edit-form :entityName="entityName" ref="formRef" :record-id="recordId"></edit-form>
         </ion-content>
         <ion-footer style="padding: 0.4em 1em; display: flex; width: 100%; justify-content: flex-end;" :class="[operator.cssClass]">
           <ion-button  @click="applyForEdit()"  style="min-width: 10em;" :color="operator.color">
@@ -39,9 +39,9 @@ export default defineComponent({
     EditForm, IonFooter
   },
   setup() {
+    debugger;
     const router = useIonRouter();
-    const { entityName} = useEntityContext();
-    const defaultHref = entityName ? `/entity/${entityName}` : '/home';
+    const { backToHref, entityName, recordId } = useEntityContext();
     // 遥控执行
     const operator = ref({id: 'apply_for_edit', value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
     const userStore = useUserStore();
@@ -118,13 +118,13 @@ export default defineComponent({
       if (router.canGoBack() ) {
         router.back();
       }else {
-        router.push(defaultHref);
+        router.push(backToHref);
       }
     });
     onUnmounted(() => {
       result.unregister();
     });
-    return {entityName, title, defaultHref, operator, applyForEdit, cloudOutline, discOutline, locateOutline};
+    return {entityName, recordId, title, backToHref, operator, applyForEdit, cloudOutline, discOutline, locateOutline};
   }
 });
 </script>

@@ -86,6 +86,7 @@ export default defineComponent({
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
+    debugger;
     const router = useIonRouter();
     const { entityName } = useEntityContext();
     const virtualScroller = ref(null) as Ref<any>;

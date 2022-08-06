@@ -13,3 +13,4 @@ export * from './entity-record.store';
 export * from './entity-search-form.store';
 export * from './entity-edit-form.store';
 export * from './entity-tab.store';
+export * from './entity-pcb.store';

@@ -1,38 +1,36 @@
 import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
-import { delay, from, Observable, of, catchError } from 'rxjs';
-import { authRequestInterceptor } from '../auth';
+import {  from, Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { authRequestInterceptor, authResponseInterceptor } from '../auth';
 import { YNCacheKey, cacheService } from '../cache.service';
-import { loadingService } from '../loading.service';
-import { APP_URL } from './url';
+import { loadingRequestInterceptor, loadingResponseInterceptor } from '../loading.service';
+import { YN_BASE_URL } from './url';
 
-const _axios = axios.create({
-  baseURL: APP_URL.Base,
+
+
+const YNAxios = axios.create({
+  baseURL: YN_BASE_URL,
+  headers: {
+    ['content-type']: 'application/x-www-form-urlencoded'
+  }
 });
  
-_axios.interceptors.request.use((config) => {
-  loadingService.show();
-  return config;
-}, (error) => {
-  debugger;
-  loadingService.hide();
-  return Promise.reject(error);
-});
-_axios.interceptors.request.use(authRequestInterceptor, (error) => {
-  debugger;
-  return Promise.reject(error);
-});
+// stack, LIFO
+YNAxios.interceptors.request.use(...authRequestInterceptor);
+// convert postdata to URLSearchParams    
+YNAxios.interceptors.request.use((config: AxiosRequestConfig) => {
+  if (config.method === 'post' && Object.keys(config?.data).length) {
+    config.data = new URLSearchParams(config.data);
+  }
 
-_axios.interceptors.response.use((config) => {
-  debugger;
-  loadingService.hide();
-  return config;
-}, (error) => {
-  debugger;
-  loadingService.hide();
-  return Promise.reject(error);
+  return config;  
 });
-// _axios.interceptors.response.use(authRequestInterceptor, (error) => Promise.reject(error));
+YNAxios.interceptors.request.use(...loadingRequestInterceptor);
 
+
+// queue
+YNAxios.interceptors.response.use(...authResponseInterceptor);
+YNAxios.interceptors.response.use(...loadingResponseInterceptor);
 
 function fixConfig<T = any>(config?: AxiosRequestConfig<T> ) {
   //#region handle auth header;
@@ -54,16 +52,16 @@ export const httpService =  {
   // },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   get<T = any>(url: string, headers: Record<string, string | number | boolean>): Observable<T> {
-    return from(_axios.get(APP_URL.Base + url) as Promise<T>);
+    return from(YNAxios.get(url) as Promise<T>);
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  post<T = any, K = any>(url: string, data?: any, config?: AxiosRequestConfig<K>): Observable<T> {
-    return of({} as T).pipe(delay(100));
-    // return from(_axios.post(url, data) as Promise<T>).pipe(catchError(() => of([] as any as T)), delay(500));
+  post<T = any>(url: string, data: Record<string, any> = {}, config?: AxiosRequestConfig): Observable<T> {
+    // return of({} as T).pipe(delay(100));
+    return from(YNAxios.post(url, data, fixConfig(config)) as Promise<T>);
   },
   addRequestInterceptor(...args: [...Parameters<AxiosInterceptorManager<AxiosRequestConfig>['use']>, AxiosInstance?]) {
     const instance = args[2];
-    (instance || _axios).interceptors.request.use(...[args[0], args[1]]);
+    (instance || YNAxios).interceptors.request.use(...[args[0], args[1]]);
   }
 };
 

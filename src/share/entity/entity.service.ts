@@ -1,4 +1,6 @@
-import { delay, of, take } from 'rxjs';
+/* eslint-disable no-else-return */
+import { delay, Observable, of, take, map } from 'rxjs';
+import { httpService, YNAPI_JXT } from '../http';
 import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
 import { characters, entityMappingTitle } from "./entity.store";
 import { Entities, EntityRecord, FormField } from "./entity.types";
@@ -45,10 +47,11 @@ export function getEditForm$(entityName: Entities) {
   return of(result);
 }
 
-export function getRecords(entityName: Entities, criteria?: any, pagination?: {current: number, pageSize: number}) {
-  const _records: EntityRecord[] = [];
+export function getRecords(entityName: Entities, criteria?: any, pagination?: {current: number, pageSize: number}): Observable<EntityRecord[]> {
+  
   if (pagination) {
     if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
+      const _records: EntityRecord[] = [];
       for(let index = 0; index < 20; index++) {
         _records.push({
           id: index,
@@ -59,23 +62,36 @@ export function getRecords(entityName: Entities, criteria?: any, pagination?: {c
           colC: criteria.tabId === 't1' ? '遙信' :  criteria.tabId === 't2' ? '遥测' : '遥脉' ,
         } as EntityRecord);
       }
+      return of(_records).pipe(delay(300), take(1));
     }else {
-      for(let index = (pagination.current - 1) * pagination.pageSize; index < pagination.pageSize * pagination.current; index++) {
-        const item: EntityRecord = {
-          id: index,
-          avatar: 'assets/circuit.jpg',
-          displayName: `标题 ${entityMappingTitle[entityName]} ${index + 1}`,
-          colA:  `字段 ${characters[Math.floor(Math.random() * 10)]}`,
-          colB:  `列表项， 描述文本内容`,
-          colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
-        };
-        if ([Entities.LightingControl, Entities.Operations].includes(entityName)) {
-          item['controlCol'] = !!(Math.floor(Math.random() * 10) % 2);
+      if (entityName === Entities.Wirings) {
+        return httpService.post<{data?: EntityRecord[]}>(YNAPI_JXT.GetList).pipe(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          map(response => {
+            return response?.data || [];
+          })
+        );
+      } else {
+        const _records: EntityRecord[] = [];
+        for(let index = (pagination.current - 1) * pagination.pageSize; index < pagination.pageSize * pagination.current; index++) {
+          const item: EntityRecord = {
+            id: index,
+            avatar: 'assets/circuit.jpg',
+            displayName: `标题 ${entityMappingTitle[entityName]} ${index + 1}`,
+            colA:  `字段 ${characters[Math.floor(Math.random() * 10)]}`,
+            colB:  `列表项， 描述文本内容`,
+            colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
+          };
+          if ([Entities.LightingControl, Entities.Operations].includes(entityName)) {
+            item['controlCol'] = !!(Math.floor(Math.random() * 10) % 2);
+          }
+          _records.push(item);
         }
-        _records.push(item);
+        return of(_records).pipe(delay(300), take(1));
       }
+
     }
   }
 
-  return of(_records).pipe(delay(300), take(1));
+  return of([]).pipe(delay(300), take(1));
 }

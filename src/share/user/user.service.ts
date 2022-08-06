@@ -1,5 +1,6 @@
-import { APP_URL, httpService } from "@/share";
+import { httpService, YNAPI_System } from "@/share";
 import { Entities, EntityViews } from "@/share/entity";
+import { of } from "rxjs";
 // import { codeWorkingOutline, fileTrayFullOutline, gitNetworkOutline, infiniteOutline, pulseOutline } from 'ionicons/icons';
 import { map } from "rxjs/operators";
 
@@ -61,15 +62,16 @@ const UserMenus: UserMenu[] =  [
 
 class UserService {
   getUserMenus() {
-    return httpService.post<UserMenu[]>(APP_URL.GetUserMenus).pipe(
-      map(() => {
-        return UserMenus;
-      }),
-    );
+    // return httpService.post<UserMenu[]>(YNAPI_System.GetUserMenus).pipe(
+    //   map(() => {
+    //     return UserMenus;
+    //   }),
+    // );
+    return of(UserMenus);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   checkPassword(useId: string, password: string) {
-    return httpService.post<{canAccess: boolean}>(APP_URL.CheckPassword).pipe(
+    return httpService.post<{canAccess: boolean}>(YNAPI_System.CheckPassword).pipe(
       map(() => {
         return !!((Math.random() * 10) % 2);
       }),

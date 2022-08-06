@@ -4,9 +4,12 @@ import { Entities, EntityRecord } from "./entity.types";
 import { getRecords } from './entity.service';
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 
+const initOpenRecord: EntityRecord = {} as EntityRecord;
+
 const initialState = { 
   entityName: '', 
   records: [] as EntityRecord[],
+  openRecordId: '',
   pagination: {
     current: 1,
     pageSize: 20,
@@ -60,6 +63,9 @@ export function useEntityRecordsStore(entityName: Entities) {
           });
         });
       },
+      getRecrod(recordId: string) {
+        return this.records.find(x => x.id.toString() === recordId) as EntityRecord;
+      },
       clearRecords() {
         this.$patch({
           records: [],
@@ -72,6 +78,12 @@ export function useEntityRecordsStore(entityName: Entities) {
           }
         });  
       },
+      setOpenRecord(recordId: string | number) {
+        this.$patch({
+          openRecordId: recordId.toString(),
+        });
+
+      }
     }
   })();
 }
