@@ -1,5 +1,5 @@
 <template>
-  <ion-radio-group :allowEmptySelection="false" :value="attrField.value">
+  <ion-radio-group :allowEmptySelection="true" :value="attrField.value"  @update:modelValue="change(attrField, $event)">
         <ion-list-header>
           <ion-label>
             {{ attrField.label }}
@@ -8,7 +8,7 @@
         <template v-for="option in attrField.options" :key="option.id">
           <ion-item>
             <ion-label>{{ option.value }}</ion-label>
-            <ion-radio :value="option.id"></ion-radio>
+            <ion-radio :value="option.id" ></ion-radio>
           </ion-item>
         </template>
       </ion-radio-group>
@@ -34,7 +34,6 @@ export default defineComponent({
   setup(props, {emit}) {
     const { field: attrField } = toRefs(props);
     const { change } = useVeeField(attrField, props.formName, emit);
-
     return {
       attrField,
       change,

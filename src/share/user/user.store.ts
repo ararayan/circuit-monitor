@@ -104,12 +104,17 @@ const userStoreFactory =  defineStore('user', {
   }
 });  
 
+type UserStoreFactory = typeof userStoreFactory;
+let instance: ReturnType<UserStoreFactory>;
+
 export const useUserStore = () => {
-  const instance = userStoreFactory();
-  // check is auto unsubscribe when store is dispose;
-  instance.$subscribe((mutation,state) => {
-    instance.getUserMenu();
-  }, {immediate: true, detached: true, deep: false});
+  if (!instance) {
+    instance = userStoreFactory();
+    // check is auto unsubscribe when store is dispose;
+    instance.$subscribe((mutation,state) => {
+      instance.getUserMenu();
+    }, {immediate: true, detached: true, deep: false});
+  }
   return instance;
 };
 

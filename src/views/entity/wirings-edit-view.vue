@@ -16,14 +16,13 @@
 </template>
 
 <script lang="ts">
-import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, useEntityContext, useEntityPCBStore, useEntityRecordsStore } from '@/share';
+import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, useEntityContext, useEntityEditFormStore, useEntityPCBStore, useEntityRecordsStore, QueryEditFormParams, SwitchItemStatusImageKeyMap } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { MutationType, storeToRefs } from 'pinia';
 import { defineComponent, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
 
 
 function isPointInRect(point: { x: number; y: number; }, rect: PCBRect) {
@@ -38,7 +37,6 @@ export default defineComponent({
   },
   setup() {
     const ionRouter = useIonRouter();
-    const vueRouter = useRouter();
     const { entityName, recordId } = useEntityContext();
     const userStore = useUserStore();
     const recordStore = useEntityRecordsStore(entityName);
@@ -48,13 +46,13 @@ export default defineComponent({
       return menus.value.find(item => item.id === entityName)?.name || '';
     });
     const defaultHref = entityName ? `/entity/${entityName}` : '/home';
-    const pcbStore = useEntityPCBStore(entityName);
-    const { baseMapItem, switchItems, fontItems } = storeToRefs(pcbStore);
+    const pcbStore = useEntityPCBStore(entityName, recordId);
+    const { baseMapItem } = storeToRefs(pcbStore);
 
     const openRecordId = recordStore.getRecrod(recordStore.openRecordId)?.id.toString() || recordId;
     pcbStore.getPCBInfos(openRecordId);
     let canvasSwitchItemInfos = {} as Record<string, PCBRect>;
-
+    
     onMounted(() => {
       const baseLayerCanvas = document.querySelector('#base-layer-canvas') as HTMLCanvasElement;
       const baseLayerCtx = baseLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
@@ -68,18 +66,15 @@ export default defineComponent({
             const mainViewImage = new Image();
             mainViewImage.src = 'data:image/jpeg;base64,' + baseMapItem.value;
             mainViewImage.onload = () => {
-              const width = mainViewImage.naturalWidth;
-              const height = mainViewImage.naturalHeight;
-              debugger;
               baseLayerCtx.drawImage(mainViewImage, 0, 0);
             };
           }
-
           if (mutation.payload.switchItems) {
             canvasSwitchItemInfos = {} as Record<string, PCBRect>;
-            const switchItems = mutation.payload.switchItems as PCBSwitchItem[];
-            switchItems.forEach(switchItem => {
-              const valueImgString = switchItem[switchItem.value as keyof PCBSwitchItem];
+            const switchItems = mutation.payload.switchItems as Record<string, PCBSwitchItem>;
+            Object.entries(switchItems).forEach(([,switchItem]) => {
+              const imageName = SwitchItemStatusImageKeyMap[switchItem.value];
+              const valueImgString = switchItem[imageName as keyof PCBSwitchItem];
               if (valueImgString) {
                 const switchImage = new Image();
                 switchImage.src = 'data:image/jpeg;base64,' + valueImgString;
@@ -98,6 +93,9 @@ export default defineComponent({
         }
       // draw canvas image
       }, {detached: true, immediate: true});
+      
+      debugger;
+      pcbStore.startSwitchItemsCheck();
     });
     const edit = function (event: PointerEvent) {
       const { offsetX: x, offsetY: y } = event;
@@ -111,8 +109,17 @@ export default defineComponent({
             skipSelfEntity: 1
           }
         });
+        const switchItem = pcbStore.getSwitchItem(clickedItemId);
+        const entityEditFormStore = useEntityEditFormStore(Entities.Operations, clickedItemId);
+        entityEditFormStore.$patch({
+          queryFormParams: {
+            parentRecordId: recordId,
+            recordId: clickedItemId,
+            kfId: switchItem.kf,
+            khId: switchItem.kh,
+          } as QueryEditFormParams
+        });
       }
-     
     };
 
 

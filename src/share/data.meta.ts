@@ -4,6 +4,11 @@ export const enum DataStatus {
     Loaded = 'loaded',
     Error = 'error',
 }
+export const enum ActionStatus {
+  Inactive = 'inactive',
+  InProgress = 'inProgress',
+  End = 'end',
+}
 export const enum DataFrom {
     LocalCache = 'local_cache',
     Server = 'server',

@@ -25,13 +25,17 @@ export const searchForm = Array.from({ length: 5 }).map((_, i) => ({
   persistent: true,
 } as FormField));
 
-
+export const ControlStatusTextMap = {
+  fen: '分闸',
+  he: '合闸',
+  wx: '无效',
+};
 
 export const editForm: FormField[] = [
-  {id: 'factoryName', label: '厂站：', name: 'factoryName', type: EntityAttrType.Text, value: '临汾铁路', readonly: true, disabled: false, persistent: true },
-  {id: 'description', label: '描述：', name: 'description', type: EntityAttrType.Text, value: '2号主变高后备314_开关操作', readonly: true, disabled: false, persistent: true  },
-  {id: 'location', label: '点名：', name: 'location', type: EntityAttrType.Text, value: '2号主变高后备314_开关操作',  readonly: true, disabled: false, persistent: true  },
-  {id: 'currentStatus', label: '当前状态：', name: 'currentStatus', type: EntityAttrType.Text, value: '信号复归',  readonly: true, disabled: false, persistent: true  },
+  {id: 'changzhan', label: '厂站：', name: 'factoryName', type: EntityAttrType.Text, value: '', readonly: true, disabled: false, persistent: true },
+  // {id: 'description', label: '描述：', name: 'description', type: EntityAttrType.Text, value: '2号主变高后备314_开关操作', readonly: true, disabled: false, persistent: true  },
+  {id: 'dianming', label: '点名：', name: 'location', type: EntityAttrType.Text, value: '',  readonly: true, disabled: false, persistent: true  },
+  {id: 'status', label: '当前状态：', name: 'currentStatus', type: EntityAttrType.Text, value: '',  readonly: true, disabled: false, persistent: true  },
   {id: 'controlType', label: '遥控类型：', name: 'currentStatus', type: EntityAttrType.Select, value: 'control3',  readonly: false, disabled: false, persistent: true, 
     options: [
       {id: 'control1', value: '遥控1'},
@@ -39,9 +43,9 @@ export const editForm: FormField[] = [
       {id: 'control3', value: '其它'},
     ]
   },
-  {id: 'powerSwitch', label: '对应：', name: 'powerSwitch', type: EntityAttrType.RadioGroup, value: 'open1',  readonly: false, disabled: false, persistent: true, 
+  {id: 'zhaStatus', label: '对应：', name: 'powerSwitch', type: EntityAttrType.RadioGroup, value: '',  readonly: false, disabled: false, persistent: true, 
     options: [
-      {id: 'open1', value: '分闸'},
-      {id: 'close2', value: '合闸'},
+      {id: 'fen', value: ControlStatusTextMap.fen},
+      {id: 'he', value: ControlStatusTextMap.he},
     ] },
 ];

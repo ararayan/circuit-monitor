@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
+import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
 import {  from, Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { authRequestInterceptor, authResponseInterceptor } from '../auth';
@@ -55,9 +55,9 @@ export const httpService =  {
     return from(YNAxios.get(url) as Promise<T>);
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  post<T = any>(url: string, data: Record<string, any> = {}, config?: AxiosRequestConfig): Observable<T> {
+  post<T = any>(url: string, data: Record<string, any> = {}, config?: AxiosRequestConfig): Observable<AxiosResponse<T>> {
     // return of({} as T).pipe(delay(100));
-    return from(YNAxios.post(url, data, fixConfig(config)) as Promise<T>);
+    return from(YNAxios.post(url, data, fixConfig(config)) as Promise<AxiosResponse<T>>);
   },
   addRequestInterceptor(...args: [...Parameters<AxiosInterceptorManager<AxiosRequestConfig>['use']>, AxiosInstance?]) {
     const instance = args[2];

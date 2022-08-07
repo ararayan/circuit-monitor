@@ -2,9 +2,21 @@
 import { delay, Observable, of, take, map } from 'rxjs';
 import { httpService, YNAPI_JXT } from '../http';
 import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
-import { characters, entityMappingTitle } from "./entity.store";
 import { Entities, EntityRecord, FormField } from "./entity.types";
 
+export const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+export const entityMappingTitle: Record<Entities, string> = {
+  [Entities.Wirings]: '接线图',
+  [Entities.Segments]: '间隔图',
+  [Entities.Realtime]: '实时数据',
+  [Entities.Operations]:  '控制操作', 
+  [Entities.LightingControl]: '照明管理', 
+  [Entities.Events]: '事件查询',
+  [Entities.SegmentsChild]: 'NUll',
+  [Entities.Empty]: 'NUll',
+
+};
 
 export function getSearchForm$(entityName: Entities) {
   let result: FormField[] = [];
@@ -39,7 +51,7 @@ export function getEditForm$(entityName: Entities) {
   let result: FormField[] = [];
   switch(entityName) {
   case Entities.Operations:
-    result = operations.editForm;
+    result = JSON.parse(JSON.stringify(operations.editForm));
     break;
   default:
     break;
@@ -65,7 +77,7 @@ export function getRecords(entityName: Entities, criteria?: any, pagination?: {c
       return of(_records).pipe(delay(300), take(1));
     }else {
       if (entityName === Entities.Wirings) {
-        return httpService.post<{data?: EntityRecord[]}>(YNAPI_JXT.GetList).pipe(
+        return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList).pipe(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           map(response => {
             return response?.data || [];

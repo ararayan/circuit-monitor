@@ -13,3 +13,10 @@ export enum YNAPI_JXT {
   GetPicture = '/PtlInterface/JXT_GetPicture',
   GetPCBStatus = '/PtlInterface/JXT_GetValueByIDs',
 }
+
+export enum YNAPI_KZCZ {
+  GetDetail = '/PtlInterface/KZCZ_GetDetail',
+  RemoteSelect = '/PtlInterface/KZCZ_RemoteSelect',
+  RemoteExcute = '/PtlInterface/KZCZ_RemoteExcute',
+  CheckControlResult = '/PtlInterface/KZCZ_CheckControlResult',
+}

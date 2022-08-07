@@ -27,7 +27,7 @@ interface UserResponseInfo {
 
 class AuthService {
   login(user: RequestUserInfo) {
-    return httpService.post<{data: UserResponseInfo}>(YNAPI_System.Login, {loginUserName: user.userName, pwd: user.password }).pipe(
+    return httpService.post<UserResponseInfo>(YNAPI_System.Login, {loginUserName: user.userName, pwd: user.password }).pipe(
       catchError(error => {
         return of({
           data: {

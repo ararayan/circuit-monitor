@@ -1,12 +1,12 @@
 import { Components } from '@ionic/core';
-import { loadingController } from '@ionic/vue';
+import { loadingController, LoadingOptions } from '@ionic/vue';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 
 class LoadingService {
   private count = 0;
   private loading: Components.IonLoading = null as any as Components.IonLoading;
-  async show() {
+  async show(options?: LoadingOptions) {
     if (this.count > 0 ){
       this.count++;
       return Promise.resolve(this.loading);
@@ -17,7 +17,7 @@ class LoadingService {
       .create({
         cssClass: 'my-custom-class',
         message: 'Please wait...',
-        // duration: this.timeout,
+        ...options,
       });
     
     await this.loading.present();
@@ -41,7 +41,9 @@ const loadingService = new LoadingService();
 
 const loadingRequestInterceptor = [
   (config: AxiosRequestConfig) => {
-    loadingService.show();
+    if (!config.params?.skipMask) {
+      loadingService.show(config.params?.loadingOptions);
+    }
     return config;
   },
   (error: any) => {
@@ -51,9 +53,11 @@ const loadingRequestInterceptor = [
 ];
 
 const loadingResponseInterceptor = [
-  (config: AxiosResponse) => {
-    loadingService.hide();
-    return config;
+  (response: AxiosResponse) => {
+    if (!response.config.params?.skipMask) {
+      loadingService.hide();
+    }
+    return response;
   }, (error: any) => {
     loadingService.hide();
     return Promise.reject(error);

@@ -3,33 +3,34 @@ import { DataStatus } from "../data.meta";
 import { Entities, EntityRecord } from "./entity.types";
 import { getRecords } from './entity.service';
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
+import { Subject } from "rxjs";
 
-const initOpenRecord: EntityRecord = {} as EntityRecord;
 
-const initialState = { 
-  entityName: '', 
-  records: [] as EntityRecord[],
-  openRecordId: '',
-  pagination: {
-    current: 1,
-    pageSize: 20,
-    cacheRadius: 1
-  },
-  meta: {
-    records: DataStatus.Unloaded,
-  }
-};
 
 
 export function useEntityRecordsStore(entityName: Entities) {
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.Record);
+  const destory$ = new Subject<boolean>();
+  const initialState = {
+    entityName: '',
+    records: [] as EntityRecord[],
+    openRecordId: '',
+    pagination: {
+      current: 1,
+      pageSize: 20,
+      cacheRadius: 1
+    },
+    meta: {
+      records: DataStatus.Unloaded,
+    }
+  };
   return defineStore(storeId, {
     state: () => {
-      return {...initialState, entityName};
+      return { ...initialState, entityName };
     },
     actions: {
       // getPreviousRecords
-      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean}) {
+      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean }) {
         const { criteria, isInit } = params;
         if (isInit) {
           this.$patch({
@@ -42,7 +43,7 @@ export function useEntityRecordsStore(entityName: Entities) {
               records: DataStatus.Loading
             }
           });
-        }else {
+        } else {
           this.$patch({
             meta: {
               records: DataStatus.Loading
@@ -50,7 +51,7 @@ export function useEntityRecordsStore(entityName: Entities) {
           });
         }
         const queryPageIndex = isInit ? 1 : this.pagination.current + 1;
-        getRecords(entityName, criteria || {}, {current: queryPageIndex, pageSize: this.pagination.pageSize}).subscribe(result => {
+        getRecords(entityName, criteria || {}, { current: queryPageIndex, pageSize: this.pagination.pageSize }).subscribe(result => {
           // split 
           this.$patch({
             records: [...this.records, ...(result || [])],
@@ -76,13 +77,22 @@ export function useEntityRecordsStore(entityName: Entities) {
           meta: {
             records: DataStatus.Unloaded
           }
-        });  
+        });
       },
       setOpenRecord(recordId: string | number) {
         this.$patch({
           openRecordId: recordId.toString(),
         });
 
+      },
+      destroy() {
+        destory$.next(true);
+        destory$.complete();
+
+        // fix: pinia.state will cache state even the store instance was remove by call self dispose;
+        // manual call reset make cahce state backto inital status; more detail see the state fn on below;
+        this.$reset();
+        this.$dispose();
       }
     }
   })();
