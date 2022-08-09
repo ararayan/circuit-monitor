@@ -1,8 +1,9 @@
 /* eslint-disable no-else-return */
 import { delay, Observable, of, take, map } from 'rxjs';
-import { httpService, YNAPI_JXT } from '../http';
+import { httpService, YNAPI_JGSJ, YNAPI_JXT } from '../http';
 import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
-import { Entities, EntityRecord, FormField } from "./entity.types";
+import { ControlStatusCode, ControlStatusTextMap } from './data/operations';
+import { Entities, EntityRecord, EntityRecordAlias, FormField } from "./entity.types";
 
 export const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -59,51 +60,56 @@ export function getEditForm$(entityName: Entities) {
   return of(result);
 }
 
-export function getRecords(entityName: Entities, criteria?: any, pagination?: {current: number, pageSize: number}): Observable<EntityRecord[]> {
-  
-  if (pagination) {
-    if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
+export interface FixedModuleRecord {
+  index: number;
+  name: string;
+  status: ControlStatusCode;
+}
+
+export function getRecords(entityName: Entities, params?: any): Observable<EntityRecord[]> {
+  if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
+    return httpService.post<EntityRecordAlias<FixedModuleRecord>[]>(YNAPI_JGSJ.GetData, params || {}).pipe(
+      map(response => {
+        //WIP: API
+        return response?.data.map(item => {
+          return {...item, id: item.index, status: ControlStatusTextMap[item.status]};
+        }).filter(x => !!x.name && !!x.status) || [];
+      })
+    );
+  } else {
+    if (entityName === Entities.Wirings) {
+      return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList).pipe(
+        map(response => {
+          return response?.data || [];
+        })
+      );
+    } else if (entityName ===  Entities.Segments) {
+      return httpService.post<EntityRecord[]>(YNAPI_JGSJ.GetList).pipe(
+        map(response => {
+          //WIP: API
+          return response?.data.map(item => ({...item, id: item.index})) || [];
+        })
+      );
+    }else {
       const _records: EntityRecord[] = [];
-      for(let index = 0; index < 20; index++) {
-        _records.push({
+      const startIndex = params?.startIndex || 0;
+      const endIndex = params?.endIndex || 20;
+      for(let index = startIndex; index < endIndex; index++) {
+        const item: EntityRecord = {
           id: index,
           avatar: 'assets/circuit.jpg',
-          displayName: `标题  ${criteria.tabId === 't1' ? '遙信' :  criteria.tabId === 't2' ? '遥测' : '遥脉'} ${index + 1}`,
-          colA:  `字段 ${characters[Math.floor(Math.random() * 10)]} `,
-          colB: `列表项， 描述文本内容`,
-          colC: criteria.tabId === 't1' ? '遙信' :  criteria.tabId === 't2' ? '遥测' : '遥脉' ,
-        } as EntityRecord);
+          displayName: `标题 ${entityMappingTitle[entityName]} ${index + 1}`,
+          colA:  `字段 ${characters[Math.floor(Math.random() * 10)]}`,
+          colB:  `列表项， 描述文本内容`,
+          colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
+        };
+        if ([Entities.LightingControl, Entities.Operations].includes(entityName)) {
+          item['controlCol'] = !!(Math.floor(Math.random() * 10) % 2);
+        }
+        _records.push(item);
       }
       return of(_records).pipe(delay(300), take(1));
-    }else {
-      if (entityName === Entities.Wirings) {
-        return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList).pipe(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          map(response => {
-            return response?.data || [];
-          })
-        );
-      } else {
-        const _records: EntityRecord[] = [];
-        for(let index = (pagination.current - 1) * pagination.pageSize; index < pagination.pageSize * pagination.current; index++) {
-          const item: EntityRecord = {
-            id: index,
-            avatar: 'assets/circuit.jpg',
-            displayName: `标题 ${entityMappingTitle[entityName]} ${index + 1}`,
-            colA:  `字段 ${characters[Math.floor(Math.random() * 10)]}`,
-            colB:  `列表项， 描述文本内容`,
-            colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
-          };
-          if ([Entities.LightingControl, Entities.Operations].includes(entityName)) {
-            item['controlCol'] = !!(Math.floor(Math.random() * 10) % 2);
-          }
-          _records.push(item);
-        }
-        return of(_records).pipe(delay(300), take(1));
-      }
-
     }
-  }
 
-  return of([]).pipe(delay(300), take(1));
+  }
 }

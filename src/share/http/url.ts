@@ -20,3 +20,11 @@ export enum YNAPI_KZCZ {
   RemoteExcute = '/PtlInterface/KZCZ_RemoteExcute',
   CheckControlResult = '/PtlInterface/KZCZ_CheckControlResult',
 }
+
+export enum YNAPI_JGSJ {
+  GetList = '/PtlInterface/JGSJ_GetList',
+  GetData = '/PtlInterface/JGSJ_SSSJ_GetData',
+}
+
+
+

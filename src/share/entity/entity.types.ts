@@ -1,4 +1,3 @@
-import { DataStatus } from "../data.meta";
 
 export const enum EntityAttrType {
     Text = 'text',
@@ -24,6 +23,14 @@ export interface EntityRecord {
     colB?:  string;
     [key: string]: any;
 }
+
+export type EntityRecordAlias<T extends Record<string, any> = any>  = {
+  [P in keyof T]: T[P];
+} & { 
+  id: string | number;
+};
+
+
 export interface FormField{
   id: string;
   label: string;
@@ -41,52 +48,7 @@ export interface FormField{
     isHideLabel?: boolean;
   }
 }
-export interface EntityTabInfo {
-  colName: string;
-  id: string;
-  value: string;
-  displayName: string;
-  selected: boolean;
-}
 
-// export enum EntityTrackDataType {
-//   Records = 'records',
-//   SearchForm = 'searchForm',
-//   EditForm = 'editForm',
-//   EntityTabs = 'entityTabs',
-// }
-// export interface EntityTrackData extends Partial<Record<EntityTrackDataType, unknown>>{
-//   records: EntityRecord[],
-//   searchForm: FormField[],
-//   editForm?: FormField[],
-//   entityTabs?: EntityTabInfo[],
-//   meta: Partial<Record<EntityTrackDataType, DataStatus>>
-// }
-export interface abc {
-  editForm: FormField[],
-  entityTabs: EntityTabInfo[],
-  meta: {
-    editForm: DataStatus,
-    entityTabs: DataStatus,
-  }
-}
-
-
-export type EntityBaseTrackData<T = object> = {
-  entityName: string;
-  editViewEntityName: Entities;
-  pagination: {current: number; pageSize: number; total: number;},
-  records: EntityRecord[],
-  searchForm: FormField[],
-  editForm: FormField[],
-  meta: {
-    records: DataStatus,
-    searchForm: DataStatus,
-    editForm: DataStatus,
-  }
-} & { [P in keyof T]: T[P] };
-
-export type EntityState = EntityBaseTrackData<abc>;
 
 
 export const enum Entities {

@@ -17,8 +17,7 @@ export function useEntityRecordsStore(entityName: Entities) {
     openRecordId: '',
     pagination: {
       current: 1,
-      pageSize: 20,
-      cacheRadius: 1
+      pageSize: 20
     },
     meta: {
       records: DataStatus.Unloaded,
@@ -30,9 +29,9 @@ export function useEntityRecordsStore(entityName: Entities) {
     },
     actions: {
       // getPreviousRecords
-      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean }) {
-        const { criteria, isInit } = params;
-        if (isInit) {
+      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean, hasPagination?: boolean}) {
+        const { criteria, isInit, hasPagination } = params;
+        if (isInit && hasPagination) {
           this.$patch({
             records: [],
             pagination: {
@@ -51,7 +50,10 @@ export function useEntityRecordsStore(entityName: Entities) {
           });
         }
         const queryPageIndex = isInit ? 1 : this.pagination.current + 1;
-        getRecords(entityName, criteria || {}, { current: queryPageIndex, pageSize: this.pagination.pageSize }).subscribe(result => {
+        const postData = hasPagination 
+          ? { ...criteria, startIndex: (queryPageIndex - 1) * this.pagination.pageSize, endIndex: queryPageIndex * this.pagination.pageSize }
+          : { ...criteria };
+        getRecords(entityName, postData).subscribe(result => {
           // split 
           this.$patch({
             records: [...this.records, ...(result || [])],

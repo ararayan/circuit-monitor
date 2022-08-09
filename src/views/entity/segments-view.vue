@@ -18,17 +18,12 @@
         </ion-header>
         <ion-content fullscreen :scroll-y="false">
           <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
+            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="60" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
                 <ion-item @click="openRecord(item)" class="entity-list-item">
-                  <ion-avatar slot="start">
-                    <img :src="item.avatar" />
-                  </ion-avatar>
                   <ion-label siz>
-                    <h2>{{ item.displayName }}</h2>
-                    <i>{{ item.colA }}</i>
-                    <p>{{ item.colB }}</p>
+                    <h2>{{ item.name }}</h2>
                   </ion-label>
                   <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
                 </ion-item>
@@ -53,7 +48,7 @@ import SearchFormPanel from '@/components/search-form-panel.vue';
 import { Entities, useEntityContext, useEntityDisplayName } from '@/share';
 import { EntityRecord, useEntityRecordsStore, useEntityRelationStore, useEntitySearchFormStore } from '@/share/entity';
 import {
-  InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonContent,
+  InfiniteScrollCustomEvent, IonBackButton, IonButtons, IonContent,
   IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton, useIonRouter
 } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
@@ -78,7 +73,6 @@ export default defineComponent({
     IonList,
     IonItem,
     IonContent,
-    IonAvatar,
     IonLabel,
     SearchFormPanel,
     RecycleScroller,
@@ -91,17 +85,18 @@ export default defineComponent({
     const virtualScroller = ref(null) as Ref<any>;
 
     const { title } = useEntityDisplayName(entityName);
+
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
 
     const recordStore = useEntityRecordsStore(entityName);
     const { records } = storeToRefs(recordStore);
-    
+
     const searchFormStore = useEntitySearchFormStore(entityName);
     const { searchForm } = storeToRefs(searchFormStore);
 
-    const relationEntity = useEntityRelationStore(entityName);
-    const { editViewEntityName } = storeToRefs(relationEntity);
+    const relationEntityStore = useEntityRelationStore(entityName);
+    const { editViewEntityName } = storeToRefs(relationEntityStore);
 
     function loadData (evt: InfiniteScrollCustomEvent) {
       // load data 
@@ -133,7 +128,7 @@ export default defineComponent({
     });
 
     // init 
-    relationEntity.setEditViewRelateEntity(Entities.SegmentsChild);
+    relationEntityStore.setEditViewRelateEntity(Entities.SegmentsChild);
     recordStore.getRecords(entityName, {isInit: true});
     
     // onMounted(() => {
@@ -141,7 +136,9 @@ export default defineComponent({
     // });
     onUnmounted(() => {
       result.unregister();
-      recordStore.$dispose();
+      recordStore.destroy();
+      searchFormStore.destroy();
+      relationEntityStore.destroy();
     });
   
     return {

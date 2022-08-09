@@ -9,7 +9,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :scroll-y="false">
-      <entity-list :entity-name="entityName" :tab-id="tabId"></entity-list>
+      <entity-list :entity-name="entityName" :tab-id="tabId" :record-id = "'-1'"></entity-list>
     </ion-content>
     <ion-footer>
       <entity-tab :tabList="entityTabs" @goto-tab="gotoTab($event)"></entity-tab>
@@ -21,7 +21,7 @@
 <script lang="ts">
 import EntityList from '@/components/entity-list.vue';
 import EntityTab from '@/components/entity-tab.vue';
-import { useEntityTabStore } from '@/share/entity';
+import { MixedModuleType, useEntityTabStore } from '@/share/entity';
 import { useEntityContext, useEntityDisplayName } from '@/share/hooks';
 import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
@@ -42,7 +42,7 @@ export default defineComponent({
     
     const { title } = useEntityDisplayName(entityName);
 
-    function gotoTab(tabId: string) {
+    function gotoTab(tabId: MixedModuleType) {
       const selectedTab = entityTabs.value.find(tab => tab.selected);
       if (selectedTab?.id !== tabId) {
         entityTabStore.setTabSelected(tabId);
@@ -52,7 +52,7 @@ export default defineComponent({
     }
 
     onUnmounted(() => {
-      entityTabStore.$dispose();
+      entityTabStore.destroy();
     });
     return { title, gotoTab, entityTabs, entityName, tabId };
   },

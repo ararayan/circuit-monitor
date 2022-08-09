@@ -5,18 +5,19 @@ import { getSearchForm$ } from './entity.service';
 import { catchError, of, take } from 'rxjs';
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 
-const initialState = { 
-  entityName: '', 
-  searchForm: [] as  FormField[],
-  meta: {
-    searchForm: DataStatus.Unloaded,
-  }
-};
+
 
 export function useEntitySearchFormStore(entityName: Entities) {
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.SearchForm);
   return defineStore(storeId, {
     state: () => {
+      const initialState = { 
+        entityName: '', 
+        searchForm: [] as  FormField[],
+        meta: {
+          searchForm: DataStatus.Unloaded,
+        }
+      };
       return {...initialState, entityName};
     },
     actions: {
@@ -42,6 +43,10 @@ export function useEntitySearchFormStore(entityName: Entities) {
           });
         }
       },
+      destroy () {
+        this.$dispose();
+        this.$reset();
+      }
     }
   })();
 }

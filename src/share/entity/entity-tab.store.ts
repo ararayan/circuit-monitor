@@ -1,24 +1,39 @@
 import { defineStore } from 'pinia';
 import { of, take } from 'rxjs';
 import { DataStatus } from '../data.meta';
-import { Entities, EntityTabInfo } from './entity.types';
+import { Entities } from './entity.types';
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 
-const initialState = {
-  entityName: '', 
-  tabId: '',
-  entityTabs: [] as EntityTabInfo[],
-  meta: {
-    entityTabs: DataStatus.Unloaded,
-  }
-};
 
 
+//Programmable logic controller (PLC), DCS & PAC: mixed module (遥测AI/遥调AO/遥信DI/遥控DO) - system integrated circuits and reference designs
+export enum MixedModuleType {
+  Yx = 'yx',
+  Yc = 'yc',
+  Ym = 'ym'
+}
+
+export interface EntityTabInfo {
+  colName: string;
+  id: MixedModuleType;
+  value: string;
+  displayName: string;
+  selected: boolean;
+}
 
 export function useEntityTabStore(entityName: Entities) {
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.Tab);
   const store = defineStore(storeId, {
     state: () => {
+      const initialState = {
+        entityName: '', 
+        tabId: '',
+        entityTabs: [] as EntityTabInfo[],
+        meta: {
+          entityTabs: DataStatus.Unloaded,
+        }
+      };
+      
       return {...initialState, entityName};
     },
     actions: {
@@ -27,23 +42,23 @@ export function useEntityTabStore(entityName: Entities) {
           of(entityName).pipe(take(1)).subscribe(() => {
             const tabs = [
               {
-                colName: 'colC',
-                id: 't1',
-                value: 't1',
+                colName: MixedModuleType.Yx,
+                id: MixedModuleType.Yx,
+                value: MixedModuleType.Yx,
                 displayName: '遙信',
                 selected: true
               },
               {
-                colName: 'colC',
-                id: 't2',
-                value: 't2',
+                colName: MixedModuleType.Yc,
+                id: MixedModuleType.Yc,
+                value: MixedModuleType.Yc,
                 displayName: '遥测',
                 selected: false
               },
               {
-                colName: 'colC',
-                id: 't3',
-                value: 't3',
+                colName: MixedModuleType.Ym,
+                id: MixedModuleType.Ym,
+                value: MixedModuleType.Ym,
                 displayName: '遥脉',
                 selected: false
               },
@@ -57,7 +72,7 @@ export function useEntityTabStore(entityName: Entities) {
           });
         }
       },
-      setTabSelected(tabId: string) {
+      setTabSelected(tabId: MixedModuleType) {
         const tabs = this.entityTabs.map(tab => {
           tab.selected = tab.id === tabId;
           return {...tab};
@@ -66,8 +81,12 @@ export function useEntityTabStore(entityName: Entities) {
           entityTabs: tabs
         });
       },
-      selectEntityTab(tabId: string) {
+      selectEntityTab(tabId: MixedModuleType) {
         this.tabId = tabId || '';
+      },
+      destroy() {
+        this.$dispose();
+        this.$reset();
       }
     }
   });

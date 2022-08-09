@@ -3,7 +3,7 @@
         <div class="cs-tab-item ripple-parent ion-activatable" lines="none" color="light"
             :class="{ 'cs-tab-item-selected': tab.selected }" v-for="tab in tabs" :key="tab.id"
             @click="$emit('gotoTab', tab.id)">
-            <ion-icon :icon="tab.id == 't1' ? radioOutline : tab.id == 't2' ? scaleOutline : pulseOutline" size="small" slot="start"
+            <ion-icon :icon="tabsIconMap[tab.id]" size="small" slot="start"
                 class="cs-tab-icon"></ion-icon>
             <ion-label class="cs-tab-label">{{ tab.displayName }}</ion-label>
             <ion-ripple-effect></ion-ripple-effect>
@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { EntityTabInfo } from '@/share/entity';
+import { EntityTabInfo, MixedModuleType } from '@/share/entity';
 import { IonIcon, IonLabel, IonRippleEffect } from '@ionic/vue';
 import { toRefs } from '@vue/reactivity';
 import { pulseOutline, radioOutline, scaleOutline } from 'ionicons/icons';
@@ -31,13 +31,17 @@ export default defineComponent({
   emits: ['gotoTab'],
   setup(props,  { emit }) {
     const { tabList: tabs } = toRefs(props);
+    const tabsIconMap = {
+      [MixedModuleType.Yx]: radioOutline,
+      [MixedModuleType.Yc]: scaleOutline,
+      [MixedModuleType.Ym]: pulseOutline,
+    };
     watch(tabs, () => {
-      debugger;
       const selectedTab = tabs.value.find(tab => tab.selected);
       emit('gotoTab', selectedTab?.id);
     }, {immediate: true});
 
-    return { tabs, scaleOutline, pulseOutline, radioOutline, };
+    return { tabs, tabsIconMap, scaleOutline, pulseOutline, radioOutline, };
   },
 });
 </script>

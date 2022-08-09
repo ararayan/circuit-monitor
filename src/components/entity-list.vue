@@ -8,9 +8,8 @@
             <img :src="item.avatar" />
           </ion-avatar>
           <ion-label siz>
-            <h2>{{ item.displayName }}</h2>
-            <i>{{ item.colA }}</i>
-            <p>{{ item.colB }}</p>
+            <h2>{{ item.name }}</h2>
+            <i>{{ item.status }}</i>
           </ion-label>
           <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
         </ion-item>
@@ -65,18 +64,22 @@ export default defineComponent({
   },
   props: {
     entityName: { type: String as PropType<Entities>, required: true },
+    recordId: { type: String, required: true},
     tabId: {type: String, required: true },
   },
   setup(props) {
-    const { entityName, tabId } = toRefs(props);
-    const recordStore = useEntityRecordsStore(entityName.value);
+    const { tabId, } = toRefs(props);
+    const recordStore = useEntityRecordsStore(props.entityName);
     const { records }  = storeToRefs(recordStore);
     const skeletonSize: string[] = Array.from({ length: 12 });
     const virtualScroller = ref(null) as Ref<any>;
 
     watch(tabId, () => {
       if (tabId.value) {
-        recordStore.getRecords(props.entityName, {criteria: {tabId: tabId.value}, isInit: true });
+        if (virtualScroller.value) {
+          virtualScroller.value?.scrollToPosition(0);
+        }
+        recordStore.getRecords(props.entityName, {criteria: { jgid: props.recordId,  type: tabId.value }, isInit: true, hasPagination: true });
       }
     }, {immediate: true});
 
@@ -90,7 +93,7 @@ export default defineComponent({
             if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
               console.log('Loaded data');
               if (virtualScroller.value) {
-                virtualScroller.value?.['updateVisibleItems'](true);
+                virtualScroller.value?.updateVisibleItems(true);
               }
               evt.target.complete();
               subscription();
@@ -98,19 +101,18 @@ export default defineComponent({
           }
         }, {detached: true});
 
-        recordStore.getRecords(props.entityName, { criteria: {tabId: tabId.value} });
+        recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId,  type: tabId.value }, hasPagination: true });
         // App logic to determine if all data is loaded
         // and disable the infinite scroll
       }, 500);
     }
 
-    function openRecord (item: EntityRecord) {
-      // debugger;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    function openRecord (item: EntityRecord) {}
     onUnmounted(() => {
-      recordStore.$dispose();
+      recordStore.destroy();
     });
-    return { records, scaleOutline, pulseOutline, radioOutline, chevronForwardOutline, loadData, skeletonSize, openRecord };
+    return { records, scaleOutline, pulseOutline, radioOutline, chevronForwardOutline, loadData, skeletonSize, openRecord, virtualScroller };
   },
 });
 </script>

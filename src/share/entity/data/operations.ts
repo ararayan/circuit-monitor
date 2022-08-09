@@ -25,11 +25,19 @@ export const searchForm = Array.from({ length: 5 }).map((_, i) => ({
   persistent: true,
 } as FormField));
 
-export const ControlStatusTextMap = {
+export enum ControlStatusCode {
+  Fen = 'fen',
+  He = 'he',
+  Wx = 'wx'
+}
+
+export const ControlStatusTextMap: Record<ControlStatusCode, string> = {
   fen: '分闸',
   he: '合闸',
   wx: '无效',
 };
+
+
 
 export const editForm: FormField[] = [
   {id: 'changzhan', label: '厂站：', name: 'factoryName', type: EntityAttrType.Text, value: '', readonly: true, disabled: false, persistent: true },
