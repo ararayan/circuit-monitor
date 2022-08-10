@@ -1,10 +1,11 @@
 import { router } from '@/router';
-import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { YNCacheKey, cacheService } from '../cache.service';
+import { useUserStore } from '../user';
+
 
 const authRequestInterceptor = [
   (config: AxiosRequestConfig) => {
-
     const token = cacheService.get(YNCacheKey.AccessToken);
     config.headers = config.headers || {};
     if (token) {
@@ -23,10 +24,13 @@ const authResponseInterceptor = [
   async (response:AxiosResponse) => {
     return response;
   },
-  async (error: AxiosResponse) => {
-
-    const originalConfig = error.config;
-    if (error.status === 401) {
+  async (error: any) => {
+    const status = (error as AxiosError)?.response?.status;
+    if (status === 401) {
+      const userStore = useUserStore();
+      userStore.resetUserInfo();
+      cacheService.remove(YNCacheKey.AccessToken);
+      cacheService.remove(YNCacheKey.User);
       router.replace({
         path: '/login',
         query: {redirect: router.currentRoute.value.fullPath}

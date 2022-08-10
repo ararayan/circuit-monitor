@@ -12,15 +12,15 @@
           <ion-item lines="none">
             <ion-img src="assets/yanneng.jpg" style="height: 30vh; min-height: 200px; margin: 0 auto;"></ion-img>
           </ion-item>
-          <ion-item style="background: #fff" class="ion-padding-horizontal" :class="{ 'ion-invalid': invalid }" >
+          <ion-item style="background: #fff" class="ion-padding-horizontal" :class="{ 'ion-invalid': loginError }" >
             <ion-label position="floating">
               <ion-icon size="large" color="medium" :icon="personCircleOutline" slot="start"
                 style="vertical-align: bottom; margin-right: 0.25em"></ion-icon>
               <ion-note color="medium">用户名</ion-note>
             </ion-label>
-            <ion-input name="name" type="text" v-model="form.userName" @change="onUserInfoChanged()"></ion-input>
+            <ion-input name="name" type="text" v-model="form.loginUserName" @change="onUserInfoChanged()"></ion-input>
           </ion-item>
-          <ion-item style="background: #fff" class="ion-padding-horizontal ion-margin-bottom" :class="{ 'ion-invalid': invalid }">
+          <ion-item style="background: #fff" class="ion-padding-horizontal ion-margin-bottom" :class="{ 'ion-invalid': loginError }">
             <ion-label position="floating">
               <ion-icon size="large" color="medium" :icon="lockClosedOutline" slot="start"
                 style="vertical-align: bottom; margin-right: 0.25em"></ion-icon>
@@ -38,7 +38,7 @@
             <ion-icon slot="end" :icon="arrowForwardCircleOutline"></ion-icon>
           </ion-button>
 
-          <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none" v-if="invalid">
+          <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none" v-if="loginError">
             <ion-label color="danger">{{loginErrorMsg}}</ion-label>
           </ion-item>
         </ion-card-content>
@@ -68,11 +68,11 @@ export default defineComponent({
   },
   setup() {
     const userStore = useUserStore();
-    const { user: form, loginErrorMsg, invalid } = storeToRefs(userStore);
+    const { user: form, loginErrorMsg, loginError } = storeToRefs(userStore);
     const router = useRouter();
     function login() {
       const data = {
-        userName: form.value.userName,
+        userName: form.value.loginUserName,
         password: form.value.password,
         remenberPassword: form.value.remenberPassword,
       };
@@ -85,7 +85,7 @@ export default defineComponent({
       }
     });
     function onUserInfoChanged() {
-      if (invalid) {
+      if (loginError) {
         userStore.emptyLoginErrorMsg();
       }
     }
@@ -97,7 +97,7 @@ export default defineComponent({
       form,
       login,
       onUserInfoChanged,
-      invalid,
+      loginError,
       loginErrorMsg,
       personCircleOutline,
       arrowForwardCircleOutline,

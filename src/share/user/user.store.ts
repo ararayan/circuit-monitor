@@ -1,8 +1,8 @@
 import { YNCacheKey, cacheService, DataStatus } from '@/share';
-import { authService, RequestUserInfo, ResponseUserInfo } from '@/share/auth';
+import { authService, RequestUserInfo, ResponseUserInfo, UpdatePasswordInfo } from '@/share/auth';
 import { defineStore } from 'pinia';
-import { catchError, delay, EMPTY, of, tap } from 'rxjs';
-import { useRouter } from 'vue-router';
+import { of,  } from 'rxjs';
+import {  catchError, delay, take, tap } from 'rxjs/operators'
 import { UserMenu, userService } from './user.service';
 
 const user = cacheService.get(YNCacheKey.User) as ResponseUserInfo;
@@ -11,16 +11,18 @@ const user = cacheService.get(YNCacheKey.User) as ResponseUserInfo;
 export interface UserState {
     isAuth: boolean;
     loginErrorMsg: string;
+    updatePasswordResultMsg: string;
     user: ResponseUserInfo;
     menus: UserMenu[];
     menusStatus: DataStatus,
 }
 
 const initialState: UserState = user
-  ? {isAuth: true, loginErrorMsg: '', user, menus: [] as UserMenu[], menusStatus: DataStatus.Unloaded, }
+  ? {isAuth: true, loginErrorMsg: '',  updatePasswordResultMsg: '', user, menus: [] as UserMenu[], menusStatus: DataStatus.Unloaded, }
   : {
     isAuth: false, 
-    loginErrorMsg: '',  
+    loginErrorMsg: '',
+    updatePasswordResultMsg: '',
     user: {
       userId: '',
       userName: '',
@@ -36,8 +38,11 @@ const initialState: UserState = user
 const userStoreFactory =  defineStore('user', {
   state: () => initialState,
   getters: {
-    invalid: (state) => {
+    loginError: (state) => {
       return !state.isAuth && !!state.loginErrorMsg;
+    },
+    updatePasswordError: (state) => {
+      return !!state.updatePasswordResultMsg;
     }
   },
   actions: {
@@ -69,6 +74,30 @@ const userStoreFactory =  defineStore('user', {
           isAuth: false,
           loginErrorMsg: '',
         });
+      });
+    },
+    resetUserInfo() {
+      this.$patch({
+        isAuth: false,
+        loginErrorMsg: '',
+        updatePasswordResultMsg: '',
+        user: {
+          password: '',
+        }
+      });
+    },
+    updatePassword(updateInfo: UpdatePasswordInfo) {
+      if (updateInfo.newPwd !== updateInfo.newPwd2) {
+        this.$patch({
+          updatePasswordResultMsg: '确认密码与新密码不匹配，请重新输入.'
+        });
+        return ;
+      }
+      authService.updatePassword(updateInfo).pipe(take(1)).subscribe();
+    },
+    resetUpdatePwdValidation(){
+      this.$patch({
+        updatePasswordResultMsg: ''
       });
     },
     emptyLoginErrorMsg(){

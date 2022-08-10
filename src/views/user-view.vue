@@ -10,10 +10,11 @@
         </ion-header>
         <ion-content fullscreen class="ion-padding">
             <ion-list v-for="field in fields" :key="field.id">
-                <attr-field :field="field" :formName="entityName"></attr-field>
+                <attr-field :field="field" :formName="entityName" @update:value="updateValue()"></attr-field>
             </ion-list> 
         </ion-content>
-        <ion-footer style="padding: 0.4em 1em; display: flex; width: 100%; justify-content: center;" :class="[operator.cssClass]">
+        <ion-footer style="padding: 0.4em 1em;display: flex;width: 100%;justify-content: flex-end; align-items: center;" :class="[operator.cssClass]">
+          <ion-label color="danger" class="ion-padding-end" :class="{'ion-hide': !!!updatePasswordResultMsg}">{{updatePasswordResultMsg}}</ion-label>
           <ion-button  @click="save()"  style="min-width: 10em;" :color="operator.color">
             <ion-icon :icon="operator.icon" slot="start"></ion-icon>
             <ion-label>{{operator.value}}</ion-label>
@@ -29,6 +30,10 @@ import { ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { defineComponent } from 'vue';
 import AttrField from '@/components/attr-field.vue';
+import { useUserStore } from '@/share/user';
+import { storeToRefs } from 'pinia';
+import { UpdatePasswordInfo } from '@/share/auth/auth.service';
+
 
 export default defineComponent({
   name: 'UserView',
@@ -39,50 +44,35 @@ export default defineComponent({
     IonFooter
   },
   setup() {
-    const operator = ref({id: 'apply_for_edit', value: '保存', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
-
+    const operator = ref({id: 'save', value: '保存', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
+    const userStore = useUserStore();
+    const { user, updatePasswordError, updatePasswordResultMsg } = storeToRefs(userStore);
     const entityName = 'user' as any;
+
     const fields: FormField[] = [
-      {id: 'userName', label: '用户名', name: 'factoryName', type: EntityAttrType.Text, value: '陈志杰', readonly: true, disabled: true, persistent: true },
-      {id: 'password', label: '新密码', name: 'description', type: EntityAttrType.Password, value: '******', readonly: false, disabled: false, persistent: true },
-      {id: 'passwordConfirm', label: '确认密码', name: 'location', type: EntityAttrType.Password, value: '******',  readonly: false, disabled: false, persistent: true  },
+      {id: 'userName', label: '用户名', name: 'userName', type: EntityAttrType.Text, value: user.value.userName, readonly: true, disabled: true, persistent: true },
+      {id: 'oldPwd', label: '旧密码', name: 'oldPwd', type: EntityAttrType.Password, value: '', readonly: false, disabled: false, persistent: true },
+      {id: 'newPwd', label: '新密码', name: 'newPwd', type: EntityAttrType.Password, value: '', readonly: false, disabled: false, persistent: true },
+      {id: 'newPwd2', label: '确认密码', name: 'newPwd2', type: EntityAttrType.Password, value: '',  readonly: false, disabled: false, persistent: true  },
     ];
 
-    const presentLoading = async (msg: string) => {
-      const loading = await loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: msg,
-          duration: 20*1000,
-        });
-        
-      await loading.present();
-      return loading;
-      // loading.dismiss()
+
+    userStore.resetUpdatePwdValidation();
+
+    const updateValue = () => {
+      userStore.resetUpdatePwdValidation();
     };
-    const openToast = async (msg: string) => {
-      const toast = await toastController
-        .create({
-          message: msg,
-          duration: 1000,
-          color: 'success'
-        });
-      toast.present();
-      return toast.onDidDismiss();
-    };
+    
     const save = () => {
-      presentLoading('保存中，请等候...').then(loading => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            loading.dismiss();
-            resolve(true);
-          }, 200);
-        });
-      }).then(() => {
-        return openToast('密码修改成功.');
-      });
+      const updateInfo = fields.reduce((acc, item) => {
+        if (item.id !== 'userName') {
+          acc[item.id as keyof UpdatePasswordInfo] = item.value as string;
+        }
+        return acc;
+      }, {} as UpdatePasswordInfo);
+      userStore.updatePassword(updateInfo);
     };
-    return {entityName, fields, operator, save, cloudOutline, discOutline, locateOutline};
+    return {entityName, fields, operator, save, cloudOutline, discOutline, locateOutline, updatePasswordError, updatePasswordResultMsg, updateValue};
   }
 });
 </script>

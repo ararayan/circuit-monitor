@@ -1,10 +1,10 @@
 <template>
-  <component :is="control" v-bind="props"></component>
+  <component :is="control" v-bind="props" v-on="on" ref="controlRef"></component>
 </template>
 
 <script lang="ts">
 import { Entities, EntityAttrType, FormField } from '@/share/entity';
-import { DefineComponent, defineComponent, PropType } from 'vue';
+import { ComponentPublicInstance, DefineComponent, defineComponent, PropType, ref, Ref } from 'vue';
 import CheckboxField from '@/controls/checkbox-field.vue';
 import DateField from '@/controls/date-field.vue';
 import DateTimeField from '@/controls/date-time-field.vue';
@@ -35,6 +35,7 @@ const EntityAttrControlMap: Record<EntityAttrType, any> = {
   [EntityAttrType.Url]: UrlField,
 };
 
+export const UpdateValueEventName = 'update:value';
 export default defineComponent({
   name: 'AttrField',
   components: {CheckboxField, DateField, DateTimeField, NumericField, RadioField, RadioGroupField, SelectField, TelField, TextareaField, TextField, TimeField, UrlField },
@@ -42,11 +43,20 @@ export default defineComponent({
     formName: { type: String as PropType<Entities>, required: true },
     field: { type: Object as PropType<FormField>, required: true }
   },
-  setup(props) {
+  emits: [UpdateValueEventName],
+  setup(props, { emit }) {
     const control = EntityAttrControlMap[props.field.type] || `can't find the control for field type: ${props.field.type}`;
+    const controlRef = ref(null) as Ref<any> as Ref<ComponentPublicInstance>;
+    const on = {
+      [UpdateValueEventName]: (args: any) => {
+        emit(UpdateValueEventName, args);
+      }
+    }
     return {
       control,
-      props
+      props,
+      on,
+      controlRef,
     };
   }
 });

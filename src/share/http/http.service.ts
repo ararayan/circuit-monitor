@@ -37,12 +37,12 @@ function fixConfig<T = any>(config?: AxiosRequestConfig<T> ) {
   const resultConfig = config ? config : Object.create(null) as AxiosRequestConfig<T>;
   resultConfig.headers = resultConfig.headers ? resultConfig.headers : Object.create(null) as AxiosRequestHeaders;
   resultConfig.headers = {
-    ['x-token']: cacheService.get(YNCacheKey.AccessToken) || '',
+    ['token']: cacheService.get(YNCacheKey.AccessToken) || '',
     ...resultConfig.headers
   };
   //#endregion
 
-  return config;  
+  return resultConfig;  
 }
 
 
@@ -57,7 +57,7 @@ export const httpService =  {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   post<T = any>(url: string, data: Record<string, any> = {}, config?: AxiosRequestConfig): Observable<AxiosResponse<T>> {
     // return of({} as T).pipe(delay(100));
-    return from(YNAxios.post(url, data, fixConfig(config)) as Promise<AxiosResponse<T>>);
+    return from(YNAxios.post(url, data, config) as Promise<AxiosResponse<T>>);
   },
   addRequestInterceptor(...args: [...Parameters<AxiosInterceptorManager<AxiosRequestConfig>['use']>, AxiosInstance?]) {
     const instance = args[2];

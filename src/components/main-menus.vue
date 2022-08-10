@@ -11,8 +11,8 @@
               <ion-img src="assets/user/avatar_1.svg"></ion-img>
             </ion-avatar>
             <ion-label>
-              <h3>陈志杰</h3>
-              <p>chezhijie@outlook.com</p>
+              <h3>{{user.userName}}</h3>
+              <p>{{user.email}}</p>
             </ion-label>
           </ion-item>
         </ion-list-header>
@@ -94,6 +94,8 @@ import {
 } from '@ionic/vue';
 import { settingsOutline, homeOutline, bookOutline, colorFilterOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/share/user';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
   name: 'MainMenus',
@@ -110,6 +112,8 @@ export default defineComponent({
   },
   setup(props) {
     const router = useRouter();
+    const userStore = useUserStore();
+    const { user } = storeToRefs(userStore);
     const menuId = toRef(props, 'contentId');
     const gotoHome = () => {
       router.push('/home');
@@ -121,7 +125,7 @@ export default defineComponent({
       router.push('/about');
     };
 
-    return { menuId, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout, colorFilterOutline };
+    return { user, menuId, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout, colorFilterOutline };
   }
 });
 </script>

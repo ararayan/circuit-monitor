@@ -22,6 +22,8 @@ interface UserResponseInfo {
   message: string;
   success: boolean;
 }
+
+export type UpdatePasswordInfo =  Record<'oldPwd' | 'newPwd' | 'newPwd2', string>;
 // remenber true, userName and password save in localStorage
 // remenber false, userName and password save in sessionStorage
 
@@ -71,6 +73,17 @@ class AuthService {
       })
     );
     // return of(cacheService.remove(YNCacheKey.AccessToken));
+  }
+  updatePassword(params: UpdatePasswordInfo) {
+    return httpService.post(YNAPI_System.UpdatePwd, params).pipe(
+      tap(response => {
+        debugger;
+      }),
+      catchError(err => {
+        debugger;
+        return of(err);
+      })
+    );
   }
 }
 
