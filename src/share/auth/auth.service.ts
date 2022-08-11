@@ -85,6 +85,13 @@ class AuthService {
       })
     );
   }
+  checkPassword(password: string) {
+    return httpService.post<boolean>(YNAPI_System.CheckPassword, { password}).pipe(
+      map((response => {
+        return response.data;
+      }))
+    );
+  }
 }
 
 export const authService = new AuthService();

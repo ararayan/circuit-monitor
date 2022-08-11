@@ -1,6 +1,6 @@
 /* eslint-disable no-else-return */
 import { delay, Observable, of, take, map } from 'rxjs';
-import { httpService, YNAPI_JGSJ, YNAPI_JXT } from '../http';
+import { httpService, YNAPI_JGSJ, YNAPI_JXT, YNAPI_KZCZ } from '../http';
 import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
 import { ControlStatusCode, ControlStatusTextMap } from './data/operations';
 import { Entities, EntityRecord, EntityRecordAlias, FormField } from "./entity.types";
@@ -68,6 +68,7 @@ export interface FixedModuleRecord {
 
 export function getRecords(entityName: Entities, params?: any): Observable<EntityRecord[]> {
   if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
+    debugger;
     return httpService.post<EntityRecordAlias<FixedModuleRecord>[]>(YNAPI_JGSJ.GetData, params || {}).pipe(
       map(response => {
         //WIP: API
@@ -89,7 +90,22 @@ export function getRecords(entityName: Entities, params?: any): Observable<Entit
           return response?.data || [];
         })
       );
-    }else {
+    } else if (entityName === Entities.Operations) {
+      return httpService.post<EntityRecord[]>(YNAPI_KZCZ.GetList).pipe(
+        map(response => {
+          //#WIP: after API Ready remove below sturct changed code 
+          const data = response?.data?.map(item => {
+            return {
+              ...item,
+              kfId: item.id,
+              khId: item.id,
+              id: item.yxId
+            };
+          });
+          return data || [];
+        })
+      );
+    } else {
       const _records: EntityRecord[] = [];
       const startIndex = params?.startIndex || 0;
       const endIndex = params?.endIndex || 20;

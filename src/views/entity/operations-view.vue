@@ -22,13 +22,8 @@
               ref="virtualScroller">
               <template #default="{ item }">
                 <ion-item @click="editRecord(item)">
-                  <ion-avatar slot="start">
-                    <img :src="item.avatar" />
-                  </ion-avatar>
                   <ion-label>
-                    <h2>{{ item.displayName }}</h2>
-                    <h3>{{ item.colA }}</h3>
-                    <p>{{ item.colB }}</p>
+                    <h2>{{ item.name }}</h2>
                   </ion-label>
                   <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
                 </ion-item>
@@ -46,21 +41,22 @@
       </div>
     </ion-split-pane>
     
-  <ensure-password-modal :is-open="isOpenEnsurePwModal" @update:password="submitPassword($event)" @update:close="modalClose()"></ensure-password-modal>
+  <ensure-password-modal :is-open="isShowModal" :invalid="isPwdInvalid" @ok="submitPassword($event)" @cancel="modalClose()" @change="isPwdInvalid = false"></ensure-password-modal>
   </ion-page>
 </template>
 
 <script lang="ts">
 import EnsurePasswordModal from '@/components/ensure-password-modal.vue';
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { DataStatus, EntityRecord, FormField, useEntityContext, useEntityDisplayName, useEntityRecordsStore } from '@/share';
+import { DataStatus, Entities, EntityRecord, FormField, SwitchItemStateInfo, useEntityContext, useEntityDisplayName, useEntityEditFormStore, useEntityRecordsStore } from '@/share';
 import { useEnsurePassword } from '@/share/hooks/use-ensure-password';
-import { InfiniteScrollCustomEvent, IonAvatar, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
+import { InfiniteScrollCustomEvent, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { MutationType, storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
+import { take } from "rxjs/operators";
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -78,7 +74,6 @@ export default defineComponent({
     IonList,
     IonItem,
     IonContent,
-    IonAvatar,
     IonLabel,
     SearchFormPanel,
     RecycleScroller,
@@ -86,33 +81,43 @@ export default defineComponent({
     IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
-    debugger;
     const router = useIonRouter();
     const { entityName } = useEntityContext();
     const virtualScroller = ref(null) as Ref<any>;
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
     const { title } = useEntityDisplayName(entityName);
-    const isOpenEnsurePwModal = ref(false);
-
+    const isShowModal = ref(false);
+    const isPwdInvalid = ref(false);
     const recordStore = useEntityRecordsStore(entityName);
     const { records } = storeToRefs(recordStore);
 
 
     function openRecord (item: EntityRecord) {
-      const recordId = item.id;
+      const recordId = item.id.toString();
       router.push(`/entity/${entityName}/${recordId}`);
+      const entityEditFormStore = useEntityEditFormStore(Entities.Operations, recordId);
+      entityEditFormStore.$patch({
+        currRecordInfo: {
+          kfId: item.kfId,
+          khId: item.khId,
+        } as SwitchItemStateInfo
+      });
     }
 
-    const { setPendingOpenRecord, openRecordByCheckPassword } = useEnsurePassword(openRecord);
-    
+    const { setPendingOpenRecord, openRecordByCheckPassword } = useEnsurePassword();
+
     const editRecord = (item: EntityRecord) => {
-      isOpenEnsurePwModal.value = true;
+      isShowModal.value = true;
       setPendingOpenRecord(item);
     };
     function submitPassword(password: FormField) {
-      openRecordByCheckPassword(password.value as string);
-      isOpenEnsurePwModal.value = false;
+      openRecordByCheckPassword(password.value as string).pipe(
+        take(1),
+      ).subscribe(canAccess => {
+        isPwdInvalid.value = !canAccess;
+        isShowModal.value = !canAccess;
+      });
     }
 
     function loadData (evt: InfiniteScrollCustomEvent) {
@@ -156,8 +161,8 @@ export default defineComponent({
     //   return abc;
     // };
     function modalClose() {
-      debugger;
-      isOpenEnsurePwModal.value = false;
+      isPwdInvalid.value = false;
+      isShowModal.value = false;
     }
     // init 
     recordStore.getRecords(entityName, {isInit: true});
@@ -166,7 +171,7 @@ export default defineComponent({
       recordStore.$dispose();
     });
     return {
-      openRecord, entityName, menuId, contentId, editRecord, isOpenEnsurePwModal, submitPassword, modalClose,
+      openRecord, entityName, menuId, contentId, editRecord, isShowModal, isPwdInvalid, submitPassword, modalClose,
       records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

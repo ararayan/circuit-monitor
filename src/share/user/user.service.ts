@@ -1,8 +1,6 @@
-import { httpService, YNAPI_System } from "@/share";
 import { Entities, EntityViews } from "@/share/entity";
 import { of } from "rxjs";
 // import { codeWorkingOutline, fileTrayFullOutline, gitNetworkOutline, infiniteOutline, pulseOutline } from 'ionicons/icons';
-import { map } from "rxjs/operators";
 
 export interface UserMenu {
     id: keyof EntityViews;
@@ -70,13 +68,7 @@ class UserService {
     return of(UserMenus);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  checkPassword(useId: string, password: string) {
-    return httpService.post<{canAccess: boolean}>(YNAPI_System.CheckPassword).pipe(
-      map(() => {
-        return !!((Math.random() * 10) % 2);
-      }),
-    );
-  }
+
 }
 
 export const userService = new UserService();

@@ -4,8 +4,8 @@ export enum YNAPI_System {
     Login = '/System/Login',
     LogOut = '/System/LogOut',
     UpdatePwd = '/System/UpdatePwd',
-    GetUserMenus = '/getUserMenus',
-    CheckPassword = '/checkPassword',
+    CheckPassword = '/System/CheckPassword',
+    GetUserMenus = '/getUserMenus', //local
 }
 
 export enum YNAPI_JXT {
@@ -15,6 +15,7 @@ export enum YNAPI_JXT {
 }
 
 export enum YNAPI_KZCZ {
+  GetList = '/PtlInterface/KZCZ_GetList',
   GetDetail = '/PtlInterface/KZCZ_GetDetail',
   RemoteSelect = '/PtlInterface/KZCZ_RemoteSelect',
   RemoteExcute = '/PtlInterface/KZCZ_RemoteExcute',

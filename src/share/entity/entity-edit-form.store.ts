@@ -14,9 +14,7 @@ export enum OperatorType {
   RemoteSelect = 'remoteSelect',
   RemoteExcute = 'remoteExcute',
 }
-export interface QueryEditFormParams {
-  parentRecordId: string;
-  recordId: string;
+export interface SwitchItemStateInfo {
   kfId: string;
   khId: string;
 }
@@ -34,7 +32,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
       const initialState = { 
         entityName: entityName, 
         recordId: recordId,
-        queryFormParams: {} as QueryEditFormParams,
+        currRecordInfo: {} as SwitchItemStateInfo, //#WIP, special for pcb entry operator control, change api to remove this state; 
         editForm: [] as  FormField[],
         meta: {
           editForm: DataStatus.Unloaded,
@@ -49,12 +47,12 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         if (![DataStatus.Loaded, DataStatus.Loading].includes(this.$state.meta.editForm)){
           getEditForm$(entityName || this.$state.entityName).pipe(
             switchMap(form => {
-              if (Object.keys(this.$state.queryFormParams).length) {
+              if (Object.keys(this.currRecordInfo).length) {
                 const postData = {
-                  yxIds: this.$state.queryFormParams.recordId,
-                  khId: this.$state.queryFormParams.khId,
-                  kfId: this.$state.queryFormParams.kfId,
-                  jxtId: this.$state.queryFormParams.parentRecordId,
+                  yxIds: this.recordId,
+                  khId: this.currRecordInfo.khId,
+                  kfId: this.currRecordInfo.kfId,
+                  jxtId: '',
                 };
                 return httpService.post(YNAPI_KZCZ.GetDetail, postData).pipe(
                   map((response: any) => {

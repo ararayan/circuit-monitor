@@ -9,7 +9,7 @@ const authRequestInterceptor = [
     const token = cacheService.get(YNCacheKey.AccessToken);
     config.headers = config.headers || {};
     if (token) {
-      config.headers['x-token'] = token;
+      config.headers['token'] = token;
     }
 
     return config;

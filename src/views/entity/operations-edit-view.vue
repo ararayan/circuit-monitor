@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import EditForm from '@/components/edit-form.vue';
-import { OperatorType, useEntityContext, useEntityEditFormStore } from '@/share';
+import { OperatorType, useEntityContext, useEntityDisplayName, useEntityEditFormStore } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, toastController, useBackButton, useIonRouter } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
@@ -58,20 +58,13 @@ export default defineComponent({
   setup() {
     const router = useIonRouter();
     const { backToHref, entityName, recordId } = useEntityContext();
-
-    //#region title
-    const userStore = useUserStore();
-    const { menus } = storeToRefs(userStore);
-    const title = computed(() => {
-      return menus.value.find(item => item.id === entityName)?.name || '';
-    });
-    //#endregion
-
+    const { title } = useEntityDisplayName(entityName);
+    debugger;
     const entityEditFormStore = useEntityEditFormStore(entityName, recordId);
-    entityEditFormStore.getEditForm();
     const { editForm: fields, operatorId, operatorMsg } = storeToRefs(entityEditFormStore);
 
 
+ 
     const operator = computed(() => {
       return operators[operatorId.value];
     });
@@ -85,13 +78,15 @@ export default defineComponent({
 
     const applyForEdit = () => {
       if (operator.value.id === OperatorType.RemoteSelect) {
-        const { kfId, khId, recordId: yxIds, } = entityEditFormStore.queryFormParams;
+        const { kfId, khId, } = entityEditFormStore.currRecordInfo;
+        const yxIds = entityEditFormStore.recordId;
         const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as string | '';
         if (action && yxIds && kfId && khId) {
           entityEditFormStore.requestSelect({ yxIds, kfId, khId, action });
         }
       } else if (operator.value.id === OperatorType.RemoteExcute) {
-        const { kfId, khId, recordId: yxIds, } = entityEditFormStore.queryFormParams;
+        const { kfId, khId, } = entityEditFormStore.currRecordInfo;
+        const yxIds = entityEditFormStore.recordId;
         const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as string | '';
         if (action && yxIds && kfId && khId) {
           entityEditFormStore.requestExcute({ yxIds, kfId, khId, action });
@@ -107,11 +102,13 @@ export default defineComponent({
         router.push(backToHref);
       }
     });
-
+    
     onUnmounted(() => {
       result.unregister();
       entityEditFormStore.destroy();
     });
+
+    entityEditFormStore.getEditForm();
     return { entityName, recordId, title, backToHref, operator, applyForEdit, fields, cloudOutline, discOutline, locateOutline };
   }
 });

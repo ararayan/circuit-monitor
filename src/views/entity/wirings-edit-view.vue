@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, useEntityContext, useEntityEditFormStore, useEntityPCBStore, useEntityRecordsStore, QueryEditFormParams, SwitchItemStatusImageKeyMap } from '@/share';
+import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, useEntityContext, useEntityEditFormStore, useEntityPCBStore, useEntityRecordsStore, SwitchItemStateInfo, SwitchItemStatusImageKeyMap } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
@@ -111,12 +111,10 @@ export default defineComponent({
         const switchItem = pcbStore.getSwitchItem(clickedItemId);
         const entityEditFormStore = useEntityEditFormStore(Entities.Operations, clickedItemId);
         entityEditFormStore.$patch({
-          queryFormParams: {
-            parentRecordId: recordId,
-            recordId: clickedItemId,
+          currRecordInfo: {
             kfId: switchItem.kf,
             khId: switchItem.kh,
-          } as QueryEditFormParams
+          } as SwitchItemStateInfo
         });
       }
     };
