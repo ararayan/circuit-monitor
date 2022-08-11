@@ -86,8 +86,7 @@ export function getRecords(entityName: Entities, params?: any): Observable<Entit
     } else if (entityName ===  Entities.Segments) {
       return httpService.post<EntityRecord[]>(YNAPI_JGSJ.GetList).pipe(
         map(response => {
-          //WIP: API
-          return response?.data.map(item => ({...item, id: item.index})) || [];
+          return response?.data || [];
         })
       );
     }else {

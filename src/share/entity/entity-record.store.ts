@@ -14,7 +14,6 @@ export function useEntityRecordsStore(entityName: Entities) {
   const initialState = {
     entityName: '',
     records: [] as EntityRecord[],
-    openRecordId: '',
     pagination: {
       current: 1,
       pageSize: 20
@@ -80,12 +79,6 @@ export function useEntityRecordsStore(entityName: Entities) {
             records: DataStatus.Unloaded
           }
         });
-      },
-      setOpenRecord(recordId: string | number) {
-        this.$patch({
-          openRecordId: recordId.toString(),
-        });
-
       },
       destroy() {
         destory$.next(true);

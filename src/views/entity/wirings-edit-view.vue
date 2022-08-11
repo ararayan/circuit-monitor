@@ -49,8 +49,7 @@ export default defineComponent({
     const pcbStore = useEntityPCBStore(entityName, recordId);
     const { baseMapItem } = storeToRefs(pcbStore);
 
-    const openRecordId = recordStore.getRecrod(recordStore.openRecordId)?.id.toString() || recordId;
-    pcbStore.getPCBInfos(openRecordId);
+    pcbStore.getPCBInfos(recordId);
     let canvasSwitchItemInfos = {} as Record<string, PCBRect>;
     
     onMounted(() => {
@@ -94,8 +93,8 @@ export default defineComponent({
       // draw canvas image
       }, {detached: true, immediate: true});
       
-      debugger;
-      pcbStore.startSwitchItemsCheck();
+      //#WIP
+      // pcbStore.startSwitchItemsCheck();
     });
     const edit = function (event: PointerEvent) {
       const { offsetX: x, offsetY: y } = event;
@@ -125,7 +124,6 @@ export default defineComponent({
 
 
     onUnmounted(() => {
-      recordStore.setOpenRecord('');
       pcbStore.destroy();
     });
     const openModal = async function () {

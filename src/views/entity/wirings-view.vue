@@ -55,7 +55,6 @@ export default defineComponent({
 
     function openRecord(item: EntityRecord) {
       const recordId = item.id;
-      recordStore.setOpenRecord(recordId);
       router.push(`/entity/${entityName}/${recordId}`);
     }
     recordStore.getRecords(entityName, { isInit: true });

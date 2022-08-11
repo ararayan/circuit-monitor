@@ -54,7 +54,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                   yxIds: this.$state.queryFormParams.recordId,
                   khId: this.$state.queryFormParams.khId,
                   kfId: this.$state.queryFormParams.kfId,
-                  jxtId: '' // todo;
+                  jxtId: this.$state.queryFormParams.parentRecordId,
                 };
                 return httpService.post(YNAPI_KZCZ.GetDetail, postData).pipe(
                   map((response: any) => {
