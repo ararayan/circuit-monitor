@@ -1,8 +1,12 @@
 import { Components } from '@ionic/core';
 import { loadingController, LoadingOptions } from '@ionic/vue';
-import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useAppStore } from './entity';
 
+
+function isNetworkError(err: AxiosError) {
+  return !!err.isAxiosError && !err.response;
+}
 
 class LoadingService {
   private count = 0;
@@ -23,7 +27,7 @@ class LoadingService {
 
     const appStore = useAppStore();
     appStore.setLoadingCount(this.count);
-    
+
     await this.loading.present();
     return this.loading;
   }
@@ -68,6 +72,11 @@ const loadingResponseInterceptor = [
     return response;
   }, (error: any) => {
     loadingService.hide();
+    if (isNetworkError(error as AxiosError)) {
+      const appStore = useAppStore();
+      appStore.setNetWorkError();
+    }
+    
     return Promise.reject(error);
   }
 ];

@@ -11,8 +11,8 @@
               <ion-img src="assets/user/avatar_1.svg"></ion-img>
             </ion-avatar>
             <ion-label>
-              <h3>{{user.userName}}</h3>
-              <p>{{user.email}}</p>
+              <h3>{{ user.userName }}</h3>
+              <p>{{ user.email }}</p>
             </ion-label>
           </ion-item>
         </ion-list-header>
@@ -43,10 +43,10 @@
           <ion-ripple-effect></ion-ripple-effect>
         </ion-item>
         <ion-item>
+          <ion-icon :icon="notificationsOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label>是否推送通知</ion-label>
-          <ion-toggle slot="end" name="grape" color="tertiary" checked></ion-toggle>
+          <ion-toggle slot="end" name="grape" color="danger" checked="false"></ion-toggle>
         </ion-item>
-
       </ion-list>
       <!-- <ion-accordion-group>
         <ion-accordion value="colors">
@@ -82,7 +82,12 @@
       </ion-accordion-group> -->
 
     </ion-content>
-
+    <ion-footer class="ion-color ion-color-light clear-footer-before" style="padding: 0.4em 1em; display: flex; width: 100%; justify-content: center; background-color: var(--ion-color-base);" >
+      <ion-button @click="exitApp()" style="min-width: 10em;" color="danger">
+        <ion-icon :icon="powerOutline" slot="start"></ion-icon>
+        <ion-label>退出程序</ion-label>
+      </ion-button>
+    </ion-footer>
   </ion-menu>
 </template>
 <script lang="ts">
@@ -90,18 +95,19 @@ import { defineComponent, } from 'vue';
 import { toRef } from '@vue/reactivity';
 import {
   IonHeader, IonListHeader,
-  IonToolbar, IonContent, IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect, IonToggle,
+  IonToolbar, IonContent, IonLabel, IonMenu, IonButton, IonFooter, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect, IonToggle,
 } from '@ionic/vue';
-import { settingsOutline, homeOutline, bookOutline, colorFilterOutline } from 'ionicons/icons';
+import { settingsOutline, homeOutline, bookOutline, colorFilterOutline, notificationsOutline, powerOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
+import { App } from '@capacitor/app';
 
 export default defineComponent({
   name: 'MainMenus',
   components: {
-    IonHeader, IonToolbar,
-    IonContent, IonListHeader,
+    IonHeader, IonToolbar, IonFooter,
+    IonContent, IonListHeader, IonButton,
     IonLabel, IonMenu, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect, IonToggle,
   },
   props: {
@@ -124,8 +130,10 @@ export default defineComponent({
     const gotoAbout = () => {
       router.push('/about');
     };
-
-    return { user, menuId, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout, colorFilterOutline };
+    function exitApp() {
+      App.exitApp();
+    }
+    return { exitApp, user, menuId, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
   }
 });
 </script>
@@ -158,5 +166,8 @@ export default defineComponent({
 .main-menu-item {
   /* --padding-start: 0; */
   --border-color: var(--ion-color-light, #f2f2f2);
+}
+.clear-footer-before::before{
+  background-image: none;
 }
 </style>

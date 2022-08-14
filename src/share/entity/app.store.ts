@@ -11,12 +11,16 @@ export function useAppStore() {
     state: () => {
       const initialState = {
         loadingCount: 0,
+        isNetWorkError: false,
       };
       return { ...initialState };
     },
     actions: {
       setLoadingCount(value: number) {
         this.$patch({loadingCount: value});
+      },
+      setNetWorkError() {
+        this.$patch({ isNetWorkError: true});
       },
       reset() {
         destory$.next(true);

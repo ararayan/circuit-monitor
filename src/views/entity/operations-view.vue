@@ -1,34 +1,24 @@
 <template>
   <ion-page>
-    <ion-split-pane :contentId="contentId">
-      <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
-      <div class="ion-page segments-view" :id="contentId">
-        <ion-header translucent>
-          <ion-toolbar mode="md" color="primary">
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/home"></ion-back-button>
-            </ion-buttons>
-            <ion-title center>{{ title }}</ion-title>
-            <ion-buttons slot="end">
-              <ion-menu-button autoHide="false" :menu="menuId">
-                <ion-icon :icon="searchCircleOutline"></ion-icon>
-              </ion-menu-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content fullscreen>
-          <ion-list v-for="item in records" :key="item.id">
-            <ion-item @click="editRecord(item)">
-              <ion-label>
-                <h2>{{ item.name }}</h2>
-              </ion-label>
-              <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
-            </ion-item>
-          </ion-list>
+    <ion-header translucent>
+      <ion-toolbar mode="md" color="primary">
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title center>{{ title }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content fullscreen>
+      <ion-list v-for="item in records" :key="item.id">
+        <ion-item @click="editRecord(item)">
+          <ion-label>
+            <h2>{{ item.name }}</h2>
+          </ion-label>
+          <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
+        </ion-item>
+      </ion-list>
 
-        </ion-content>
-      </div>
-    </ion-split-pane>
+    </ion-content>
 
     <ensure-password-modal :is-open="isShowModal" :invalid="isPwdInvalid" @ok="submitPassword($event)"
       @cancel="modalClose()" @change="isPwdInvalid = false"></ensure-password-modal>
@@ -37,11 +27,10 @@
 
 <script lang="ts">
 import EnsurePasswordModal from '@/components/ensure-password-modal.vue';
-import SearchFormPanel from '@/components/search-form-panel.vue';
 import { authService, Entities, EntityRecord, FormField, SwitchItemStateInfo, useEntityContext, useEntityDisplayName, useEntityEditFormStore, useEntityRecordsStore } from '@/share';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
-import { Ref, ref } from '@vue/reactivity';
-import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
+import { ref } from '@vue/reactivity';
+import { chevronForwardOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { take } from "rxjs/operators";
 import { defineComponent, onUnmounted } from 'vue';
@@ -62,15 +51,11 @@ export default defineComponent({
     IonList,
     IonItem,
     IonContent,
-    IonLabel,
-    SearchFormPanel, EnsurePasswordModal, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
+    IonLabel, EnsurePasswordModal, IonButtons, IonBackButton, IonIcon
   },
   setup() {
     const router = useIonRouter();
     const { entityName } = useEntityContext();
-    const virtualScroller = ref(null) as Ref<any>;
-    const menuId = ref(`${entityName}_menu`);
-    const contentId = ref(`${entityName}_panel`);
     const { title } = useEntityDisplayName(entityName);
     const isShowModal = ref(false);
     const isPwdInvalid = ref(false);
@@ -152,8 +137,8 @@ export default defineComponent({
       recordStore.$dispose();
     });
     return {
-      openRecord, entityName, menuId, contentId, editRecord, isShowModal, isPwdInvalid, submitPassword, modalClose,
-      records, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
+      openRecord, entityName, editRecord, isShowModal, isPwdInvalid, submitPassword, modalClose,
+      records, title, chevronForwardOutline
     };
   },
 });
