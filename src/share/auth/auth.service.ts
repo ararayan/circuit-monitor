@@ -1,7 +1,6 @@
-import { YNCacheKey, cacheService, httpService, StorageType, YNAPI_System } from "@/share";
-import { of, throwError } from "rxjs";
-import { catchError, map, switchMap, tap } from "rxjs/operators";
-import { alertService } from "../alert.service";
+import { cacheService, httpService, StorageType, YNAPI_System, YNCacheKey } from "@/share";
+import { of } from "rxjs";
+import { catchError, map, tap } from "rxjs/operators";
 
 export interface RequestUserInfo {
   userName: string;
@@ -75,13 +74,9 @@ class AuthService {
     // return of(cacheService.remove(YNCacheKey.AccessToken));
   }
   updatePassword(params: UpdatePasswordInfo) {
-    return httpService.post(YNAPI_System.UpdatePwd, params).pipe(
-      tap(response => {
-        debugger;
-      }),
-      catchError(err => {
-        debugger;
-        return of(err);
+    return httpService.post<{message: string; success: boolean}>(YNAPI_System.UpdatePwd, params).pipe(
+      map(response => {
+        return response.data;
       })
     );
   }

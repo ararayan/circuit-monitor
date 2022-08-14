@@ -1,8 +1,6 @@
-import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
-import {  from, Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { from, Observable } from 'rxjs';
 import { authRequestInterceptor, authResponseInterceptor } from '../auth';
-import { YNCacheKey, cacheService } from '../cache.service';
 import { loadingRequestInterceptor, loadingResponseInterceptor } from '../loading.service';
 import { YN_BASE_URL } from './url';
 
@@ -32,18 +30,18 @@ YNAxios.interceptors.request.use(...loadingRequestInterceptor);
 YNAxios.interceptors.response.use(...authResponseInterceptor);
 YNAxios.interceptors.response.use(...loadingResponseInterceptor);
 
-function fixConfig<T = any>(config?: AxiosRequestConfig<T> ) {
-  //#region handle auth header;
-  const resultConfig = config ? config : Object.create(null) as AxiosRequestConfig<T>;
-  resultConfig.headers = resultConfig.headers ? resultConfig.headers : Object.create(null) as AxiosRequestHeaders;
-  resultConfig.headers = {
-    ['token']: cacheService.get(YNCacheKey.AccessToken) || '',
-    ...resultConfig.headers
-  };
-  //#endregion
+// function fixConfig<T = any>(config?: AxiosRequestConfig<T> ) {
+//   //#region handle auth header;
+//   const resultConfig = config ? config : Object.create(null) as AxiosRequestConfig<T>;
+//   resultConfig.headers = resultConfig.headers ? resultConfig.headers : Object.create(null) as AxiosRequestHeaders;
+//   resultConfig.headers = {
+//     ['token']: cacheService.get(YNCacheKey.AccessToken) || '',
+//     ...resultConfig.headers
+//   };
+//   //#endregion
 
-  return resultConfig;  
-}
+//   return resultConfig;  
+// }
 
 
 export const httpService =  {
@@ -51,8 +49,8 @@ export const httpService =  {
   //   return from(_axios.get(APP_URL.Base + url, fixConfig(config)));
   // },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  get<T = any>(url: string, headers: Record<string, string | number | boolean>): Observable<T> {
-    return from(YNAxios.get(url) as Promise<T>);
+  get<T = any>(url: string,  config?: AxiosRequestConfig):Observable<AxiosResponse<T>> {
+    return from(YNAxios.get(url, config) as Promise<AxiosResponse<T>>);
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   post<T = any>(url: string, data: Record<string, any> = {}, config?: AxiosRequestConfig): Observable<AxiosResponse<T>> {

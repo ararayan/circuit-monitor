@@ -1,6 +1,7 @@
 import { Components } from '@ionic/core';
 import { loadingController, LoadingOptions } from '@ionic/vue';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { useAppStore } from './entity';
 
 
 class LoadingService {
@@ -19,12 +20,19 @@ class LoadingService {
         message: 'Please wait...',
         ...options,
       });
+
+    const appStore = useAppStore();
+    appStore.setLoadingCount(this.count);
     
     await this.loading.present();
     return this.loading;
   }
   async hide() {
     this.count = this.count === 0 ? this.count : this.count - 1;
+
+    const appStore = useAppStore();
+    appStore.setLoadingCount(this.count);
+
     if (this.count === 0) {
       if (this.loading){
         await this.loading.dismiss();
@@ -41,8 +49,8 @@ const loadingService = new LoadingService();
 
 const loadingRequestInterceptor = [
   (config: AxiosRequestConfig) => {
-    if (!config.params?.skipMask) {
-      loadingService.show(config.params?.loadingOptions);
+    if (!config.headers?.skipMask) {
+      loadingService.show();
     }
     return config;
   },
@@ -54,7 +62,7 @@ const loadingRequestInterceptor = [
 
 const loadingResponseInterceptor = [
   (response: AxiosResponse) => {
-    if (!response.config.params?.skipMask) {
+    if (!response.config.headers?.skipMask) {
       loadingService.hide();
     }
     return response;

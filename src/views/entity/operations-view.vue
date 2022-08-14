@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-split-pane :contentId="contentId">
-       <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
+      <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
       <div class="ion-page segments-view" :id="contentId">
         <ion-header translucent>
           <ion-toolbar mode="md" color="primary">
@@ -16,47 +16,35 @@
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
-        <ion-content fullscreen :scroll-y="false">
-          <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
-              ref="virtualScroller">
-              <template #default="{ item }">
-                <ion-item @click="editRecord(item)">
-                  <ion-label>
-                    <h2>{{ item.name }}</h2>
-                  </ion-label>
-                  <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
-                </ion-item>
-              </template>
-              <template #after>
-                <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll">
-                  <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading more data...">
-                  </ion-infinite-scroll-content>
-                </ion-infinite-scroll>
-              </template>
-            </RecycleScroller>
+        <ion-content fullscreen>
+          <ion-list v-for="item in records" :key="item.id">
+            <ion-item @click="editRecord(item)">
+              <ion-label>
+                <h2>{{ item.name }}</h2>
+              </ion-label>
+              <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
+            </ion-item>
           </ion-list>
 
         </ion-content>
       </div>
     </ion-split-pane>
-    
-  <ensure-password-modal :is-open="isShowModal" :invalid="isPwdInvalid" @ok="submitPassword($event)" @cancel="modalClose()" @change="isPwdInvalid = false"></ensure-password-modal>
+
+    <ensure-password-modal :is-open="isShowModal" :invalid="isPwdInvalid" @ok="submitPassword($event)"
+      @cancel="modalClose()" @change="isPwdInvalid = false"></ensure-password-modal>
   </ion-page>
 </template>
 
 <script lang="ts">
 import EnsurePasswordModal from '@/components/ensure-password-modal.vue';
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { DataStatus, Entities, EntityRecord, FormField, SwitchItemStateInfo, useEntityContext, useEntityDisplayName, useEntityEditFormStore, useEntityRecordsStore } from '@/share';
-import { useEnsurePassword } from '@/share/hooks/use-ensure-password';
-import { InfiniteScrollCustomEvent, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
+import { authService, Entities, EntityRecord, FormField, SwitchItemStateInfo, useEntityContext, useEntityDisplayName, useEntityEditFormStore, useEntityRecordsStore } from '@/share';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { MutationType, storeToRefs } from 'pinia';
-import { defineComponent, onUnmounted } from 'vue';
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { storeToRefs } from 'pinia';
 import { take } from "rxjs/operators";
+import { defineComponent, onUnmounted } from 'vue';
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -75,10 +63,7 @@ export default defineComponent({
     IonItem,
     IonContent,
     IonLabel,
-    SearchFormPanel,
-    RecycleScroller,
-    IonInfiniteScroll, EnsurePasswordModal,
-    IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
+    SearchFormPanel, EnsurePasswordModal, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
     const router = useIonRouter();
@@ -92,10 +77,10 @@ export default defineComponent({
     const recordStore = useEntityRecordsStore(entityName);
     const { records } = storeToRefs(recordStore);
 
+    let pendingItem: EntityRecord;
 
-    function openRecord (item: EntityRecord) {
+    function openRecord(item: EntityRecord) {
       const recordId = item.id.toString();
-      router.push(`/entity/${entityName}/${recordId}`);
       const entityEditFormStore = useEntityEditFormStore(Entities.Operations, recordId);
       entityEditFormStore.$patch({
         currRecordInfo: {
@@ -103,42 +88,36 @@ export default defineComponent({
           khId: item.khId,
         } as SwitchItemStateInfo
       });
+      // router.push({
+      //   path: `/entity/${entityName}/${recordId}`,
+      //   query: {
+      //     kfId: item.kfId,
+      //     khId: item.khId,
+      //   }
+      // });
+      router.push(`/entity/${entityName}/${recordId}`);
+
     }
 
-    const { setPendingOpenRecord, openRecordByCheckPassword } = useEnsurePassword();
 
     const editRecord = (item: EntityRecord) => {
       isShowModal.value = true;
-      setPendingOpenRecord(item);
+      pendingItem = item;
     };
+
     function submitPassword(password: FormField) {
-      openRecordByCheckPassword(password.value as string).pipe(
+      authService.checkPassword(password.value as string).pipe(
         take(1),
       ).subscribe(canAccess => {
         isPwdInvalid.value = !canAccess;
         isShowModal.value = !canAccess;
+        if (canAccess) {
+          openRecord(pendingItem);
+        }
+
       });
     }
 
-    function loadData (evt: InfiniteScrollCustomEvent) {
-      // load data 
-      setTimeout(() => {
-        const subscription = recordStore.$subscribe((mutation, state) => {
-          if (mutation.type === MutationType.patchObject) {
-            if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
-              console.log('Loaded data');
-              if (virtualScroller.value) {
-                virtualScroller.value?.['updateVisibleItems'](true);
-              }
-              evt.target.complete();
-              subscription();
-            }
-          }
-        }, {detached: true});
-
-        recordStore.getRecords(entityName, { criteria: {} });
-      }, 500);
-    }
     // const openModal = async function() {
     //   const modal = await modalController
     //     .create({
@@ -165,14 +144,16 @@ export default defineComponent({
       isShowModal.value = false;
     }
     // init 
-    recordStore.getRecords(entityName, {isInit: true});
-    
+    recordStore.getRecords(entityName, { isInit: true });
+
     onUnmounted(() => {
+      isPwdInvalid.value = false;
+      isShowModal.value = false;
       recordStore.$dispose();
     });
     return {
       openRecord, entityName, menuId, contentId, editRecord, isShowModal, isPwdInvalid, submitPassword, modalClose,
-      records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
+      records, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
 });
@@ -184,16 +165,17 @@ export default defineComponent({
 }
 
 ion-modal.auto-height {
-    --height: auto;
-}
-ion-modal.auto-height .ion-page {
-    position: relative;
-    display: block;
-    contain: content;
-}
-ion-modal.auto-height .ion-page .inner-content {
-    max-height: 80vh;
-    overflow: auto;
+  --height: auto;
 }
 
+ion-modal.auto-height .ion-page {
+  position: relative;
+  display: block;
+  contain: content;
+}
+
+ion-modal.auto-height .ion-page .inner-content {
+  max-height: 80vh;
+  overflow: auto;
+}
 </style>

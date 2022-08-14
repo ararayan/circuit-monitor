@@ -1,10 +1,11 @@
+import { AxiosRequestConfig } from "axios";
 import { defineStore } from "pinia";
+import { EMPTY, of, Subject } from "rxjs";
+import { catchError, delay, filter, map, repeat, switchMap, take, takeUntil } from 'rxjs/operators';
 import { ActionStatus, DataStatus } from "../data.meta";
 import { httpService, YNAPI_JXT } from "../http";
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
-import { Entities, EntityRecord } from "./entity.types";
-import { map, switchMap, take, takeUntil, repeat, delay, catchError, filter } from 'rxjs/operators';
-import { EMPTY, of, Subject } from "rxjs";
+import { Entities } from "./entity.types";
 
 
 
@@ -223,7 +224,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
         if (![ActionStatus.InProgress].includes(this.$state.meta.switchItemUpdate)) {
           const yxIds = Object.keys(this.switchItems);
           let maxErrorCount = 5;
-          const skipMaskConfig = {params: {skipMask: true}};
+          const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
           this.$patch({
             meta: {
               switchItemUpdate: ActionStatus.InProgress
@@ -255,7 +256,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
             }),
             repeat({
               delay: () => {
-                return of(0).pipe(delay(2000));
+                return of(0).pipe(delay(5000));
               }
             }),
             filter(patchChangedInfos => {

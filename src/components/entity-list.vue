@@ -1,17 +1,14 @@
 <template>
   <ion-list :scroll-y="false" style="height: 100%" :class="{ 'ion-hide': !!!records.length }">
-    <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
+    <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="66" key-field="id"
       ref="virtualScroller">
       <template #default="{ item }">
-        <ion-item @click="openRecord(item)" class="entity-list-item">
-          <ion-avatar slot="start">
-            <img :src="item.avatar" />
-          </ion-avatar>
-          <ion-label siz>
+        <ion-item @click="openRecord()" class="entity-list-item">
+          <!-- <ion-icon :icon="documentTextOutline" slot="start" color="medium" size="large"></ion-icon> -->
+          <ion-label>
             <h2>{{ item.name }}</h2>
-            <i>{{ item.status }}</i>
+            <i style="color: var(--ion-color-medium)">{{ item.desc }}</i>
           </ion-label>
-          <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
         </ion-item>
       </template>
       <template #after>
@@ -43,14 +40,12 @@
 </template>
 
 <script lang="ts">
-import { DataStatus, Entities } from '@/share';
-import { EntityRecord, useEntityRecordsStore } from '@/share/entity';
-import { InfiniteScrollCustomEvent, IonIcon, IonItem, IonLabel, IonList, 
-  IonInfiniteScroll, IonInfiniteScrollContent, IonAvatar,
-  IonSkeletonText, IonThumbnail } from '@ionic/vue';
+import { Entities, MixedModuleType } from '@/share';
+import { useEntityRecordsStore } from '@/share/entity';
+import { InfiniteScrollCustomEvent, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonSkeletonText, IonThumbnail } from '@ionic/vue';
 import { toRefs } from '@vue/reactivity';
-import { pulseOutline, radioOutline, scaleOutline, chevronForwardOutline } from 'ionicons/icons';
-import { storeToRefs, MutationType } from 'pinia';
+import { pulseOutline, radioOutline, scaleOutline } from 'ionicons/icons';
+import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted, PropType, Ref, ref, watch } from 'vue';
 
 import { RecycleScroller } from 'vue-virtual-scroller';
@@ -58,19 +53,19 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 export default defineComponent({
   name: 'EntityList',
   components: {
-    IonLabel, IonIcon, IonThumbnail, IonSkeletonText, IonList, IonItem, RecycleScroller,
-    IonInfiniteScroll, IonAvatar,
+    IonLabel, IonThumbnail, IonSkeletonText, IonList, IonItem, RecycleScroller,
+    IonInfiniteScroll,
     IonInfiniteScrollContent
   },
   props: {
     entityName: { type: String as PropType<Entities>, required: true },
-    recordId: { type: String, required: true},
-    tabId: {type: String, required: true },
+    recordId: { type: String, required: true },
+    tabId: { type: String, required: true },
   },
   setup(props) {
-    const { tabId, } = toRefs(props);
+    const { tabId } = toRefs(props);
     const recordStore = useEntityRecordsStore(props.entityName);
-    const { records }  = storeToRefs(recordStore);
+    const { records } = storeToRefs(recordStore);
     const skeletonSize: string[] = Array.from({ length: 12 });
     const virtualScroller = ref(null) as Ref<any>;
 
@@ -79,40 +74,38 @@ export default defineComponent({
         if (virtualScroller.value) {
           virtualScroller.value?.scrollToPosition(0);
         }
-        recordStore.getRecords(props.entityName, {criteria: { jgid: props.recordId,  type: tabId.value }, isInit: true, hasPagination: true });
+        recordStore.reset();
+        recordStore.setHasPagination(true);
+        recordStore.setSyncFields(tabId.value === MixedModuleType.Yx ? ['status'] : ['value']);
+        recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value }, isInit: true });
+        const params = {
+          jgid: props.recordId || -1,
+          type: tabId.value
+        };
+        recordStore.startRecordsCheck(params);
       }
-    }, {immediate: true});
+    }, { immediate: true });
 
-   
 
-    function loadData (evt: InfiniteScrollCustomEvent) {
+
+
+    function loadData(evt: InfiniteScrollCustomEvent) {
       // load data 
-      setTimeout(() => {
-        const subscription = recordStore.$subscribe((mutation, state) => {
-          if (mutation.type === MutationType.patchObject) {
-            if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
-              console.log('Loaded data');
-              if (virtualScroller.value) {
-                virtualScroller.value?.updateVisibleItems(true);
-              }
-              evt.target.complete();
-              subscription();
-            }
-          }
-        }, {detached: true});
-
-        recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId,  type: tabId.value }, hasPagination: true });
-        // App logic to determine if all data is loaded
-        // and disable the infinite scroll
-      }, 500);
+      recordStore.subscribeRecordLoadResult(() => {
+        if (virtualScroller.value) {
+          virtualScroller.value?.updateVisibleItems(true);
+        }
+        evt.target.complete();
+      });
+      recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value } });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    function openRecord (item: EntityRecord) {}
+    function openRecord() { }
     onUnmounted(() => {
       recordStore.destroy();
     });
-    return { records, scaleOutline, pulseOutline, radioOutline, chevronForwardOutline, loadData, skeletonSize, openRecord, virtualScroller };
+    return { records, scaleOutline, pulseOutline, radioOutline, loadData, skeletonSize, openRecord, virtualScroller };
   },
 });
 </script>
@@ -122,6 +115,7 @@ export default defineComponent({
   /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
   height: 100%;
 }
+
 .entity-list-item {
   --border-color: var(--ion-color-light, #f2f2f2);
 }

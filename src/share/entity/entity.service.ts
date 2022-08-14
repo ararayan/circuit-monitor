@@ -1,8 +1,11 @@
 /* eslint-disable no-else-return */
+import { AxiosRequestConfig } from 'axios';
 import { delay, Observable, of, take, map } from 'rxjs';
-import { httpService, YNAPI_JGSJ, YNAPI_JXT, YNAPI_KZCZ } from '../http';
+import { ActionStatus } from '../data.meta';
+import { httpService, YNAPI_JGSJ, YNAPI_JXT, YNAPI_KZCZ, YNAPI_ZMGL } from '../http';
 import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
 import { ControlStatusCode, ControlStatusTextMap } from './data/operations';
+import { MixedModuleType } from './entity-tab.store';
 import { Entities, EntityRecord, EntityRecordAlias, FormField } from "./entity.types";
 
 export const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -64,17 +67,34 @@ export interface FixedModuleRecord {
   index: number;
   name: string;
   status: ControlStatusCode;
+  value: string;
 }
 
-export function getRecords(entityName: Entities, params?: any): Observable<EntityRecord[]> {
+export interface LightingControlRecord {
+  id: number;
+  index: number;
+  kfId: number;
+  khId: number;
+  name: string; //"装置1信号复归"
+  status: ActionStatus;  //"fen" 
+  yxId: number;
+  // isPendingStatus: boolean; //client
+}
+
+export function getRecords(entityName: Entities, params?: any, config?: AxiosRequestConfig): Observable<EntityRecord[]> {
   if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
-    debugger;
-    return httpService.post<EntityRecordAlias<FixedModuleRecord>[]>(YNAPI_JGSJ.GetData, params || {}).pipe(
+    return httpService.post<EntityRecordAlias<FixedModuleRecord>[]>(YNAPI_JGSJ.GetData, params || {}, config).pipe(
       map(response => {
         //WIP: API
         return response?.data.map(item => {
-          return {...item, id: item.index, status: ControlStatusTextMap[item.status]};
-        }).filter(x => !!x.name && !!x.status) || [];
+          let desc;
+          if (params.type === MixedModuleType.Yx) {
+            desc = ControlStatusTextMap[item.status];
+          }else {
+            desc = item.value;
+          }
+          return {...item, id: item.index, desc,  };
+        }).filter(x => !!x.name) || [];
       })
     );
   } else {
@@ -104,6 +124,15 @@ export function getRecords(entityName: Entities, params?: any): Observable<Entit
           });
           return data || [];
         })
+      );
+    } else if (entityName === Entities.LightingControl) {
+      return httpService.post<LightingControlRecord[]>(YNAPI_ZMGL.GetList).pipe(
+        map(response => (response.data || []).map(item => {
+          return {
+            ...item,
+            // isPendingStatus: false
+          };
+        }))
       );
     } else {
       const _records: EntityRecord[] = [];

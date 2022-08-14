@@ -124,7 +124,6 @@ export default defineComponent({
     function gotoEntityView(path: string) {
       router.push('/entity/' + path);
     }
-    (window as any).tt = router;
     const menuConnectId = ref('home-menu-connect');
     const sliderOptions = {
       initialSlide: 0,

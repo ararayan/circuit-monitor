@@ -21,7 +21,7 @@ const useEntityContext = () => {
   if (!entityName && !recordId && !!parentEntityName) {
     matched.entityName = parentEntityName as Entities;
     matched.recordId = parentRecordId;
-    matched.backToHref = `/entity/${entityName}`;
+    matched.backToHref = `/entity/${matched.entityName}`;
   }else if (!!parentEntityName && !!parentRecordId && !!entityName) {
     matched.parentEntityName = parentEntityName as Entities;
     matched.parentRecordId = parentRecordId;
@@ -31,7 +31,7 @@ const useEntityContext = () => {
   }
   
   if (!!parentEntityName && !!parentRecordId && matched.skipSelfEntity) {
-    matched.backToHref = `/entity/${parentEntityName}/${parentRecordId}`;
+    matched.backToHref = `/entity/${matched.parentEntityName}/${matched.parentRecordId}`;
   }
 
   return {...matched};

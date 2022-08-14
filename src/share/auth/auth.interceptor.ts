@@ -4,6 +4,10 @@ import { YNCacheKey, cacheService } from '../cache.service';
 import { useUserStore } from '../user';
 
 
+// function isNetworkError(err: AxiosError) {
+//   return !!err.isAxiosError && !err.response;
+// }
+
 const authRequestInterceptor = [
   (config: AxiosRequestConfig) => {
     const token = cacheService.get(YNCacheKey.AccessToken);

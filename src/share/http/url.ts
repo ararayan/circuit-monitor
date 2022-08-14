@@ -27,5 +27,10 @@ export enum YNAPI_JGSJ {
   GetData = '/PtlInterface/JGSJ_SSSJ_GetData',
 }
 
+export enum YNAPI_ZMGL {
+  GetList = '/PtlInterface/ZMGL_GetList',
+}
+
+
 
 

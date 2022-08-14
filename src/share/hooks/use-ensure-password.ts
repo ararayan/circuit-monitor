@@ -8,6 +8,7 @@ const useEnsurePassword = () => {
   function setPendingOpenRecord(record: EntityRecord) {
     pendingRecord.value = record;
   }
+  
   function openRecordByCheckPassword(password: string) {
     return authService.checkPassword(password);
   }

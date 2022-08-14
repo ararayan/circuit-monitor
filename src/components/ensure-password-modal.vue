@@ -3,7 +3,7 @@
     @willDismiss="$emit('cancel')">
     <ion-Item lines="none">
       <ion-text class="ion-text-strong">{{ password.label }}</ion-text> 
-            <ion-text> {{invalid ? '(密码错误)' : ''}}</ion-text> 
+            <ion-text color="danger"> {{invalid ? '(密码错误)' : ''}}</ion-text> 
      
     </ion-Item>
     <ion-list class="ion-margin-start ion-margin-end"  style="padding-top: 0; padding-bottom: 0;" >

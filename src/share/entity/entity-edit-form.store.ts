@@ -1,4 +1,4 @@
-import { Axios, AxiosResponse } from "axios";
+import { AxiosRequestConfig } from "axios";
 import { defineStore } from "pinia";
 import { EMPTY, of, Subject } from 'rxjs';
 import { catchError, delay, filter, map, repeat, switchMap, take, takeUntil, tap } from 'rxjs/operators';
@@ -18,10 +18,10 @@ export interface SwitchItemStateInfo {
   kfId: string;
   khId: string;
 }
-type YxOperatorParams = Record<'yxIds' | 'khId' | 'kfId' | 'action', string>;
+export type YxOperatorParams = Record<'yxIds' | 'khId' | 'kfId' | 'action', string>;
 
-type YxOperatorResponse =  Record<'isYxEffect' | 'sendActionSuccess', boolean>;
-type YxCheckResponse =  Record<'hasNewControlResult' | 'result', 0 | 1>;
+export type YxOperatorResponse =  Record<'isYxEffect' | 'sendActionSuccess', boolean>;
+export type YxCheckResponse =  Record<'hasNewControlResult' | 'result', 0 | 1>;
 
 export function useEntityEditFormStore(entityName: Entities, recordId: string) {
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.EditForm, recordId);
@@ -103,7 +103,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         }
       },
       requestSelect(data: YxOperatorParams) {
-        const skipMaskConfig = {params: {skipMask: true}};
+        const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
         loadingService.show({
           message: '申请遥控选择中，请等候...'
         });
@@ -175,7 +175,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         });
       },
       requestExcute(data: YxOperatorParams) {
-        const skipMaskConfig = {params: {skipMask: true}};
+        const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
         loadingService.show({
           message: '遥控执行中，请等候...'
         });

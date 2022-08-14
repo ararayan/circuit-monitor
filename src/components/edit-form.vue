@@ -5,10 +5,9 @@
 </template>
 
 <script lang="ts">
-import { Entities, FormField, useEntityEditFormStore } from '@/share/entity';
+import { Entities, FormField } from '@/share/entity';
 import { IonList } from '@ionic/vue';
-import { storeToRefs } from 'pinia';
-import { defineComponent, onUnmounted, PropType, toRefs } from 'vue';
+import { defineComponent, PropType, toRefs } from 'vue';
 // import { useForm } from "vee-validate";
 // import { computed } from '@vue/reactivity';
 import AttrField from '@/components/attr-field.vue';

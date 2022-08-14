@@ -13,7 +13,8 @@
     </ion-content>
     <ion-footer style="padding: 0.4em 1em; display: flex; width: 100%; justify-content: flex-end;"
       :class="[operator.cssClass]">
-      <ion-button @click="applyForEdit()" style="min-width: 10em;" :color="operator.color">
+      <ion-button @click="applyForEdit()" style="min-width: 10em;" :color="operator.color"
+        :disabled="operator.disabled">
         <ion-icon :icon="operator.icon" slot="start"></ion-icon>
         <ion-label>{{ operator.value }}</ion-label>
       </ion-button>
@@ -24,7 +25,7 @@
 <script lang="ts">
 import EditForm from '@/components/edit-form.vue';
 import { OperatorType, useEntityContext, useEntityDisplayName, useEntityEditFormStore } from '@/share';
-import { useUserStore } from '@/share/user';
+import { ControlStatusCode } from '@/share/entity/data/operations';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, toastController, useBackButton, useIonRouter } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
@@ -32,8 +33,8 @@ import { storeToRefs } from 'pinia';
 import { defineComponent, onMounted, onUnmounted, watch } from 'vue';
 
 const operators = {
-  [OperatorType.RemoteSelect]: { id: OperatorType.RemoteSelect, value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline, },
-  [OperatorType.RemoteExcute]: { id: OperatorType.RemoteExcute, value: '遥控执行', color: 'danger', cssClass: 'bg-contrast-danger', icon: rocketOutline, },
+  [OperatorType.RemoteSelect]: { id: OperatorType.RemoteSelect, value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline, disabled: false },
+  [OperatorType.RemoteExcute]: { id: OperatorType.RemoteExcute, value: '遥控执行', color: 'danger', cssClass: 'bg-contrast-danger', icon: rocketOutline, disabled: false },
 };
 const openToast = async (msg: string) => {
   const toast = await toastController
@@ -59,16 +60,26 @@ export default defineComponent({
     const router = useIonRouter();
     const { backToHref, entityName, recordId } = useEntityContext();
     const { title } = useEntityDisplayName(entityName);
-    debugger;
+
     const entityEditFormStore = useEntityEditFormStore(entityName, recordId);
     const { editForm: fields, operatorId, operatorMsg } = storeToRefs(entityEditFormStore);
 
-
- 
     const operator = computed(() => {
-      return operators[operatorId.value];
+      const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as ControlStatusCode;
+      const isvalidAction = [ControlStatusCode.Fen, ControlStatusCode.He].includes(action);
+      return {
+        ...operators[operatorId.value],
+        disabled: !isvalidAction
+      };
     });
     onMounted(() => {
+      if (!entityEditFormStore.currRecordInfo.kfId || !entityEditFormStore.currRecordInfo.khId) {
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace(backToHref);
+        }
+      }
       watch(operatorMsg, (next, prev) => {
         if (next !== prev && !!next) {
           openToast(next);
@@ -80,15 +91,17 @@ export default defineComponent({
       if (operator.value.id === OperatorType.RemoteSelect) {
         const { kfId, khId, } = entityEditFormStore.currRecordInfo;
         const yxIds = entityEditFormStore.recordId;
-        const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as string | '';
-        if (action && yxIds && kfId && khId) {
+        const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as ControlStatusCode;
+        const isvalidAction = [ControlStatusCode.Fen, ControlStatusCode.He].includes(action);
+        if (isvalidAction && action && yxIds && kfId && khId) {
           entityEditFormStore.requestSelect({ yxIds, kfId, khId, action });
         }
       } else if (operator.value.id === OperatorType.RemoteExcute) {
         const { kfId, khId, } = entityEditFormStore.currRecordInfo;
         const yxIds = entityEditFormStore.recordId;
-        const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as string | '';
-        if (action && yxIds && kfId && khId) {
+        const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as ControlStatusCode;
+        const isvalidAction = [ControlStatusCode.Fen, ControlStatusCode.He].includes(action);
+        if (isvalidAction && action && yxIds && kfId && khId) {
           entityEditFormStore.requestExcute({ yxIds, kfId, khId, action });
         }
       }
@@ -102,7 +115,7 @@ export default defineComponent({
         router.push(backToHref);
       }
     });
-    
+
     onUnmounted(() => {
       result.unregister();
       entityEditFormStore.destroy();

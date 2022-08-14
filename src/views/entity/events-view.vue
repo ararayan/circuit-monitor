@@ -92,7 +92,7 @@ export default defineComponent({
     function loadData (evt: InfiniteScrollCustomEvent) {
       // load data 
       setTimeout(() => {
-        const subscription = recordStore.$subscribe((mutation, state) => {
+        const subscription = recordStore.$subscribe((mutation) => {
           if (mutation.type === MutationType.patchObject) {
             if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
               console.log('Loaded data');

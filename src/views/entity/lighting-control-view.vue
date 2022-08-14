@@ -1,64 +1,50 @@
 <template>
   <ion-page>
-    <ion-split-pane :contentId="contentId">
-      <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
-      <div class="ion-page segments-view" :id="contentId">
-        <ion-header translucent>
-          <ion-toolbar mode="md" color="primary">
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/home"></ion-back-button>
-            </ion-buttons>
-            <ion-title center>{{ title }}</ion-title>
-            <ion-buttons slot="end">
-              <ion-menu-button autoHide="false" :menu="menuId">
-                <ion-icon :icon="searchCircleOutline"></ion-icon>
-              </ion-menu-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content fullscreen :scroll-y="false">
-          <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
-              ref="virtualScroller">
-              <template #default="{ item }">
-                <ion-item>
-                  <ion-label>
-                    <h2>{{ item.displayName }}</h2>
-                    <h3>{{ item.colA }}</h3>
-                    <p>{{ item.colB }}</p>
-                  </ion-label>
-                   <ion-toggle slot="end" name="grape" color="warning" :checked="item.controlCol"></ion-toggle>
-                </ion-item>
-              </template>
-              <template #after>
-                <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll">
-                  <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading more data...">
-                  </ion-infinite-scroll-content>
-                </ion-infinite-scroll>
-              </template>
-            </RecycleScroller>
-          </ion-list>
+    <ion-header translucent>
+      <ion-toolbar mode="md" color="primary">
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title center>{{ title }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content fullscreen>
+      <ion-list v-for="item in records" :key="item.id">
+        <ion-item>
+          <ion-label>
+            <h2>{{ item.name }}</h2>
+            <h3>{{ ControlStatusTextMap[item.status as ControlStatusCode] }}</h3>
+            <!-- <p> {{ControlStatusTextMap[item.status as ControlStatusCode]}} </p> -->
+          </ion-label>
+          <!-- <ion-toggle slot="end" name="item.id" :color="item.isPendingStatus ? 'warning' : 'success' " mode="ios" :checked="item.status === 'he'"></ion-toggle> -->
+          <!-- <ion-toggle slot="end" name="item.id" color="success" mode="ios" :checked="item.status === 'he'" class="toggle-disabled"></ion-toggle> -->
+          <ion-button
+            @click="applyForEdit(item, item.status === ControlStatusCode.Fen ? ControlStatusCode.He : ControlStatusCode.Fen)"
+            style="min-width: 5em; min-height: 2.5em;" color="light">
+            <ion-icon :icon="rocketOutline" slot="start" color="warning"></ion-icon>
+            <ion-label color="primary">{{ ControlStatusTextMap[item.status === ControlStatusCode.Fen ?
+                ControlStatusCode.He : ControlStatusCode.Fen]
+            }}</ion-label>
+          </ion-button>
+        </ion-item>
+      </ion-list>
 
-        </ion-content>
-      </div>
-    </ion-split-pane>
+    </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import SearchFormPanel from '@/components/search-form-panel.vue';
-import { DataStatus, useEntityContext, useEntityDisplayName, useEntityRecordsStore } from '@/share';
-import { InfiniteScrollCustomEvent, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToggle, IonToolbar } from '@ionic/vue';
-import { Ref, ref } from '@vue/reactivity';
-import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { MutationType, storeToRefs } from 'pinia';
-import { defineComponent, onUnmounted } from 'vue';
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { DataStatus, EntityRecordAlias, ToastType, useEntityContext, useEntityDisplayName, useEntityRecordsStore, YxOperatorParams } from '@/share';
+import { ControlStatusCode, ControlStatusTextMap } from '@/share/entity/data/operations';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, toastController } from '@ionic/vue';
+import { arrowBackOutline, chevronForwardOutline, rocketOutline, searchCircleOutline } from 'ionicons/icons';
+import { storeToRefs } from 'pinia';
+import { defineComponent, onMounted, onUnmounted, watch } from 'vue';
 
 
 export default defineComponent({
-  name: 'LightingControlView', // 分隔图tab
-  components: { IonToggle,
+  name: 'LightingControlView',
+  components: {
     IonPage,
     IonHeader,
     IonToolbar,
@@ -66,51 +52,57 @@ export default defineComponent({
     IonList,
     IonItem,
     IonContent,
-    IonLabel,
-    SearchFormPanel,
-    RecycleScroller,
-    IonInfiniteScroll, 
-    IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
+    IonLabel, IonButton, IonButtons, IonBackButton, IonIcon
   },
   setup() {
     const { entityName } = useEntityContext();
-    const virtualScroller = ref(null) as Ref<any>;
-
-    const menuId = ref(`${entityName}_menu`);
-    const contentId = ref(`${entityName}_panel`);
     const { title } = useEntityDisplayName(entityName);
-
     const recordStore = useEntityRecordsStore(entityName);
-    const { records } = storeToRefs(recordStore);
+    const { records, toastMsg, toastType } = storeToRefs(recordStore);
 
-    function loadData (evt: InfiniteScrollCustomEvent) {
-      // load data 
-      setTimeout(() => {
-        const subscription = recordStore.$subscribe((mutation, state) => {
-          if (mutation.type === MutationType.patchObject) {
-            if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
-              console.log('Loaded data');
-              if (virtualScroller.value) {
-                virtualScroller.value?.['updateVisibleItems'](true);
-              }
-              evt.target.complete();
-              subscription();
-            }
-          }
-        }, {detached: true});
+    //#region init store
+    recordStore.setSyncFields(['status']);
+    recordStore.setHasPagination(false);
 
-        recordStore.getRecords(entityName, { criteria: {} });
-      }, 500);
-    }
-    // init 
-    recordStore.getRecords(entityName, {isInit: true});
+    recordStore.getRecords(entityName, { isInit: true });
 
-    onUnmounted(() => {
-      recordStore.$dispose();
+    const disposeRecordsWatch = watch(records, () => {
+      if (records.value.length && recordStore.meta.records === DataStatus.Loaded) {
+        recordStore.startRecordsCheck();
+        disposeRecordsWatch();
+      }
     });
+
+    //#endregion
+
+
+    onMounted(() => {
+      watch(toastMsg, (next, prev) => {
+        if (next !== prev && !!next) {
+          toastController
+            .create({
+              message: next,
+              duration: 1000,
+              color: toastType.value === ToastType.Success ? toastType.value : 'danger'
+            }).then(toast =>  toast.present());
+        }
+      }, { immediate: true });
+    });
+    onUnmounted(() => {
+      recordStore.destroy();
+    });
+    function applyForEdit(item: EntityRecordAlias, action: ControlStatusCode) {
+      const data: YxOperatorParams = {
+        yxIds: item.yxId,
+        kfId: item.kfId,
+        khId: item.khId,
+        action: action
+      };
+      recordStore.requestExcute(data);
+    }
     return {
-      entityName, menuId, contentId,
-      records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
+      entityName, ControlStatusTextMap, rocketOutline, ControlStatusCode, applyForEdit,
+      records, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
 });

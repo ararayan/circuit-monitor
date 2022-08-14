@@ -10,13 +10,14 @@
     </ion-header>
     <ion-content class="ion-padding" style="position: relative;">
       <canvas id="base-layer-canvas" :width="baseMapItem.width" :height="baseMapItem.height"></canvas>
-      <canvas id="dynamic-layer-canvas" :width="baseMapItem.width" :height="baseMapItem.height" @pointerdown="edit($event)"></canvas>
+      <canvas id="dynamic-layer-canvas" :width="baseMapItem.width" :height="baseMapItem.height"
+        @pointerdown="edit($event)"></canvas>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, useEntityContext, useEntityEditFormStore, useEntityPCBStore, useEntityRecordsStore, SwitchItemStateInfo, SwitchItemStatusImageKeyMap } from '@/share';
+import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, SwitchItemStateInfo, SwitchItemStatusImageKeyMap, useEntityContext, useEntityEditFormStore, useEntityPCBStore } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
@@ -39,8 +40,7 @@ export default defineComponent({
     const ionRouter = useIonRouter();
     const { entityName, recordId } = useEntityContext();
     const userStore = useUserStore();
-    const recordStore = useEntityRecordsStore(entityName);
-       
+
     const { menus } = storeToRefs(userStore);
     const title = computed(() => {
       return menus.value.find(item => item.id === entityName)?.name || '';
@@ -51,14 +51,14 @@ export default defineComponent({
 
     pcbStore.getPCBInfos(recordId);
     let canvasSwitchItemInfos = {} as Record<string, PCBRect>;
-    
+
     onMounted(() => {
       const baseLayerCanvas = document.querySelector('#base-layer-canvas') as HTMLCanvasElement;
       const baseLayerCtx = baseLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
       const dynamicLayerCanvas = document.querySelector('#dynamic-layer-canvas') as HTMLCanvasElement;
       const dynamicLayerCtx = dynamicLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
 
-      pcbStore.$subscribe((mutation, state) => {
+      pcbStore.$subscribe((mutation) => {
         if (mutation.type === MutationType.patchObject) {
           if (mutation.payload.baseMapItem) {
             const baseMapItem: PCBBaseMapItem = mutation.payload.baseMapItem as PCBBaseMapItem;
@@ -71,7 +71,7 @@ export default defineComponent({
           if (mutation.payload.switchItems) {
             canvasSwitchItemInfos = {} as Record<string, PCBRect>;
             const switchItems = mutation.payload.switchItems as Record<string, PCBSwitchItem>;
-            Object.entries(switchItems).forEach(([,switchItem]) => {
+            Object.entries(switchItems).forEach(([, switchItem]) => {
               const imageName = SwitchItemStatusImageKeyMap[switchItem.value];
               const valueImgString = switchItem[imageName as keyof PCBSwitchItem];
               if (valueImgString) {
@@ -90,24 +90,18 @@ export default defineComponent({
             });
           }
         }
-      // draw canvas image
-      }, {detached: true, immediate: true});
-      
+        // draw canvas image
+      }, { detached: true, immediate: true });
+
       //#WIP
-      // pcbStore.startSwitchItemsCheck();
+      pcbStore.startSwitchItemsCheck();
     });
     const edit = function (event: PointerEvent) {
       const { offsetX: x, offsetY: y } = event;
-      const clickedItemId = Object.entries(canvasSwitchItemInfos).find(([,value]) => {
+      const clickedItemId = Object.entries(canvasSwitchItemInfos).find(([, value]) => {
         return isPointInRect({ x, y }, value);
       })?.[0] || '';
       if (clickedItemId !== '') {
-        ionRouter.push({
-          path: `/entity/${entityName}/${recordId}/${Entities.Operations}/${clickedItemId}`,
-          query: {
-            skipSelfEntity: 1
-          }
-        });
         const switchItem = pcbStore.getSwitchItem(clickedItemId);
         const entityEditFormStore = useEntityEditFormStore(Entities.Operations, clickedItemId);
         entityEditFormStore.$patch({
@@ -115,6 +109,12 @@ export default defineComponent({
             kfId: switchItem.kf,
             khId: switchItem.kh,
           } as SwitchItemStateInfo
+        });
+        ionRouter.push({
+          path: `/entity/${entityName}/${recordId}/${Entities.Operations}/${clickedItemId}`,
+          query: {
+            skipSelfEntity: 1
+          }
         });
       }
     };
@@ -124,15 +124,7 @@ export default defineComponent({
     onUnmounted(() => {
       pcbStore.destroy();
     });
-    const openModal = async function () {
-      // const modal = await modalController.create({
-      //   component: 'modal-content',
-      //   ...opts,
-      // });
-      // modal.present();
-      // return modal;
-    };
-    return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, openModal, edit, baseMapItem };
+    return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, edit, baseMapItem };
   }
 });
 </script>

@@ -1,61 +1,35 @@
 <template>
   <ion-page mode="md">
-    <ion-split-pane :contentId="contentId">
-      <search-form-panel :entityName="entityName" :contentId="contentId" :menuId="menuId"></search-form-panel>
-      <div class="ion-page segments-view" :id="contentId">
-        <ion-header translucent>
-          <ion-toolbar mode="md" color="primary">
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/home"></ion-back-button>
-            </ion-buttons>
-            <ion-title center>{{ title }}</ion-title>
-            <ion-buttons slot="end">
-              <ion-menu-button autoHide="false" :menu="menuId">
-                <ion-icon :icon="searchCircleOutline"></ion-icon>
-              </ion-menu-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content fullscreen :scroll-y="false">
-          <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="60" key-field="id"
-              ref="virtualScroller">
-              <template #default="{ item }">
-                <ion-item @click="openRecord(item)" class="entity-list-item">
-                  <ion-label siz>
-                    <h2>{{ item.name }}</h2>
-                  </ion-label>
-                  <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
-                </ion-item>
-              </template>
-              <template #after>
-                <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll">
-                  <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading more data...">
-                  </ion-infinite-scroll-content>
-                </ion-infinite-scroll>
-              </template>
-            </RecycleScroller>
-          </ion-list>
+    <ion-header translucent>
+      <ion-toolbar mode="md" color="primary">
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title center>{{ title }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content fullscreen>
+      <ion-list v-for="item in records" :key="item.id">
+        <ion-item @click="openRecord(item)" class="entity-list-item">
+          <ion-label>
+            <h2>{{ item.name }}</h2>
+          </ion-label>
+          <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
+        </ion-item>
+      </ion-list>
 
-        </ion-content>
-      </div>
-    </ion-split-pane>
+    </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import SearchFormPanel from '@/components/search-form-panel.vue';
 import { Entities, useEntityContext, useEntityDisplayName } from '@/share';
-import { EntityRecord, useEntityRecordsStore, useEntityRelationStore, useEntitySearchFormStore } from '@/share/entity';
-import {
-  InfiniteScrollCustomEvent, IonBackButton, IonButtons, IonContent,
-  IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar, useBackButton, useIonRouter
+import { EntityRecord, useEntityRecordsStore, useEntityRelationStore } from '@/share/entity';
+import { IonButtons, IonContent, IonIcon, IonItem, IonLabel, IonList, IonPage, IonBackButton, IonHeader, IonTitle, IonToolbar, useBackButton, useIonRouter
 } from '@ionic/vue';
-import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
-import { RecycleScroller } from 'vue-virtual-scroller';
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -64,7 +38,7 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 */
 
 export default defineComponent({
-  name: 'SegmentsView', // 分隔图tab
+  name: 'SegmentsView',
   components: {
     IonPage,
     IonHeader,
@@ -72,52 +46,29 @@ export default defineComponent({
     IonTitle,
     IonList,
     IonItem,
-    IonContent,
-    IonLabel,
-    SearchFormPanel,
-    RecycleScroller,
-    IonInfiniteScroll, 
-    IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
+    IonContent, IonBackButton,
+    IonLabel, IonButtons, IonIcon
   },
   setup() {
     const router = useIonRouter();
     const { entityName } = useEntityContext();
-    const virtualScroller = ref(null) as Ref<any>;
 
     const { title } = useEntityDisplayName(entityName);
-
-    const menuId = ref(`${entityName}_menu`);
-    const contentId = ref(`${entityName}_panel`);
 
     const recordStore = useEntityRecordsStore(entityName);
     const { records } = storeToRefs(recordStore);
 
-    const searchFormStore = useEntitySearchFormStore(entityName);
-    const { searchForm } = storeToRefs(searchFormStore);
-
     const relationEntityStore = useEntityRelationStore(entityName);
     const { editViewEntityName } = storeToRefs(relationEntityStore);
 
-    function loadData (evt: InfiniteScrollCustomEvent) {
-      // load data 
-      setTimeout(() => {
-        recordStore.getRecords(entityName, { criteria: searchForm, });
-        console.log('Loaded data');
-        if (virtualScroller.value) {
-          virtualScroller.value?.['updateVisibleItems'](true);
-        }
-        evt.target.complete();
-        // App logic to determine if all data is loaded
-        // and disable the infinite scroll
-      }, 1000);
-    }
 
-    function openRecord (item: EntityRecord) {
+
+    function openRecord(item: EntityRecord) {
       if (editViewEntityName.value !== entityName) {
         const parentRecordId = item.id;
         const parentEntityName = entityName;
         router.push(`/entity/${parentEntityName}/${parentRecordId}/${editViewEntityName.value}`);
-      }else {
+      } else {
         const recordId = item.id;
         router.push(`/entity/${entityName}/${recordId}`);
       }
@@ -129,21 +80,17 @@ export default defineComponent({
 
     // init 
     relationEntityStore.setEditViewRelateEntity(Entities.SegmentsChild);
-    recordStore.getRecords(entityName, {isInit: true});
-    
-    // onMounted(() => {
-      
-    // });
+    recordStore.getRecords(entityName, { isInit: true });
+
     onUnmounted(() => {
       result.unregister();
       recordStore.destroy();
-      searchFormStore.destroy();
       relationEntityStore.destroy();
     });
-  
+
     return {
-      openRecord, entityName, menuId, contentId,
-      records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
+      openRecord, entityName, 
+      records, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
 });
@@ -154,6 +101,7 @@ export default defineComponent({
   /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
   height: 100%;
 }
+
 .entity-list-item {
   --border-color: var(--ion-color-light, #f2f2f2);
 }

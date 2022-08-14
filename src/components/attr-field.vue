@@ -3,21 +3,21 @@
 </template>
 
 <script lang="ts">
-import { Entities, EntityAttrType, FormField } from '@/share/entity';
-import { ComponentPublicInstance, DefineComponent, defineComponent, PropType, ref, Ref } from 'vue';
 import CheckboxField from '@/controls/checkbox-field.vue';
 import DateField from '@/controls/date-field.vue';
 import DateTimeField from '@/controls/date-time-field.vue';
 import NumericField from '@/controls/numeric-field.vue';
+import PasswordField from '@/controls/password-field.vue';
 import RadioField from '@/controls/radio-field.vue';
 import RadioGroupField from '@/controls/radio-group-field.vue';
 import SelectField from '@/controls/select-field.vue';
 import TelField from '@/controls/tel-field.vue';
-import TextareaField from '@/controls/textarea-field.vue';
 import TextField from '@/controls/text-field.vue';
+import TextareaField from '@/controls/textarea-field.vue';
 import TimeField from '@/controls/time-field.vue';
 import UrlField from '@/controls/url-field.vue';
-import PasswordField from '@/controls/password-field.vue';
+import { Entities, EntityAttrType, FormField } from '@/share/entity';
+import { ComponentPublicInstance, defineComponent, PropType, ref, Ref } from 'vue';
 
 const EntityAttrControlMap: Record<EntityAttrType, any> = {
   [EntityAttrType.Text]: TextField,
@@ -51,7 +51,7 @@ export default defineComponent({
       [UpdateValueEventName]: (args: any) => {
         emit(UpdateValueEventName, args);
       }
-    }
+    };
     return {
       control,
       props,

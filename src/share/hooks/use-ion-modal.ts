@@ -13,7 +13,7 @@ function useIonModal(id: string) {
     cache[id] = {data: reactive({}), modal: null};
     modalData = cache[id].data;
     watch(modalData, () => {
-      debugger;
+      // debugger;
     });
   }else {
     modalData = cache[id].data;
@@ -37,9 +37,9 @@ function useIonModal(id: string) {
     modal.canDismiss = () => {
       return Promise.resolve(false);
     };
-    debugger;
+    // debugger;
     const abc =  await modal.onDidDismiss<string>();
-    debugger;
+    // debugger;
     return abc;
   };
 

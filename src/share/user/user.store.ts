@@ -2,7 +2,7 @@ import { YNCacheKey, cacheService, DataStatus } from '@/share';
 import { authService, RequestUserInfo, ResponseUserInfo, UpdatePasswordInfo } from '@/share/auth';
 import { defineStore } from 'pinia';
 import { of,  } from 'rxjs';
-import {  catchError, delay, take, tap } from 'rxjs/operators'
+import {  catchError, delay, take, tap } from 'rxjs/operators';
 import { UserMenu, userService } from './user.service';
 
 const user = cacheService.get(YNCacheKey.User) as ResponseUserInfo;
@@ -93,7 +93,13 @@ const userStoreFactory =  defineStore('user', {
         });
         return ;
       }
-      authService.updatePassword(updateInfo).pipe(take(1)).subscribe();
+      authService.updatePassword(updateInfo).pipe(take(1)).subscribe(result => {
+        if (result.message) {
+          this.$patch({
+            updatePasswordResultMsg: result.message
+          });
+        }
+      });
     },
     resetUpdatePwdValidation(){
       this.$patch({
@@ -140,7 +146,7 @@ export const useUserStore = () => {
   if (!instance) {
     instance = userStoreFactory();
     // check is auto unsubscribe when store is dispose;
-    instance.$subscribe((mutation,state) => {
+    instance.$subscribe(() => {
       instance.getUserMenu();
     }, {immediate: true, detached: true, deep: false});
   }
