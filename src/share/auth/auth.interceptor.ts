@@ -3,8 +3,6 @@ import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { YNCacheKey, cacheService } from '../cache.service';
 import { useUserStore } from '../user';
 
-
-
 const authRequestInterceptor = [
   (config: AxiosRequestConfig) => {
     const token = cacheService.get(YNCacheKey.AccessToken);

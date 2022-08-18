@@ -1,7 +1,7 @@
 import { Components } from '@ionic/core';
 import { loadingController, LoadingOptions } from '@ionic/vue';
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { useAppStore } from './entity';
+import { useAppStore } from '@/share/hooks/use-app.store';
 
 
 function isNetworkError(err: AxiosError) {

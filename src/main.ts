@@ -25,7 +25,8 @@ import './theme/variables.css';
 import { router } from './router';
 import { createPinia } from 'pinia';
 import VueVirtualScroller from 'vue-virtual-scroller';
-import { authGuards } from '@/share';
+import { authGuards } from '@/share/auth';
+
 
 router.beforeEach(authGuards);
 
@@ -35,7 +36,12 @@ const app = createApp(App)
   .use(VueVirtualScroller)
   .use(router);
 
-router.isReady().then(() => {
-  app.mount('#app');
-});
+function initializeApp () {
+  return Promise.resolve(true);
+}
+router.isReady()
+  .then(() => initializeApp())
+  .then(() => {
+    app.mount('#app');
+  });
 

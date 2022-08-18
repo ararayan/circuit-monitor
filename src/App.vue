@@ -1,6 +1,6 @@
 <template>
   <ion-app>
-     <ion-router-outlet></ion-router-outlet>
+    <ion-router-outlet></ion-router-outlet>
   </ion-app>
 </template>
 
@@ -10,26 +10,36 @@ import { defineComponent, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBackButton } from '@ionic/vue';
 import { App } from '@capacitor/app';
+import { useAppStore } from '@/share/hooks/use-app.store';
+import { PluginListenerHandle } from '@capacitor/core';
 
 export default defineComponent({
   name: 'App',
   components: {
     IonApp,
     IonRouterOutlet,
-  },  
+  },
   // beforeCreate(() => {}),
   setup() {
     const route = useRoute();
     const dispose = useBackButton(-1, (next) => {
       if (route.path.includes('/home') || route.path.includes('/login')) {
         App.minimizeApp();
-      }else {
+      } else {
         next();
       }
 
     });
-    onUnmounted(() => {
+    const appSubscriptions:  Array<Promise<PluginListenerHandle> & PluginListenerHandle> = [];
+    const appStore = useAppStore();
+    appSubscriptions.push(
+      App.addListener('appUrlOpen', data => appStore.setOperUrl(data.url)),
+      App.addListener('appRestoredResult', data => console.log('Restored state:', data)),
+      App.addListener('appStateChange', (appState) => appStore.setActive(appState.isActive)),
+    );
+    onUnmounted(async () => {
       dispose.unregister();
+      await Promise.all(appSubscriptions.map(subscription => subscription.remove()));
     });
   }
   // async created() {

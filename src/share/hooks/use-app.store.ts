@@ -12,6 +12,8 @@ export function useAppStore() {
       const initialState = {
         loadingCount: 0,
         isNetWorkError: false,
+        isActive:  false,
+        openUrl: '',
       };
       return { ...initialState };
     },
@@ -25,6 +27,16 @@ export function useAppStore() {
       reset() {
         destory$.next(true);
         this.$reset();
+      },
+      setActive(isActive: boolean) {
+        this.$patch({
+          isActive
+        });
+      },
+      setOperUrl(url: string) {
+        this.$patch({
+          openUrl: url
+        });
       },
       destroy() {
         // fix: pinia.state will cache state even the store instance was remove by call self dispose;
