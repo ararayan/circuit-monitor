@@ -2,7 +2,7 @@ import { AxiosRequestConfig } from "axios";
 import { defineStore } from "pinia";
 import { EMPTY, of, Subject } from "rxjs";
 import { catchError, delay, filter, map, repeat, switchMap, take, takeUntil } from 'rxjs/operators';
-import { ActionStatus, DataStatus } from "../data.meta";
+import {  DataStatus } from "../data.meta";
 import { httpService, YNAPI_JXT } from "../http";
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 import { Entities } from "./entity.types";
@@ -99,9 +99,9 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
         }  as PCBBaseMapItem,
         switchItems: {} as Record<string, PCBSwitchItem>,
         fontItems: [] as PCBFontItem[],
+        isStartSwitchItemUpdate: false,
         meta: {
           pcbInfo: DataStatus.Unloaded,
-          switchItemUpdate: ActionStatus.Inactive
         },
       };
       return { ...initialState, entityName };
@@ -221,14 +221,12 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
         }
       },
       startSwitchItemsCheck() {
-        if (![ActionStatus.InProgress].includes(this.$state.meta.switchItemUpdate)) {
+        if (!this.isStartSwitchItemUpdate) {
           const yxIds = Object.keys(this.switchItems);
           let maxErrorCount = 5;
           const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
           this.$patch({
-            meta: {
-              switchItemUpdate: ActionStatus.InProgress
-            }
+            isStartSwitchItemUpdate: true
           });
           of(0).pipe(
             switchMap(() => {
@@ -273,17 +271,13 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
                 switchItems: {
                   ...patchChangedInfos
                 },
-                meta: {
-                  switchItemUpdate: ActionStatus.End
-                }
+                isStartSwitchItemUpdate: false,
               });
             },
             complete: () => {
-              if (this.meta.switchItemUpdate !== ActionStatus.End) {
+              if (this.isStartSwitchItemUpdate) {
                 this.$patch({
-                  meta: {
-                    switchItemUpdate: ActionStatus.End
-                  }
+                  isStartSwitchItemUpdate: false,
                 });
               }
             }

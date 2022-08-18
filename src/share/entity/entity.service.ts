@@ -1,7 +1,6 @@
 /* eslint-disable no-else-return */
 import { AxiosRequestConfig } from 'axios';
 import { delay, Observable, of, take, map } from 'rxjs';
-import { ActionStatus } from '../data.meta';
 import { httpService, YNAPI_JGSJ, YNAPI_JXT, YNAPI_KZCZ, YNAPI_ZMGL } from '../http';
 import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
 import { ControlStatusCode, ControlStatusTextMap } from './data/operations';
@@ -76,9 +75,7 @@ export interface LightingControlRecord {
   kfId: number;
   khId: number;
   name: string; //"装置1信号复归"
-  status: ActionStatus;  //"fen" 
   yxId: number;
-  // isPendingStatus: boolean; //client
 }
 
 export function getRecords(entityName: Entities, params?: any, config?: AxiosRequestConfig): Observable<EntityRecord[]> {
@@ -130,7 +127,6 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
         map(response => (response.data || []).map(item => {
           return {
             ...item,
-            // isPendingStatus: false
           };
         }))
       );
