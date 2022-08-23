@@ -197,7 +197,7 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
           map(response => {
             const action = response.data || {};
             // eslint-disable-next-line no-constant-condition
-            if (action.isYxEffect && action.sendActionSuccess || true) {
+            if (action.isYxEffect && action.sendActionSuccess) {
               return true;
             }
             return false;

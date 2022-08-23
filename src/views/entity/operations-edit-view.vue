@@ -36,12 +36,12 @@ const operators = {
   [OperatorType.RemoteSelect]: { id: OperatorType.RemoteSelect, value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline, disabled: false },
   [OperatorType.RemoteExcute]: { id: OperatorType.RemoteExcute, value: '遥控执行', color: 'danger', cssClass: 'bg-contrast-danger', icon: rocketOutline, disabled: false },
 };
-const openToast = async (msg: string) => {
+const openToast = async (msg: string, color: string) => {
   const toast = await toastController
     .create({
       message: msg,
-      duration: 1000,
-      color: 'success'
+      duration: 2000,
+      color: color
     });
   toast.present();
   return toast;
@@ -82,7 +82,7 @@ export default defineComponent({
       }
       watch(operatorMsg, (next, prev) => {
         if (next !== prev && !!next) {
-          openToast(next);
+          openToast(next, 'warning');
         }
       }, { immediate: true });
     });

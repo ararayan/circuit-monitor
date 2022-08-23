@@ -16,7 +16,7 @@ export function useAppStore() {
         isActive:  false,
         openUrl: '',
         baseUrl: YN_BASE_URL,
-        isBaseURLInited: false,
+        enterBaseURLInited: false,
       };
       return { ...initialState };
     },
@@ -27,10 +27,10 @@ export function useAppStore() {
       setBaseUrl(url: string) {
         if (url) {
           this.baseUrl = url;
-          this.isBaseURLInited = true;
+          this.enterBaseURLInited = false;
           httpService.setBaseUrl(url);
         }else {
-          this.isBaseURLInited = false;
+          this.enterBaseURLInited = true;
         }
 
       },

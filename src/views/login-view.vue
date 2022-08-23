@@ -1,6 +1,6 @@
 <template>
   <ion-page mode="md">
-    <template v-if="!isBaseURLInited">
+    <template v-if="enterBaseURLInited">
       <ion-header>
         <ion-toolbar color="primary">
           <ion-title center>API Config</ion-title>
@@ -32,7 +32,7 @@
 
       </ion-footer> -->
     </template>
-    <template v-if="isBaseURLInited">
+    <template v-if="!enterBaseURLInited">
       <ion-content mode="md" class="linear-blue">
         <ion-card>
           <ion-card-header>
@@ -113,7 +113,7 @@ export default defineComponent({
   setup() {
     const userStore = useUserStore();
     const appStore = useAppStore();
-    const { isBaseURLInited } = storeToRefs(appStore);
+    const { enterBaseURLInited } = storeToRefs(appStore);
     const apiBaseURL = ref<string>(appStore.baseUrl);
     const { user: form, loginErrorMsg, loginError } = storeToRefs(userStore);
     const router = useRouter();
@@ -151,7 +151,7 @@ export default defineComponent({
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onUnmounted(() => { });
     return {
-      locateOutline, isBaseURLInited, apiBaseURL, initAppBaseurl, settingsOutline, resetBaseUrl,
+      locateOutline, enterBaseURLInited, apiBaseURL, initAppBaseurl, settingsOutline, resetBaseUrl,
       form,
       login,
       onUserInfoChanged,

@@ -112,7 +112,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
             const action = response.data || {};
             let retryCount = 3;
             // eslint-disable-next-line no-constant-condition
-            if (action.isYxEffect && action.sendActionSuccess || true) {
+            if (action.isYxEffect && action.sendActionSuccess) {
               return of(0).pipe(
                 switchMap(() => {
                   return httpService.post<YxCheckResponse>(YNAPI_KZCZ.CheckControlResult, {
@@ -125,7 +125,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                   count: retryCount + 1,
                   delay: () => {
                     retryCount--;
-                    return of(0).pipe(delay(500));
+                    return of(0).pipe(delay(1000));
                   }
                 }),
                 catchError(err => {
@@ -150,7 +150,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
           tap(response => {
             const checkResult = response.data;
             // eslint-disable-next-line no-constant-condition
-            if ((!checkResult.hasNewControlResult && checkResult.result === 1) || true) {
+            if ((!checkResult.hasNewControlResult && checkResult.result === 1)) {
               this.$patch({
                 operatorId: OperatorType.RemoteExcute,
                 operatorMsg: '申请遥控选择成功.'
@@ -184,7 +184,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
             const action = response.data || {};
             let retryCount = 3;
             // eslint-disable-next-line no-constant-condition
-            if (action.isYxEffect && action.sendActionSuccess || true) {
+            if (action.isYxEffect && action.sendActionSuccess) {
               return of(0).pipe(
                 switchMap(() => {
                   return httpService.post<YxCheckResponse>(YNAPI_KZCZ.CheckControlResult, {
