@@ -5,14 +5,13 @@ import { loadingRequestInterceptor, loadingResponseInterceptor } from '../loadin
 import { YN_BASE_URL } from './url';
 
 
-
 const YNAxios = axios.create({
   baseURL: YN_BASE_URL,
   headers: {
     ['content-type']: 'application/x-www-form-urlencoded'
   }
 });
- 
+
 // stack, LIFO
 YNAxios.interceptors.request.use(...authRequestInterceptor);
 // convert postdata to URLSearchParams    
@@ -45,6 +44,9 @@ YNAxios.interceptors.response.use(...loadingResponseInterceptor);
 
 
 export const httpService =  {
+  setBaseUrl(url: string) {
+    YNAxios.defaults.baseURL = url;
+  },
   // get<T = any>(url: string, config?: AxiosRequestConfig<T>) {
   //   return from(_axios.get(APP_URL.Base + url, fixConfig(config)));
   // },
@@ -62,4 +64,5 @@ export const httpService =  {
     (instance || YNAxios).interceptors.request.use(...[args[0], args[1]]);
   }
 };
+
 

@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { Subject } from "rxjs";
+import { httpService, YN_BASE_URL } from "../http";
 
 
 
@@ -14,12 +15,24 @@ export function useAppStore() {
         isNetWorkError: false,
         isActive:  false,
         openUrl: '',
+        baseUrl: YN_BASE_URL,
+        isBaseURLInited: false,
       };
       return { ...initialState };
     },
     actions: {
       setLoadingCount(value: number) {
         this.$patch({loadingCount: value});
+      },
+      setBaseUrl(url: string) {
+        if (url) {
+          this.baseUrl = url;
+          this.isBaseURLInited = true;
+          httpService.setBaseUrl(url);
+        }else {
+          this.isBaseURLInited = false;
+        }
+
       },
       setNetWorkError() {
         this.$patch({ isNetWorkError: true});

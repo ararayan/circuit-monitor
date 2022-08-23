@@ -5,13 +5,12 @@
 </template>
 
 <script lang="ts">
-import { IonApp, IonRouterOutlet } from '@ionic/vue';
+import { useAppStore } from '@/share/hooks/use-app.store';
+import { App } from '@capacitor/app';
+import { PluginListenerHandle } from '@capacitor/core';
+import { IonApp, IonRouterOutlet, useBackButton } from '@ionic/vue';
 import { defineComponent, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useBackButton } from '@ionic/vue';
-import { App } from '@capacitor/app';
-import { useAppStore } from '@/share/hooks/use-app.store';
-import { PluginListenerHandle } from '@capacitor/core';
 
 export default defineComponent({
   name: 'App',
@@ -19,7 +18,6 @@ export default defineComponent({
     IonApp,
     IonRouterOutlet,
   },
-  // beforeCreate(() => {}),
   setup() {
     const route = useRoute();
     const dispose = useBackButton(-1, (next) => {
@@ -44,7 +42,7 @@ export default defineComponent({
   }
   // async created() {
   //   return Promise.resolve(true).then(() => {
-  //     // debugger;
+  //     debugger;
   //   });
   // },
 });

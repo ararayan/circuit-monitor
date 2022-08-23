@@ -24,15 +24,15 @@
 </template>
 
 <script lang="ts">
+import AttrField from '@/components/attr-field.vue';
+import { UpdatePasswordInfo } from '@/share/auth/auth.service';
 import { EntityAttrType, FormField } from '@/share/entity';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonList, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, loadingController, toastController } from '@ionic/vue';
+import { useUserStore } from '@/share/user';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonList, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
 import { ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
-import { defineComponent } from 'vue';
-import AttrField from '@/components/attr-field.vue';
-import { useUserStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
-import { UpdatePasswordInfo } from '@/share/auth/auth.service';
+import { defineComponent } from 'vue';
 
 
 export default defineComponent({

@@ -27,7 +27,8 @@
 
 <script lang="ts">
 import EnsurePasswordModal from '@/components/ensure-password-modal.vue';
-import { authService, Entities, EntityRecord, FormField, SwitchItemStateInfo, useEntityContext, useEntityDisplayName, useEntityEditFormStore, useEntityRecordsStore } from '@/share';
+import { Entities, EntityRecord, FormField, SwitchItemStateInfo, useEntityContext, useEntityDisplayName, useEntityEditFormStore, useEntityRecordsStore } from '@/share';
+import { authService } from '@/share/auth';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { ref } from '@vue/reactivity';
 import { chevronForwardOutline } from 'ionicons/icons';
