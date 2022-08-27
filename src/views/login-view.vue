@@ -6,7 +6,7 @@
           <ion-title center>API Config</ion-title>
         </ion-toolbar>
       </ion-header>
-          <ion-content fullscreen class="ion-padding">
+      <ion-content fullscreen class="ion-padding">
         <ion-list>
           <ion-item lines="none">
             <ion-label for="apiUrl" size="large">API Default Base URL:</ion-label>
@@ -14,12 +14,13 @@
           <ion-item>
             <ion-input type="text" v-model="apiBaseURL" name="apiUrl" id="apiUrl"></ion-input>
           </ion-item>
-<ion-item lines="none" style="padding: 4em 1em;">
-          <ion-button style="min-width: 25vw; margin: auto; position: relative; left: 25%;" size="medium" color="success" @click="initAppBaseurl()">
-            <ion-icon :icon="locateOutline" slot="start"></ion-icon>
-            <ion-label>ok</ion-label>
-          </ion-button>
-              </ion-item>
+          <ion-item lines="none" style="padding: 4em 1em;">
+            <ion-button style="min-width: 25vw; margin: auto; position: relative; left: 25%;" size="medium"
+              color="success" @click="initAppBaseurl()">
+              <ion-icon :icon="locateOutline" slot="start"></ion-icon>
+              <ion-label>ok</ion-label>
+            </ion-button>
+          </ion-item>
         </ion-list>
       </ion-content>
       <!-- <ion-footer  >
@@ -37,51 +38,51 @@
         <ion-card>
           <ion-card-header>
             <ion-card-title style="text-align: right; ">
-            <ion-button  @click="resetBaseUrl()" color="light">
-             <ion-icon :icon="settingsOutline" ></ion-icon>
-          </ion-button>
-               
+              <ion-button @click="resetBaseUrl()" color="light">
+                <ion-icon :icon="settingsOutline"></ion-icon>
+              </ion-button>
             </ion-card-title>
-                     
+
           </ion-card-header>
 
           <form @submit="login($event)" name="loginform">
-          <ion-card-content class="login-card">
-            <ion-item lines="none">
-              <ion-img src="assets/yanneng.jpg" style="height: 30vh; min-height: 200px; margin: 0 auto;"></ion-img>
-            </ion-item>
-            <ion-item style="background: #fff" class="ion-padding-horizontal" :class="{ 'ion-invalid': loginError }">
-              <ion-label position="floating">
-                <ion-icon size="large" color="medium" :icon="personCircleOutline" slot="start"
-                  style="vertical-align: bottom; margin-right: 0.25em"></ion-icon>
-                <ion-note color="medium">用户名</ion-note>
-              </ion-label>
-              <ion-input name="name" type="text" v-model="form.loginUserName" @change="onUserInfoChanged()"></ion-input>
-            </ion-item>
-            <ion-item style="background: #fff" class="ion-padding-horizontal ion-margin-bottom"
-              :class="{ 'ion-invalid': loginError }">
-              <ion-label position="floating">
-                <ion-icon size="large" color="medium" :icon="lockClosedOutline" slot="start"
-                  style="vertical-align: bottom; margin-right: 0.25em"></ion-icon>
-                <ion-note color="medium">密码</ion-note>
-              </ion-label>
-              <ion-input name="password" type="password" v-model="form.password" @change="onUserInfoChanged()">
-              </ion-input>
-            </ion-item>
-            <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none">
-              <ion-label for="test1">记住密码</ion-label>
-              <ion-checkbox slot="start" v-model="form.remenberPassword" id="test1">
-              </ion-checkbox>
-            </ion-item>
-            <ion-button size="large" type="submit" expand="block" @click="login($event)" class="ion-margin">
-              <ion-label>登陆</ion-label>
-              <ion-icon slot="end" :icon="arrowForwardCircleOutline"></ion-icon>
-            </ion-button>
+            <ion-card-content class="login-card">
+              <ion-item lines="none">
+                <ion-img src="assets/yanneng.jpg" style="height: 30vh; min-height: 200px; margin: 0 auto;"></ion-img>
+              </ion-item>
+              <ion-item style="background: #fff" class="ion-padding-horizontal" :class="{ 'ion-invalid': loginError }">
+                <ion-label position="floating">
+                  <ion-icon size="large" color="medium" :icon="personCircleOutline" slot="start"
+                    style="vertical-align: bottom; margin-right: 0.25em"></ion-icon>
+                  <ion-note color="medium">用户名</ion-note>
+                </ion-label>
+                <ion-input name="name" type="text" v-model="form.loginUserName" @change="onUserInfoChanged()">
+                </ion-input>
+              </ion-item>
+              <ion-item style="background: #fff" class="ion-padding-horizontal ion-margin-bottom"
+                :class="{ 'ion-invalid': loginError }">
+                <ion-label position="floating">
+                  <ion-icon size="large" color="medium" :icon="lockClosedOutline" slot="start"
+                    style="vertical-align: bottom; margin-right: 0.25em"></ion-icon>
+                  <ion-note color="medium">密码</ion-note>
+                </ion-label>
+                <ion-input name="password" type="password" v-model="form.password" @change="onUserInfoChanged()">
+                </ion-input>
+              </ion-item>
+              <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none">
+                <ion-label for="test1">记住密码</ion-label>
+                <ion-checkbox slot="start" v-model="form.remenberPassword" id="test1">
+                </ion-checkbox>
+              </ion-item>
+              <ion-button size="large" type="submit" expand="block" @click="login($event)" class="ion-margin">
+                <ion-label>登陆</ion-label>
+                <ion-icon slot="end" :icon="arrowForwardCircleOutline"></ion-icon>
+              </ion-button>
 
-            <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none" v-if="loginError">
-              <ion-label color="danger">{{ loginErrorMsg }}</ion-label>
-            </ion-item>
-          </ion-card-content>
+              <ion-item style="background: #fff" class="ion-padding-horizontal" lines="none" v-if="loginError">
+                <ion-label color="danger">{{ loginErrorMsg }}</ion-label>
+              </ion-item>
+            </ion-card-content>
           </form>
 
         </ion-card>
@@ -103,6 +104,8 @@ import { useRouter } from 'vue-router';
 import { personCircleOutline, lockClosedOutline, arrowForwardCircleOutline, locateOutline, settingsOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/share/hooks/use-app.store';
+// import axios from 'axios';
+// import { alertController } from '@ionic/core';
 
 export default defineComponent({
   name: 'LoginView',
@@ -150,7 +153,23 @@ export default defineComponent({
     onBeforeUnmount(() => { });
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onUnmounted(() => { });
+
+    // function publicApi() {
+    //   axios.create().post('http://jsonplaceholder.typicode.com/posts').then(response => {
+    //     const alter = alertController.create({
+    //       message: JSON.stringify(response.data)
+    //     });
+    //     alter.then(x => x.present());
+    //   }).catch(() => {
+    //     const alter = alertController.create({
+    //       message: `can't access to network`
+    //     });
+    //     alter.then(x => x.present());
+    //   });
+    // }
+
     return {
+      // publicApi,
       locateOutline, enterBaseURLInited, apiBaseURL, initAppBaseurl, settingsOutline, resetBaseUrl,
       form,
       login,
