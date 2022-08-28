@@ -46,41 +46,21 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
       getEditForm() {
         if (![DataStatus.Loaded, DataStatus.Loading].includes(this.$state.meta.editForm)){
           getEditForm$(entityName || this.$state.entityName).pipe(
-            switchMap(form => {
-              if (Object.keys(this.currRecordInfo).length) {
-                const postData = {
-                  yxIds: this.recordId,
-                  khId: this.currRecordInfo.khId,
-                  kfId: this.currRecordInfo.kfId,
-                  jxtId: '',
-                };
-                return httpService.post(YNAPI_KZCZ.GetDetail, postData).pipe(
-                  map((response: any) => {
-                    const fields = Object.entries((response?.data || {}) as Record<string, string | number>).map(([id, value]) => {
-                      const metaInfo = form.find(item => item.id === id) as FormField;
-                      if (metaInfo) {
-                        let resultValue = value;
-                        let readonly = false;
-                        if (id === 'status') {
-                          resultValue = ControlStatusTextMap[value as 'wx' | 'fen' | 'he'] || '';
-                          readonly = true;
-                        }
-                        const item: FormField = {
-                          ...metaInfo,
-                          value: resultValue,
-                          disabled: false,
-                          readonly,
-                        };
-                        
-                        return item;
-                      }
-                      return null;
-                    });
-                    return fields.filter(x => !!x);
-                  })
-                );
-              } 
-              return EMPTY;
+            map(form => {
+              form.forEach(item => {
+                if(item.id === 'changzhan') {
+                  item.value = '衍能一厂';
+                }else if (item.id === 'dianming') {
+                  item.value = '4号站点125kv';
+                }else if (item.id === 'status') {
+                  item.value = '受控中';
+                }else if (item.id === 'controlType') {
+                  item.value = 'control1';
+                }else if (item.id === 'zhaStatus') {
+                  item.value = 'he';
+                }
+              });
+              return form;
             }),
             catchError(err => {
               this.$patch({
@@ -103,50 +83,19 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         }
       },
       requestSelect(data: YxOperatorParams) {
-        const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
         loadingService.show({
           message: '申请遥控选择中，请等候...'
         });
-        httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteSelect, data, skipMaskConfig).pipe(
-          switchMap(response => {
-            const action = response.data || {};
-            let retryCount = 3;
-            // eslint-disable-next-line no-constant-condition
-            if (action.isYxEffect && action.sendActionSuccess) {
-              return of(0).pipe(
-                switchMap(() => {
-                  return httpService.post<YxCheckResponse>(YNAPI_KZCZ.CheckControlResult, {
-                    controlType: OperatorType.RemoteSelect,
-                    yxIds: data.yxIds,
-                    action: data.action,
-                  }, skipMaskConfig);
-                }),
-                repeat({
-                  count: retryCount + 1,
-                  delay: () => {
-                    retryCount--;
-                    return of(0).pipe(delay(1000));
-                  }
-                }),
-                catchError(err => {
-                  console.error(err.message);
-                  return of({data: {hasNewControlResult: 0, result: 0}});
-                }),
-                filter(x => {
-                  const checkResult = x.data;
-                  if ((!checkResult.hasNewControlResult && checkResult.result === 1) || !retryCount) {
-                    return true;
-                  } 
-                  return false;
-                }),
-                take(1),
-              );        
-            }
-            this.$patch({
-              operatorMsg: '申请遥控选择失败.'
-            });
-            return EMPTY;
+        of(0).pipe(
+          map(() => {
+            return {
+              data: {
+                hasNewControlResult: false,
+                result: 1
+              }
+            };
           }),
+          delay(1000),
           tap(response => {
             const checkResult = response.data;
             // eslint-disable-next-line no-constant-condition
@@ -175,50 +124,19 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         });
       },
       requestExcute(data: YxOperatorParams) {
-        const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
         loadingService.show({
           message: '遥控执行中，请等候...'
         });
-        httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteExcute, data, skipMaskConfig).pipe(
-          switchMap(response => {
-            const action = response.data || {};
-            let retryCount = 3;
-            // eslint-disable-next-line no-constant-condition
-            if (action.isYxEffect && action.sendActionSuccess) {
-              return of(0).pipe(
-                switchMap(() => {
-                  return httpService.post<YxCheckResponse>(YNAPI_KZCZ.CheckControlResult, {
-                    controlType: OperatorType.RemoteExcute,
-                    yxIds: data.yxIds,
-                    action: data.action,
-                  },skipMaskConfig);
-                }),
-                repeat({
-                  count: retryCount + 1,
-                  delay: () => {
-                    retryCount--;
-                    return of(0).pipe(delay(500));
-                  }
-                }),
-                catchError(err => {
-                  console.error(err.message);
-                  return of({data: {hasNewControlResult: 0, result: 0}});
-                }),
-                filter(x => {
-                  const checkResult = x.data;
-                  if ((!checkResult.hasNewControlResult && checkResult.result === 1) || !retryCount) {
-                    return true;
-                  } 
-                  return false;
-                }),
-                take(1),
-              ); 
-            }
-            this.$patch({
-              operatorMsg: '遥控执行失败.'
-            });
-            return EMPTY;
+        of(0).pipe(
+          map(() => {
+            return {
+              data: {
+                hasNewControlResult: false,
+                result: 1
+              }
+            };
           }),
+          delay(1500),
           tap(response => {
             if (!response.data?.hasNewControlResult && response.data?.result === 1) {
               this.$patch({

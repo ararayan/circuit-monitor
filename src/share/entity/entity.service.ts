@@ -21,6 +21,8 @@ export const entityMappingTitle: Record<Entities, string> = {
 
 };
 
+
+
 export function getSearchForm$(entityName: Entities) {
   let result: FormField[] = [];
   switch(entityName) {
@@ -61,6 +63,15 @@ export function getEditForm$(entityName: Entities) {
   }
   return of(result);
 }
+function getMixedModuleTypeName(type: MixedModuleType) {
+  return type === MixedModuleType.Yx ? '遙信' : type === MixedModuleType.Yc ? '遥测' : '遥脉';
+}
+
+const status = ['分闸', '合闸', '无效'];
+function getRandomStatusText() {
+  const index  = Math.floor(Math.random() * 10)%3;
+  return status[index];
+}
 
 export interface FixedModuleRecord {
   index: number;
@@ -80,56 +91,92 @@ export interface LightingControlRecord {
 
 export function getRecords(entityName: Entities, params?: any, config?: AxiosRequestConfig): Observable<EntityRecord[]> {
   if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
-    return httpService.post<EntityRecordAlias<FixedModuleRecord>[]>(YNAPI_JGSJ.GetData, params || {}, config).pipe(
-      map(response => {
-        //WIP: API
-        return response?.data.map(item => {
-          let desc;
-          if (params.type === MixedModuleType.Yx) {
-            desc = ControlStatusTextMap[item.status];
-          }else {
-            desc = item.value;
-          }
-          return {...item, id: item.index, desc,  };
-        }).filter(x => !!x.name) || [];
-      })
-    );
+    const _records: EntityRecord[] = [];
+    const startIndex = params?.startIndex || 0;
+    const endIndex = params?.endIndex || 20;
+    const mixedModuleTypeName = getMixedModuleTypeName(params.type);
+
+    for(let index = startIndex; index < endIndex; index++) {
+      const item: EntityRecord = {
+        id: index,
+        name: `装置${index + 1} - ${mixedModuleTypeName} ${index + 1}`,
+        note:  `节点数：${index}`,
+        desc:  `${getRandomStatusText()}`,
+      };
+      _records.push(item);
+    }
+    return of(_records).pipe(delay(100), take(1));
   } else {
     if (entityName === Entities.Wirings) {
-      return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList).pipe(
-        map(response => {
-          return response?.data || [];
-        })
-      );
+      const _records: EntityRecord[] = [];
+      const startIndex = params?.startIndex || 0;
+      const endIndex = params?.endIndex || 20;
+      for(let index = startIndex; index < endIndex; index++) {
+        const kv = Math.floor(Math.random() * 10 *(Math.floor(Math.random() * 10)%3 + 1));
+        const count = Math.floor(Math.random() * 10);
+        const item: EntityRecord = {
+          id: index,
+          avatar: 'assets/wiring/circuit.jpg',
+          name: ` 衍能云管理系统 ${kv} KV`,
+          note:  `节点数：${count}`,
+          desc:  `接线图描述文本内容-${index}`,
+          colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
+        };
+        // if ([Entities.LightingControl, Entities.Operations].includes(entityName)) {
+        //   item['controlCol'] = !!(Math.floor(Math.random() * 10) % 2);
+        // }
+        _records.push(item);
+      }
+      return of(_records).pipe(delay(100), take(1));
     } else if (entityName ===  Entities.Segments) {
-      return httpService.post<EntityRecord[]>(YNAPI_JGSJ.GetList).pipe(
-        map(response => {
-          return response?.data || [];
-        })
-      );
+      const _records: EntityRecord[] = [];
+      const startIndex = params?.startIndex || 0;
+      const endIndex = params?.endIndex || 20;
+      for(let index = startIndex; index < endIndex; index++) {
+        const kv = Math.floor(Math.random() * 10 *(Math.floor(Math.random() * 10)%3 + 1));
+        const count = Math.floor(Math.random() * 10);
+        const item: EntityRecord = {
+          id: index,
+          avatar: 'assets/wiring/circuit.jpg',
+          name: ` 衍能测试间隔 ${kv} KV`,
+          note:  `节点数：${count}`,
+          desc:  `接线图描述文本内容-${index}`,
+          colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
+        };
+        _records.push(item);
+      }
+      return of(_records).pipe(delay(100), take(1));
     } else if (entityName === Entities.Operations) {
-      return httpService.post<EntityRecord[]>(YNAPI_KZCZ.GetList).pipe(
-        map(response => {
-          //#WIP: after API Ready remove below sturct changed code 
-          const data = response?.data?.map(item => {
-            return {
-              ...item,
-              kfId: item.id,
-              khId: item.id,
-              id: item.yxId
-            };
-          });
-          return data || [];
-        })
-      );
+      const _records: EntityRecord[] = [];
+      const startIndex = params?.startIndex || 0;
+      const endIndex = params?.endIndex || 20;
+      const texts = ['过流反时限软压板', '过流加速段软压板', '零序1段软压板', '零序2段软压板', '过负荷软压板', '开关操作', '接地试跳', '信号复归', '过流节点1控制', '过流节点2控制'];
+      for(let index = startIndex; index < endIndex; index++) {
+        const textIndex = Math.floor(Math.random() * 10)%10;
+        const item: EntityRecord = {
+          id: index,
+          name: `装置${index + 1} ${texts[textIndex]}`,
+        };
+        _records.push(item);
+      }
+      return of(_records).pipe(delay(100), take(1));
     } else if (entityName === Entities.LightingControl) {
-      return httpService.post<LightingControlRecord[]>(YNAPI_ZMGL.GetList).pipe(
-        map(response => (response.data || []).map(item => {
-          return {
-            ...item,
-          };
-        }))
-      );
+      const _records: EntityRecord[] = [];
+      const startIndex = params?.startIndex || 0;
+      const endIndex = params?.endIndex || 20;
+      const codes = [ControlStatusCode.Fen, ControlStatusCode.He, ControlStatusCode.Wx];
+      const texts = ['过流反时限软压板', '过流加速段软压板', '零序1段软压板', '零序2段软压板', '过负荷软压板', '开关操作', '接地试跳', '信号复归', '过流节点1控制', '过流节点2控制'];
+      for(let index = startIndex; index < endIndex; index++) {
+        const textIndex = Math.floor(Math.random() * 10)%10;
+        const codeIndex = Math.floor(Math.random() * 10)%3;
+        const item: EntityRecord = {
+          id: index,
+          name: `装置${index + 1} ${texts[textIndex]}`,
+          status: codes[codeIndex]
+        };
+        _records.push(item);
+      }
+      return of(_records).pipe(delay(100), take(1));
     } else {
       const _records: EntityRecord[] = [];
       const startIndex = params?.startIndex || 0;

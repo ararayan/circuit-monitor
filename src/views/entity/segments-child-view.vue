@@ -6,7 +6,7 @@
             <ion-buttons slot="start" >
                 <ion-back-button :default-href="defaultHref"></ion-back-button>
             </ion-buttons>
-            <ion-title center>{{ title + '列表子项' }}</ion-title>
+            <ion-title center>{{ title + '间隔详情' }}</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content :scroll-y="false">
@@ -38,7 +38,6 @@ export default defineComponent({
     const entityTabStore = useEntityTabStore(entityName);
     const { entityTabs, tabId } = storeToRefs(entityTabStore);
     entityTabStore.getTabs(entityName);
-
     const { title } = useEntityDisplayName(entityName);
  
     const defaultHref =  parentEntityName ? `/entity/${parentEntityName}` : '/home';

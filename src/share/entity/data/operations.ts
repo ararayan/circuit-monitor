@@ -46,8 +46,8 @@ export const editForm: FormField[] = [
   {id: 'status', label: '当前状态：', name: 'currentStatus', type: EntityAttrType.Text, value: '',  readonly: true, disabled: false, persistent: true  },
   {id: 'controlType', label: '遥控类型：', name: 'currentStatus', type: EntityAttrType.Select, value: 'control3',  readonly: false, disabled: false, persistent: true, 
     options: [
-      {id: 'control1', value: '遥控1'},
-      {id: 'control2', value: '遥控2'},
+      {id: 'control1', value: '遥控点1'},
+      {id: 'control2', value: '遥控点2'},
       {id: 'control3', value: '其它'},
     ]
   },

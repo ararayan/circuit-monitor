@@ -8,12 +8,16 @@
         <ion-title center>{{ title }}</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content fullscreen >
+    <ion-content fullscreen>
       <ion-list v-for="item in records" :key="item.id">
-        <ion-item @click="openRecord(item)" >
+        <ion-item @click="openRecord(item)">
+          <ion-avatar slot="start">
+            <img :src="item.avatar" />
+          </ion-avatar>
           <ion-label>
             <h2>{{ item.name }}</h2>
             <h3>{{ item.note }}</h3>
+            <p>{{ item.desc }}</p>
           </ion-label>
           <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
         </ion-item>
@@ -27,7 +31,7 @@
 import { EntityRecord, useEntityContext, useEntityDisplayName, useEntityRecordsStore } from '@/share';
 import {
   IonBackButton, IonButtons,
-  IonContent, IonHeader, IonIcon, IonItem,
+  IonContent, IonHeader, IonIcon, IonItem, IonAvatar,
   IonLabel, IonList, IonPage, IonTitle, IonToolbar, useIonRouter
 } from '@ionic/vue';
 import { chevronForwardOutline } from 'ionicons/icons';
@@ -44,7 +48,7 @@ export default defineComponent({
     IonList,
     IonItem,
     IonContent,
-    IonLabel, IonButtons, IonBackButton, IonIcon
+    IonLabel, IonButtons, IonBackButton, IonIcon, IonAvatar
   },
   setup() {
     const router = useIonRouter();
@@ -63,6 +67,7 @@ export default defineComponent({
       recordStore.$dispose();
     });
     return {
+      IonAvatar,
       openRecord, entityName, pagination,
       records, title, chevronForwardOutline
     };

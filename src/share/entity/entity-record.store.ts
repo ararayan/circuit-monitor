@@ -193,15 +193,11 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
         loadingService.show({
           message: '发送遥控执行，请等候...'
         });
-        httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteExcute, data, skipMaskConfig).pipe(
-          map(response => {
-            const action = response.data || {};
-            // eslint-disable-next-line no-constant-condition
-            if (action.isYxEffect && action.sendActionSuccess) {
-              return true;
-            }
-            return false;
+        of(0).pipe(
+          map(() => {
+            return true;
           }),
+          delay(500),
           tap(() => {
             loadingService.hide();
           }),

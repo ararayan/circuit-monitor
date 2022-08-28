@@ -60,18 +60,11 @@ export default defineComponent({
     const recordStore = useEntityRecordsStore(entityName);
     const { records, toastMsg, toastType } = storeToRefs(recordStore);
 
-    //#region init store
-    recordStore.setSyncFields(['status']);
-    recordStore.setHasPagination(false);
+
+
 
     recordStore.getRecords(entityName, { isInit: true });
 
-    const disposeRecordsWatch = watch(records, () => {
-      if (records.value.length && recordStore.meta.records === DataStatus.Loaded) {
-        recordStore.startRecordsCheck();
-        disposeRecordsWatch();
-      }
-    });
 
     //#endregion
 

@@ -70,17 +70,17 @@ export default defineComponent({
       const entityEditFormStore = useEntityEditFormStore(Entities.Operations, recordId);
       entityEditFormStore.$patch({
         currRecordInfo: {
-          kfId: item.kfId,
-          khId: item.khId,
+          kfId: '1',
+          khId: '1',
         } as SwitchItemStateInfo
       });
-      // router.push({
-      //   path: `/entity/${entityName}/${recordId}`,
-      //   query: {
-      //     kfId: item.kfId,
-      //     khId: item.khId,
-      //   }
-      // });
+      router.push({
+        path: `/entity/${entityName}/${recordId}`,
+        query: {
+          kfId:'1',
+          khId: '1',
+        }
+      });
       router.push(`/entity/${entityName}/${recordId}`);
 
     }
