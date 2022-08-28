@@ -66,7 +66,8 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
         const startIndex = (state.pagination.current - 1) * state.pagination.pageSize;
         const endIndex = state.pagination.current * state.pagination.pageSize;
         return {startIndex, endIndex};
-      }
+      },
+      getRecord: (state) => (id: string) => state.records.find(r => r.id.toString() === id)
     },
     actions: {
       initState(options?: Partial<EntityRecordInitialState>) {

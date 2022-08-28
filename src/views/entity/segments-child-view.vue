@@ -6,7 +6,7 @@
             <ion-buttons slot="start" >
                 <ion-back-button :default-href="defaultHref"></ion-back-button>
             </ion-buttons>
-            <ion-title center>{{ title + '列表子项' }}</ion-title>
+            <ion-title center>{{ parentRecordName || title }}</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content :scroll-y="false">
@@ -21,11 +21,11 @@
 <script lang="ts">
 import EntityList from '@/components/entity-list.vue';
 import EntityTab from '@/components/entity-tab.vue';
-import { MixedModuleType, useEntityTabStore } from '@/share/entity';
+import { MixedModuleType, useEntityRecordsStore, useEntityTabStore } from '@/share/entity';
 import { useEntityContext, useEntityDisplayName } from '@/share/hooks';
 import { IonBackButton, IonButtons, IonContent, IonFooter, IonHeader, IonPage, IonTitle, IonToolbar, useBackButton } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
-import { defineComponent, onUnmounted } from 'vue';
+import { defineComponent, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
@@ -40,9 +40,13 @@ export default defineComponent({
     entityTabStore.getTabs(entityName);
 
     const { title } = useEntityDisplayName(entityName);
- 
-    const defaultHref =  parentEntityName ? `/entity/${parentEntityName}` : '/home';
+    const parentRecordName = ref<string>('');
 
+    const defaultHref =  parentEntityName ? `/entity/${parentEntityName}` : '/home';
+    if (parentEntityName && recordId) {
+      const parentRecordStore = useEntityRecordsStore(parentEntityName);
+      parentRecordName.value = parentRecordStore.getRecord(recordId)?.name || '';
+    }
     const result = useBackButton(10, () => {
       router.back();
     });
@@ -60,7 +64,7 @@ export default defineComponent({
       result.unregister();
       entityTabStore.destroy();
     });
-    return { entityTabs, title,  gotoTab,  defaultHref, entityName, tabId, recordId};
+    return { entityTabs, title,  gotoTab,  defaultHref, entityName, tabId, recordId, parentRecordName};
   },
 });
 </script>
