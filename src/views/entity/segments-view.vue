@@ -24,7 +24,8 @@
 
 <script lang="ts">
 import { Entities, useEntityContext, useEntityDisplayName } from '@/share';
-import { EntityRecord, useEntityRecordsStore, useEntityRelationStore } from '@/share/entity';
+import { EntityRecord, useEntityRecordsStore } from '@/share/entity';
+import { useEntityRelationStore } from '@/share/entity/entity-relation.store';
 import { IonButtons, IonContent, IonIcon, IonItem, IonLabel, IonList, IonPage, IonBackButton, IonHeader, IonTitle, IonToolbar, useBackButton, useIonRouter
 } from '@ionic/vue';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';

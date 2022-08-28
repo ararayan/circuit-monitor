@@ -5,7 +5,7 @@ import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 
 
 
-export function useEntityRelationStore(entityName: Entities, ) {
+export function useEntityRelationStore(entityName: Entities) {
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.Relation);
   const store = defineStore(storeId, {
     state: () => {
