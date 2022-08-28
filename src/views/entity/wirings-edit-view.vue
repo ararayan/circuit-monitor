@@ -18,11 +18,11 @@
 import { Entities, useEntityContext } from '@/share';
 import { useEntityEditFormStore, SwitchItemStateInfo } from '@/share/entity';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, useBackButton } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, onUnmounted } from 'vue';
 
 
 export default defineComponent({
@@ -42,7 +42,9 @@ export default defineComponent({
     });
     const defaultHref = entityName ? `/entity/${entityName}` : '/home';
 
-
+    const result = useBackButton(10, () => {
+      ionRouter.back();
+    });
     onMounted(() => {
       const baseLayerCanvas = document.querySelector('#base-layer-canvas') as HTMLCanvasElement;
       const baseLayerCtx = baseLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
@@ -74,9 +76,9 @@ export default defineComponent({
 
 
 
-    // onUnmounted(() => {
-    //   pcbStore.destroy();
-    // });
+    onUnmounted(() => {
+      result.unregister();
+    });
     return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, edit };
   }
 });
