@@ -5,14 +5,14 @@
     "kind": "Directory"
   },
   "applicationId": "com.yanneng.circuitmonitor",
-  "variantName": "release",
+  "variantName": "debug",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
-      "versionCode": 18,
-      "versionName": "0.0.18",
-      "outputFile": "com.yanneng_release_v0.0.18.apk"
+      "versionCode": 19,
+      "versionName": "0.0.19",
+      "outputFile": "com.yanneng_debug_v0.0.19.apk"
     }
   ]
 }

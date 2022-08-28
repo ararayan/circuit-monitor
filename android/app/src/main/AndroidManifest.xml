@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yanneng.circuitmonitor">
 
+    <!-- android:networkSecurityConfig="@xml/network_config" 配置使用http -->
+    <!-- android:versionCode="1" 用于版本升级,值为int类型,用于判断app是否需要升级 -->
+    <!-- android:versionName="1.0.0" 版本号名称,用于显示给用户看到的app版本号 -->
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,6 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:versionCode="1"
+        android:versionName="1.0.0"
         android:networkSecurityConfig="@xml/network_config">
 
 
