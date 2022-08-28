@@ -69,6 +69,7 @@ export default defineComponent({
             };
           }
           if (mutation.payload.switchItems) {
+            dynamicLayerCtx.clearRect(0, 0, dynamicLayerCanvas.width, dynamicLayerCanvas.height);
             canvasSwitchItemInfos = {} as Record<string, PCBRect>;
             const switchItems = mutation.payload.switchItems as Record<string, PCBSwitchItem>;
             Object.entries(switchItems).forEach(([, switchItem]) => {
