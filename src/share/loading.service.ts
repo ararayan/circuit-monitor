@@ -10,26 +10,32 @@ function isNetworkError(err: AxiosError) {
 
 class LoadingService {
   private count = 0;
-  private loading: Components.IonLoading = null as any as Components.IonLoading;
+  private loadingControl: Components.IonLoading = null as any as Components.IonLoading;
   async show(options?: LoadingOptions) {
     if (this.count > 0 ){
       this.count++;
-      return Promise.resolve(this.loading);
+      await this.loadingControl;
+      return this.loadingControl;
     }
     
     this.count++;  
-    this.loading = await loadingController
+    this.loadingControl = await loadingController
       .create({
-        cssClass: 'my-custom-class',
+        cssClass: 'loading-wrapper',
         message: '正在加载，请稍候...',
         ...options,
       });
-
+    
     const appStore = useAppStore();
     appStore.setLoadingCount(this.count);
 
-    await this.loading.present();
-    return this.loading;
+    // check the this.count again, may network was very fast, the response is back and hide loading been called;
+    if (this.count === 0) {
+      return null;
+    }
+
+    await this.loadingControl.present();
+    return this.loadingControl;
   }
   async hide() {
     this.count = this.count === 0 ? this.count : this.count - 1;
@@ -38,13 +44,13 @@ class LoadingService {
     appStore.setLoadingCount(this.count);
 
     if (this.count === 0) {
-      if (this.loading){
-        await this.loading.dismiss();
+      if (this.loadingControl){
+        await this.loadingControl.dismiss();
         return true;
       }
       return true;
     }
-    return Promise.resolve(false);
+    return false;
     
   }
 }

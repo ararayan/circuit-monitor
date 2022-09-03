@@ -26,8 +26,8 @@ YNAxios.interceptors.request.use(...loadingRequestInterceptor);
 
 
 // queue
-YNAxios.interceptors.response.use(...authResponseInterceptor);
 YNAxios.interceptors.response.use(...loadingResponseInterceptor);
+YNAxios.interceptors.response.use(...authResponseInterceptor);
 
 // function fixConfig<T = any>(config?: AxiosRequestConfig<T> ) {
 //   //#region handle auth header;
