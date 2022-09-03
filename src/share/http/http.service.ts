@@ -41,7 +41,23 @@ YNAxios.interceptors.response.use(...authResponseInterceptor);
 
 //   return resultConfig;  
 // }
-
+function createAxiosRequestOb<T>(instance: AxiosInstance, method: 'get' | 'post' , url: string, params?: { data?: Record<string, any>, config?: AxiosRequestConfig }) {
+  return new Observable<AxiosResponse<T, any>>(obsrever => {    
+    const abortController = new AbortController();
+    if (method === 'get') {
+      instance.get(url, {
+        ...params?.config,
+        signal: abortController.signal
+      }).then(response => obsrever.next(response)).catch(err => obsrever.next(err)).finally(() => obsrever.complete());
+    }else if (method === 'post') {
+      instance.post(url, params?.data, {
+        ...params?.config,
+        signal: abortController.signal
+      }).then(response => obsrever.next(response)).catch(err => obsrever.next(err)).finally(() => obsrever.complete());
+    }
+    return () => abortController.abort();
+  });
+}
 
 export const httpService =  {
   setBaseUrl(url: string) {
@@ -52,12 +68,12 @@ export const httpService =  {
   // },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   get<T = any>(url: string,  config?: AxiosRequestConfig):Observable<AxiosResponse<T>> {
-    return from(YNAxios.get(url, config) as Promise<AxiosResponse<T>>);
+    return createAxiosRequestOb<T>(YNAxios, 'get', url, {config}) as Observable<AxiosResponse<T>>;
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   post<T = any>(url: string, data: Record<string, any> = {}, config?: AxiosRequestConfig): Observable<AxiosResponse<T>> {
     // return of({} as T).pipe(delay(100));
-    return from(YNAxios.post(url, data, config) as Promise<AxiosResponse<T>>);
+    return createAxiosRequestOb<T>(YNAxios, 'post', url, {data, config}) as Observable<AxiosResponse<T>>;
   },
   addRequestInterceptor(...args: [...Parameters<AxiosInterceptorManager<AxiosRequestConfig>['use']>, AxiosInstance?]) {
     const instance = args[2];

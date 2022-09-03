@@ -45,7 +45,7 @@
 
           </ion-card-header>
 
-          <form @submit="login($event)" name="loginform">
+          <form name="loginform">
             <ion-card-content class="login-card">
               <ion-item lines="none">
                 <ion-img src="assets/yanneng.jpg" style="height: 30vh; min-height: 200px; margin: 0 auto;"></ion-img>
