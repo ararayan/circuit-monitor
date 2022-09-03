@@ -44,8 +44,8 @@ export function useEntitySearchFormStore(entityName: Entities) {
         }
       },
       destroy () {
-        this.$dispose();
         this.$reset();
+        this.$dispose();
       }
     }
   })();

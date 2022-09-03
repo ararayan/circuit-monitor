@@ -135,7 +135,7 @@ export default defineComponent({
     onUnmounted(() => {
       isPwdInvalid.value = false;
       isShowModal.value = false;
-      recordStore.$dispose();
+      recordStore.destroy();
     });
     return {
       openRecord, entityName, editRecord, isShowModal, isPwdInvalid, submitPassword, modalClose,

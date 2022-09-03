@@ -60,7 +60,7 @@ export default defineComponent({
     recordStore.getRecords(entityName, { isInit: true });
 
     onUnmounted(() => {
-      recordStore.$dispose();
+      recordStore.destroy();
     });
     return {
       openRecord, entityName, pagination,

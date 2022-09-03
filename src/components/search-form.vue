@@ -79,7 +79,7 @@ export default defineComponent({
       onReset,
     };
     onUnmounted(() => {
-      searchFormStore.$dispose();
+      searchFormStore.destroy();
     });
     return {
       fields,
