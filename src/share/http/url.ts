@@ -1,5 +1,5 @@
-// export const YN_BASE_URL = 'http://172.16.20.138/APIServer/api'; //simmon
-export const YN_BASE_URL = 'http://192.168.1.2/WebAPI/api';   // real
+export const YN_BASE_URL = 'http://172.16.20.138/APIServer/api'; //simmon
+// export const YN_BASE_URL = 'http://192.168.1.2/WebAPI/api';   // real
 
 export enum YNAPI_System {
     Login = '/System/Login',

@@ -11,7 +11,7 @@ export const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 export const entityMappingTitle: Record<Entities, string> = {
   [Entities.Wirings]: '接线图',
-  [Entities.Segments]: '间隔图',
+  [Entities.Segments]: '间隔数据',
   [Entities.Realtime]: '实时数据',
   [Entities.Operations]:  '控制操作', 
   [Entities.LightingControl]: '照明管理', 

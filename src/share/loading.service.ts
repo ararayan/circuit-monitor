@@ -21,7 +21,7 @@ class LoadingService {
     this.loading = await loadingController
       .create({
         cssClass: 'my-custom-class',
-        message: 'Please wait...',
+        message: '正在加载，请稍候...',
         ...options,
       });
 

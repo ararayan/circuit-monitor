@@ -22,7 +22,7 @@ const UserMenus: UserMenu[] =  [
   },
   {
     id: Entities.Segments,
-    name: '间隔图',
+    name: '间隔数据',
     icon: '', //<ion-icon name="barcode-outline"></ion-icon>
     lazy: true,
     auth: true,
