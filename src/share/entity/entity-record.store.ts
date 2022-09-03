@@ -41,6 +41,7 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
       const initialState = {
         entityName: '',
         records: [] as EntityRecord[],
+        isInited: false,
         pagination: {
           current: 1,
           pageSize: 20
@@ -112,8 +113,7 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
         getRecords(entityName, postData).pipe(
           takeUntil(destory$)
         ).subscribe(result => {
-          // split 
-          this.$patch({
+          const patchInfo = {
             records: [...this.records, ...(result || [])],
             pagination: {
               current: queryPageIndex
@@ -121,7 +121,16 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
             meta: {
               records: DataStatus.Loaded
             }
-          });
+          };
+          if (isInit) {
+            this.$patch({
+              ...patchInfo,
+              isInited: true,
+            });
+          }else {
+            this.$patch(patchInfo);
+          }
+
         });
       },
       startRecordsCheck(params?: Record<string, any>) {
@@ -134,7 +143,7 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
           });
           of(0).pipe(
             delay(5000),
-            takeWhile(() => this.meta.records === DataStatus.Loaded),
+            takeWhile(() => this.isInited),
             switchMap(() => {
               const postData = {
                 ...checkParams,
