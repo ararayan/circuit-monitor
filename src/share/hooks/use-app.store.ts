@@ -4,11 +4,10 @@ import { httpService, YN_BASE_URL } from "../http";
 
 
 
-export const APPId = 'YNAPP';
 
 export function useAppStore() {
   const destory$ = new Subject<boolean>();
-  return defineStore(APPId, {
+  return defineStore('YNAPP', {
     state: () => {
       const initialState = {
         loadingCount: 0,
@@ -16,7 +15,8 @@ export function useAppStore() {
         isActive:  false,
         openUrl: '',
         baseUrl: YN_BASE_URL,
-        enterBaseURLInited: false,
+        enterBaseURLInited: false, 
+        debug: false,
       };
       return { ...initialState };
     },
@@ -33,6 +33,9 @@ export function useAppStore() {
           this.enterBaseURLInited = true;
         }
 
+      },
+      setDebugMode(value: boolean) {
+        this.debug =  value;
       },
       setNetWorkError() {
         this.$patch({ isNetWorkError: true});

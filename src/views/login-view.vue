@@ -14,6 +14,11 @@
           <ion-item>
             <ion-input type="text" v-model="apiBaseURL" name="apiUrl" id="apiUrl"></ion-input>
           </ion-item>
+
+          <ion-item>
+            <ion-label >Enable App Debug</ion-label>
+            <ion-checkbox slot="start" color="success" v-model="enableAppDebug"></ion-checkbox>
+          </ion-item>
           <ion-item lines="none" style="padding: 4em 1em;">
             <ion-button style="min-width: 25vw; margin: auto; position: relative; left: 25%;" size="medium"
               color="success" @click="initAppBaseurl()">
@@ -116,8 +121,9 @@ export default defineComponent({
   setup() {
     const userStore = useUserStore();
     const appStore = useAppStore();
-    const { enterBaseURLInited } = storeToRefs(appStore);
+    const { enterBaseURLInited, debug } = storeToRefs(appStore);
     const apiBaseURL = ref<string>(appStore.baseUrl);
+    const enableAppDebug = ref<boolean>(debug.value);
     const { user: form, loginErrorMsg, loginError } = storeToRefs(userStore);
     const router = useIonRouter();
     function login(event: PointerEvent | any) {
@@ -142,6 +148,7 @@ export default defineComponent({
     }
     function initAppBaseurl() {
       appStore.setBaseUrl(apiBaseURL.value);
+      appStore.setDebugMode(enableAppDebug.value);
     }
     function resetBaseUrl() {
       if (loginError) {
@@ -170,7 +177,7 @@ export default defineComponent({
 
     return {
       // publicApi,
-      locateOutline, enterBaseURLInited, apiBaseURL, initAppBaseurl, settingsOutline, resetBaseUrl,
+      locateOutline, enterBaseURLInited, apiBaseURL, initAppBaseurl, settingsOutline, resetBaseUrl, enableAppDebug,
       form,
       login,
       onUserInfoChanged,

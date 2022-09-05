@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Observable } from 'rxjs';
+import { alertService } from '../alert.service';
 import { authRequestInterceptor, authResponseInterceptor } from '../auth';
+import { useAppStore } from '../hooks/use-app.store';
 import { loadingRequestInterceptor, loadingResponseInterceptor } from '../loading.service';
 import { YN_BASE_URL } from './url';
 
@@ -10,7 +12,7 @@ const YNAxios = axios.create({
   headers: {
     ['content-type']: 'application/x-www-form-urlencoded'
   },
-  timeout: 3000,
+  timeout: 5000,
 });
 
 // stack, LIFO
@@ -42,10 +44,32 @@ YNAxios.interceptors.response.use(...authResponseInterceptor);
 
 //   return resultConfig;  
 // }
+
+
 function createAxiosRequestOb<T>(instance: AxiosInstance, method: 'get' | 'post' , url: string, params?: { data?: Record<string, any>, config?: AxiosRequestConfig }) {
+  const appStore = useAppStore();
   return new Observable<AxiosResponse<T, any>>(obsrever => {    
     const abortController = new AbortController();
     if (method === 'get') {
+      if (appStore.debug) {
+        alertService.create({
+          header: "Request Params",
+          message: JSON.stringify(params?.data || ''),
+          // inputs: [],
+          buttons: [
+            {
+              text: 'OK',
+              role: 'confirm',
+              // handler: () => {
+              //   this.handlerMessage = 'Alert confirmed';
+              // },
+            },
+          ],
+          backdropDismiss: true,
+          keyboardClose: true
+        });
+      }
+
       instance.get(url, {
         ...params?.config,
         signal: abortController.signal
@@ -53,6 +77,24 @@ function createAxiosRequestOb<T>(instance: AxiosInstance, method: 'get' | 'post'
         obsrever.error(err);
       }).finally(() => obsrever.complete());
     }else if (method === 'post') {
+      if (appStore.debug) {
+        alertService.create({
+          header: "Request Params",
+          message: JSON.stringify(params?.data || ''),
+          // inputs: [],
+          buttons: [
+            {
+              text: 'OK',
+              role: 'confirm',
+              // handler: () => {
+              //   this.handlerMessage = 'Alert confirmed';
+              // },
+            },
+          ],
+          backdropDismiss: true,
+          keyboardClose: true
+        });
+      }
       instance.post(url, params?.data, {
         ...params?.config,
         signal: abortController.signal
