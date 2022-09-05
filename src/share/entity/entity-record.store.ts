@@ -111,6 +111,14 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
           ? { ...criteria, startIndex: (queryPageIndex - 1) * this.pagination.pageSize, endIndex: queryPageIndex * this.pagination.pageSize }
           : { ...criteria };
         getRecords(entityName, postData).pipe(
+          catchError(() => {
+            this.$patch({
+              meta: {
+                records: DataStatus.Error,
+              },
+            });
+            return EMPTY;
+          }),
           takeUntil(destory$)
         ).subscribe(result => {
           const patchInfo = {
@@ -229,15 +237,15 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
           });
         });
       },
-      subscribeRecordLoadResult(callback: (...args: any[]) => any) {
-        const ob = new Observable(subscriber => {
+      subscribeRecordLoadResult(subscriber: Partial<Record<'next' | 'complete' | 'error', (...args: any[]) => any>>) {
+        const ob = new Observable(observer => {
           const subscription = this.$subscribe((mutation, state) => {
             if (mutation.type === MutationType.patchObject && mutation.payload.records?.length) {
               if (DataStatus.Loaded === mutation.payload.meta?.records) {
-                subscriber.next({mutation, state});
-                subscriber.complete();
+                observer.next({mutation, state});
+                // observer.complete();
               }else if (DataStatus.Error === mutation.payload.meta?.records ) {
-                subscriber.error();
+                observer.error();
               }
             }
           });
@@ -245,7 +253,7 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
         });
         ob.pipe(
           takeUntil(destory$)
-        ).subscribe({next: callback, error: callback});
+        ).subscribe(subscriber);
       },
       reset() {
         destory$.next(true);

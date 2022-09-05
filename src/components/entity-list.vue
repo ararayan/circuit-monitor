@@ -12,7 +12,7 @@
         </ion-item>
       </template>
       <template #after>
-        <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll">
+        <ion-infinite-scroll @ionInfinite="loadData()" threshold="50px" id="infinite-scroll" ref="ionInfiniteScroll">
           <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading more data...">
           </ion-infinite-scroll-content>
         </ion-infinite-scroll>
@@ -68,6 +68,7 @@ export default defineComponent({
     const { records } = storeToRefs(recordStore);
     const skeletonSize: string[] = Array.from({ length: 12 });
     const virtualScroller = ref(null) as Ref<any>;
+    const ionInfiniteScroll = ref(null) as Ref<any>;
     let initTimeoutId = 0;
 
     watch(tabId, () => {
@@ -89,20 +90,27 @@ export default defineComponent({
             type: tabId.value
           };
           recordStore.startRecordsCheck(params);
+          recordStore.subscribeRecordLoadResult({
+            next: () => {
+              if (recordStore.pagination.current > 1) {
+                if (virtualScroller.value) {
+                  virtualScroller.value?.updateVisibleItems(true);
+                }
+                ionInfiniteScroll?.value?.$el?.complete();
+              }
+            },
+            error: () => {
+              ionInfiniteScroll?.value?.$el?.complete();
+            }
+          });
         });
       }
     }, { immediate: true });
 
 
 
-    function loadData(evt: InfiniteScrollCustomEvent) {
+    function loadData() {
       // load data 
-      recordStore.subscribeRecordLoadResult(() => {
-        if (virtualScroller.value) {
-          virtualScroller.value?.updateVisibleItems(true);
-        }
-        evt.target.complete();
-      });
       recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value } });
     }
 
@@ -112,7 +120,7 @@ export default defineComponent({
       window.clearTimeout(initTimeoutId);
       recordStore.destroy();
     });
-    return { records, scaleOutline, pulseOutline, radioOutline, loadData, skeletonSize, openRecord, virtualScroller };
+    return { ionInfiniteScroll, records, scaleOutline, pulseOutline, radioOutline, loadData, skeletonSize, openRecord, virtualScroller };
   },
 });
 </script>
