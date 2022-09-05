@@ -51,7 +51,7 @@ export const editForm: FormField[] = [
       {id: 'control3', value: '其它'},
     ]
   },
-  {id: 'zhaStatus', label: '对应：', name: 'powerSwitch', type: EntityAttrType.RadioGroup, value: '',  readonly: false, disabled: false, persistent: true, 
+  {id: 'zhaStatus', label: '操作类型：', name: 'powerSwitch', type: EntityAttrType.RadioGroup, value: '',  readonly: false, disabled: false, persistent: true, 
     options: [
       {id: 'fen', value: ControlStatusTextMap.fen},
       {id: 'he', value: ControlStatusTextMap.he},
