@@ -45,7 +45,7 @@
 
           </ion-card-header>
 
-          <form name="loginform">
+    
             <ion-card-content class="login-card">
               <ion-item lines="none">
                 <ion-img src="assets/yanneng.jpg" style="height: 30vh; min-height: 200px; margin: 0 auto;"></ion-img>
@@ -83,7 +83,7 @@
                 <ion-label color="danger">{{ loginErrorMsg }}</ion-label>
               </ion-item>
             </ion-card-content>
-          </form>
+  
 
         </ion-card>
 
@@ -97,10 +97,10 @@ import { defineComponent, onBeforeUnmount, onUnmounted, ref } from 'vue';
 import {
   IonPage, IonContent, IonItem, IonInput, IonButton, IonImg,
   IonLabel, IonIcon, IonCard, IonCardHeader, IonNote, IonCheckbox,
-  IonCardContent, IonCardTitle, IonHeader, IonList, IonTitle, IonToolbar
+  IonCardContent, IonCardTitle, IonHeader, IonList, IonTitle, IonToolbar, useIonRouter
 } from '@ionic/vue';
 import { useUserStore } from '@/share/user';
-import { useRouter } from 'vue-router';
+
 import { personCircleOutline, lockClosedOutline, arrowForwardCircleOutline, locateOutline, settingsOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '@/share/hooks/use-app.store';
@@ -119,7 +119,7 @@ export default defineComponent({
     const { enterBaseURLInited } = storeToRefs(appStore);
     const apiBaseURL = ref<string>(appStore.baseUrl);
     const { user: form, loginErrorMsg, loginError } = storeToRefs(userStore);
-    const router = useRouter();
+    const router = useIonRouter();
     function login(event: PointerEvent | any) {
       event.preventDefault();
       const data = {
