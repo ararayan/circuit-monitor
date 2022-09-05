@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { from, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { authRequestInterceptor, authResponseInterceptor } from '../auth';
 import { loadingRequestInterceptor, loadingResponseInterceptor } from '../loading.service';
 import { YN_BASE_URL } from './url';
@@ -9,7 +9,8 @@ const YNAxios = axios.create({
   baseURL: YN_BASE_URL,
   headers: {
     ['content-type']: 'application/x-www-form-urlencoded'
-  }
+  },
+  timeout: 3000,
 });
 
 // stack, LIFO
@@ -48,12 +49,16 @@ function createAxiosRequestOb<T>(instance: AxiosInstance, method: 'get' | 'post'
       instance.get(url, {
         ...params?.config,
         signal: abortController.signal
-      }).then(response => obsrever.next(response)).catch(err => obsrever.next(err)).finally(() => obsrever.complete());
+      }).then(response => obsrever.next(response)).catch(err => {
+        obsrever.error(err);
+      }).finally(() => obsrever.complete());
     }else if (method === 'post') {
       instance.post(url, params?.data, {
         ...params?.config,
         signal: abortController.signal
-      }).then(response => obsrever.next(response)).catch(err => obsrever.next(err)).finally(() => obsrever.complete());
+      }).then(response => obsrever.next(response)).catch(err => {
+        obsrever.error(err);
+      }).finally(() => obsrever.complete());
     }
     return () => abortController.abort();
   });
