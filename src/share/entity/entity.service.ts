@@ -96,19 +96,19 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
     );
   } else {
     if (entityName === Entities.Wirings) {
-      return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList).pipe(
+      return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList, params || {}, config).pipe(
         map(response => {
           return response?.data || [];
         })
       );
     } else if (entityName ===  Entities.Segments) {
-      return httpService.post<EntityRecord[]>(YNAPI_JGSJ.GetList).pipe(
+      return httpService.post<EntityRecord[]>(YNAPI_JGSJ.GetList, params || {}, config).pipe(
         map(response => {
           return response?.data || [];
         })
       );
     } else if (entityName === Entities.Operations) {
-      return httpService.post<EntityRecord[]>(YNAPI_KZCZ.GetList).pipe(
+      return httpService.post<EntityRecord[]>(YNAPI_KZCZ.GetList, params || {}, config).pipe(
         map(response => {
           //#WIP: after API Ready remove below sturct changed code 
           const data = response?.data?.map(item => {
@@ -123,7 +123,7 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
         })
       );
     } else if (entityName === Entities.LightingControl) {
-      return httpService.post<LightingControlRecord[]>(YNAPI_ZMGL.GetList).pipe(
+      return httpService.post<LightingControlRecord[]>(YNAPI_ZMGL.GetList, params || {}, config).pipe(
         map(response => (response.data || []).map(item => {
           return {
             ...item,

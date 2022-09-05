@@ -65,32 +65,34 @@ export default defineComponent({
   setup(props) {
     const { tabId } = toRefs(props);
     const recordStore = useEntityRecordsStore(props.entityName);
-    const { records, isInited } = storeToRefs(recordStore);
+    const { records } = storeToRefs(recordStore);
     const skeletonSize: string[] = Array.from({ length: 12 });
     const virtualScroller = ref(null) as Ref<any>;
+    let initTimeoutId = 0;
 
     watch(tabId, () => {
       if (tabId.value) {
+        // clear prev pending timeout init process
+        window.clearTimeout(initTimeoutId);
+
+        // reset and scroll to top;
         recordStore.reset();
-        recordStore.setHasPagination(true);
-        recordStore.setSyncFields(tabId.value === MixedModuleType.Yx ? ['status'] : ['value']);
-        recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value }, isInit: true });
-        const params = {
-          jgid: props.recordId || -1,
-          type: tabId.value
-        };
-        recordStore.startRecordsCheck(params);
+        virtualScroller.value?.scrollToPosition(0);
+
+        // setTimeout to ensure reset and scroll to both process UI ready;
+        initTimeoutId = setTimeout(() => {
+          recordStore.setHasPagination(true);
+          recordStore.setSyncFields(tabId.value === MixedModuleType.Yx ? ['status'] : ['value']);
+          recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value }, isInit: true });
+          const params = {
+            jgid: props.recordId || -1,
+            type: tabId.value
+          };
+          recordStore.startRecordsCheck(params);
+        });
       }
     }, { immediate: true });
 
-    const isInitedSubscription = watch(isInited, (prev, curr) => {
-      if (!prev && curr) {
-        if (virtualScroller.value) {
-          virtualScroller.value?.scrollToPosition(0);
-          virtualScroller.value?.updateVisibleItems(true);
-        }
-      }
-    });
 
 
     function loadData(evt: InfiniteScrollCustomEvent) {
@@ -107,7 +109,7 @@ export default defineComponent({
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     function openRecord() { }
     onUnmounted(() => {
-      isInitedSubscription();
+      window.clearTimeout(initTimeoutId);
       recordStore.destroy();
     });
     return { records, scaleOutline, pulseOutline, radioOutline, loadData, skeletonSize, openRecord, virtualScroller };
