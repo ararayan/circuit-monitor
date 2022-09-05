@@ -90,7 +90,7 @@
 
         </ion-content>
               <ion-footer class="ion-text-center main-menu-footer" mode="md">
-        <ion-note>衍能科技 版本 v1.0.0</ion-note>
+        <ion-note>{{appInfo}}</ion-note>
       </ion-footer>
 
       </div>
@@ -99,6 +99,7 @@
 </template>
 
 <script lang="ts">
+import { App } from '@capacitor/app';
 import { defineComponent } from 'vue';
 import { ref, } from '@vue/reactivity';
 import { 
@@ -121,6 +122,7 @@ export default defineComponent({
     const user = useUserStore();
     const { menus } = storeToRefs(user);
     const router = useIonRouter();
+    const appInfo = ref<string>('');
     function gotoEntityView(path: string) {
       router.push('/entity/' + path);
     }
@@ -130,6 +132,9 @@ export default defineComponent({
       slidesPerView: 1,
       autoplay:true
     };
+    App.getInfo().then(info => {
+      appInfo.value = `${info.id}_${info.name}_${info.version}_${info.build}`;
+    });
 
     
     onIonViewWillEnter(() => {
@@ -150,7 +155,7 @@ export default defineComponent({
     });
 
     return {
-      menus, gotoEntityView, personOutline, homeOutline, menuConnectId, sliderOptions
+      menus, gotoEntityView, personOutline, homeOutline, menuConnectId, sliderOptions, appInfo
     };
   },
 });
