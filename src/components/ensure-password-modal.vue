@@ -1,5 +1,5 @@
 <template>
-  <ion-modal class="pw-modal" :backdrop-dismiss="true" :is-open="isOpen" :can-dismiss="canDismiss"
+  <ion-modal ref="ionModalComp" class="pw-modal" :backdrop-dismiss="true" :is-open="isOpen" :can-dismiss="canDismiss" 
     @willDismiss="$emit('cancel')">
     <ion-Item lines="none">
       <ion-text class="ion-text-strong">{{ password.label }}</ion-text> 
@@ -26,7 +26,7 @@
 import PasswordField from '@/controls/password-field.vue';
 import { EntityAttrType, FormField } from '@/share/entity';
 import { IonButton, IonList, IonModal, IonItem, IonGrid, IonRow, IonCol, IonText } from '@ionic/vue';
-import { defineComponent, onUnmounted, ref, toRefs, watch } from 'vue';
+import { defineComponent, onBeforeMount, onBeforeUnmount, onMounted, onUnmounted, Ref, ref, toRefs, watch } from 'vue';
 
 
 export default defineComponent({
@@ -39,7 +39,7 @@ export default defineComponent({
   emits: ['ok', 'cancel', 'change'],
   setup(props) {
     const { isOpen } = toRefs(props);
-
+    const ionModalComp =  ref(null) as Ref<any>;
     const password: FormField = {
       layout: { isHideLabel: true },
       id: 'password_1', label: '请输入用户密码', name: 'description', type: EntityAttrType.Password, value: '', readonly: false, disabled: false, persistent: true 
@@ -54,13 +54,16 @@ export default defineComponent({
     watch(isOpen, () => {
       password.value = '';
     });
-    onUnmounted(() => {
-      // debugger;
+    onBeforeUnmount(() => {
+      ionModalComp.value?.$el?.dismiss();
     });
+    // onUnmounted(() => {
+    // });
     return {
       pwValue,
       password,
       canDismiss,
+      ionModalComp,
     };
   }
 });

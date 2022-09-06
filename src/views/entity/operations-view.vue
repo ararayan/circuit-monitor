@@ -34,7 +34,7 @@ import { ref } from '@vue/reactivity';
 import { chevronForwardOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { take } from "rxjs/operators";
-import { defineComponent, onUnmounted } from 'vue';
+import { defineComponent, onBeforeUnmount, onUnmounted } from 'vue';
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -133,8 +133,6 @@ export default defineComponent({
     recordStore.getRecords(entityName, { isInit: true });
 
     onUnmounted(() => {
-      isPwdInvalid.value = false;
-      isShowModal.value = false;
       recordStore.destroy();
     });
     return {
