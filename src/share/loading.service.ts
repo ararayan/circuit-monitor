@@ -22,7 +22,7 @@ class LoadingService {
     this.loadingControl = await loadingController
       .create({
         cssClass: 'loading-wrapper',
-        message: '正在加载，请稍候...',
+        message: '正在查询，请稍候...',
         ...options,
       });
     

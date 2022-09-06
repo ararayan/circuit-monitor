@@ -1,13 +1,13 @@
 <template>
   <ion-list :scroll-y="false" style="height: 100%" :class="{ 'ion-hide': !!!records.length }">
-    <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="66" key-field="id"
+    <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="48" key-field="id"
       ref="virtualScroller">
       <template #default="{ item }">
         <ion-item @click="openRecord()" class="entity-list-item">
           <!-- <ion-icon :icon="documentTextOutline" slot="start" color="medium" size="large"></ion-icon> -->
           <ion-label>
-            <h2>{{ item.name }}</h2>
-            <i style="color: var(--ion-color-medium)">{{ item.desc }}</i>
+            <h2>{{ item.name }} <span style="margin-left: 1em">{{ item.desc }}</span></h2>
+            <!-- <i style="color: var(--ion-color-medium)">{{ item.desc }}</i> -->
           </ion-label>
         </ion-item>
       </template>
@@ -42,7 +42,7 @@
 <script lang="ts">
 import { Entities, MixedModuleType } from '@/share';
 import { useEntityRecordsStore } from '@/share/entity';
-import { InfiniteScrollCustomEvent, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonSkeletonText, IonThumbnail } from '@ionic/vue';
+import { IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonSkeletonText, IonThumbnail } from '@ionic/vue';
 import { toRefs } from '@vue/reactivity';
 import { pulseOutline, radioOutline, scaleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';

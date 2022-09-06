@@ -173,6 +173,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
           take(1),
           takeUntil(destory$),
         ).subscribe({
+          next: () => () => {loadingService.hide();},
           complete: () => {loadingService.hide();},
           error: () => {loadingService.hide();}
         });
@@ -243,6 +244,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
           take(1),
           takeUntil(destory$),
         ).subscribe({
+          next: () => () => {loadingService.hide();},
           complete: () => {loadingService.hide();},
           error: () => {loadingService.hide();}
         });
@@ -253,8 +255,9 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
 
         // fix: pinia.state will cache state even the store instance was remove by call self dispose;
         // manual call reset make cahce state backto inital status; more detail see the state fn on below;
-        this.$reset();
+        // call the dispose first, to remove all subscribe which may invoke by $reset state;
         this.$dispose();
+        this.$reset();
       }
     }
   })();

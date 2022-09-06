@@ -86,7 +86,12 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
         return response?.data.map(item => {
           let desc;
           if (params.type === MixedModuleType.Yx) {
-            desc = ControlStatusTextMap[item.status];
+            // desc = ControlStatusTextMap[item.status];
+            desc = item.status === ControlStatusCode.Wx
+              ? '1(无效)'
+              : item.status === ControlStatusCode.He
+                ? '1'
+                : '0';
           }else {
             desc = item.value;
           }
