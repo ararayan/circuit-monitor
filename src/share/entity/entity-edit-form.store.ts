@@ -107,6 +107,9 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         loadingService.show({
           message: '申请遥控选择中，请等候...'
         });
+        this.$patch({
+          operatorMsg: ''
+        });
         httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteSelect, data, skipMaskConfig).pipe(
           switchMap(response => {
             const action = response.data || {};

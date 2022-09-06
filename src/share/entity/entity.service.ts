@@ -110,16 +110,7 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
     } else if (entityName === Entities.Operations) {
       return httpService.post<EntityRecord[]>(YNAPI_KZCZ.GetList, params || {}, config).pipe(
         map(response => {
-          //#WIP: after API Ready remove below sturct changed code 
-          const data = response?.data?.map(item => {
-            return {
-              ...item,
-              kfId: item.id,
-              khId: item.id,
-              id: item.yxId
-            };
-          });
-          return data || [];
+          return response?.data || [];
         })
       );
     } else if (entityName === Entities.LightingControl) {
