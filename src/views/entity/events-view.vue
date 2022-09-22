@@ -10,7 +10,7 @@
             </ion-buttons>
             <ion-title center>{{ title }}</ion-title>
             <ion-buttons slot="end">
-              <ion-menu-button autoHide="false" :menu="menuId">
+              <ion-menu-button :menu="menuId">
                 <ion-icon :icon="searchCircleOutline"></ion-icon>
               </ion-menu-button>
             </ion-buttons>

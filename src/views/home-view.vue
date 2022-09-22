@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-split-pane :contentId="menuConnectId" >
+    <ion-split-pane :contentId="menuConnectId" when="false">
       <main-menus :contentId="menuConnectId" menuId="main-menu" type="push"></main-menus>
       <div class="ion-page" :id="menuConnectId">
         <ion-header mode="md" collapse="fade">

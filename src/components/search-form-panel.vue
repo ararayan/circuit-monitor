@@ -3,7 +3,7 @@
         <ion-header mode="md" collapse="fade">
           <ion-toolbar color="primary">
             <ion-buttons slot="start" >
-              <ion-menu-button autoHide="false" :menu="menuId">
+              <ion-menu-button :menu="menuId">
                 <ion-icon :icon="closeOutline"></ion-icon>
               </ion-menu-button>
             </ion-buttons>
