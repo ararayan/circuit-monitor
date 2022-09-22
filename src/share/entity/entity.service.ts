@@ -1,7 +1,7 @@
 /* eslint-disable no-else-return */
 import { AxiosRequestConfig } from 'axios';
 import { delay, Observable, of, take, map } from 'rxjs';
-import { httpService, YNAPI_JGSJ, YNAPI_JXT, YNAPI_KZCZ, YNAPI_ZMGL } from '../http';
+import { httpService, YNAPI_JGSJ, YNAPI_JXT, YNAPI_KZCZ, YNAPI_SJCX, YNAPI_ZMGL } from '../http';
 import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
 import { ControlStatusCode, ControlStatusTextMap } from './data/operations';
 import { MixedModuleType } from './entity-tab.store';
@@ -126,7 +126,17 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
           };
         }))
       );
-    } else {
+    } 
+    // else if (entityName === Entities.Events) {
+    //   return httpService.post<LightingControlRecord[]>(YNAPI_SJCX.GetEventList, params || {}, config).pipe(
+    //     map(response => (response.data || []).map(item => {
+    //       return {
+    //         ...item,
+    //       };
+    //     }))
+    //   );
+    // } 
+    else {
       const _records: EntityRecord[] = [];
       const startIndex = params?.startIndex || 0;
       const endIndex = params?.endIndex || 20;

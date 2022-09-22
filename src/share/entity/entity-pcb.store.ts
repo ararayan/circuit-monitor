@@ -222,7 +222,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
       },
       startSwitchItemsCheck() {
         if (!this.isStartSwitchItemUpdate) {
-          const yxIds = Object.keys(this.switchItems);
+         
           let maxErrorCount = 5;
           const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
           this.$patch({
@@ -230,6 +230,10 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
           });
           of(0).pipe(
             switchMap(() => {
+              const yxIds = Object.keys(this.switchItems);
+              if (!yxIds.length) {
+                return EMPTY;
+              }
               return httpService.post(YNAPI_JXT.GetPCBStatus, {yxIds}, skipMaskConfig).pipe(
                 map(response => {
                   const yxInfos = (response.data?.yx || []) as Record<string, string>[];

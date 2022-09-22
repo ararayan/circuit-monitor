@@ -113,7 +113,8 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteSelect, data, skipMaskConfig).pipe(
           switchMap(response => {
             const action = response.data || {};
-            let retryCount = 3;
+            let retryCount = 5;
+            const intervelTime = 2000;
             // eslint-disable-next-line no-constant-condition
             if (action.isYxEffect && action.sendActionSuccess) {
               return of(0).pipe(
@@ -128,7 +129,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                   count: retryCount + 1,
                   delay: () => {
                     retryCount--;
-                    return of(0).pipe(delay(1000));
+                    return of(0).pipe(delay(intervelTime));
                   }
                 }),
                 catchError(err => {
