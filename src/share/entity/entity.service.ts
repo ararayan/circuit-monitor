@@ -69,6 +69,13 @@ export interface FixedModuleRecord {
   value: string;
 }
 
+export interface OperationListItem {
+  index:number;
+  kfId:number;
+  khId:number;
+  name: string;
+  yxId:number;
+}
 export interface LightingControlRecord {
   id: number;
   index: number;
@@ -77,6 +84,8 @@ export interface LightingControlRecord {
   name: string; //"装置1信号复归"
   yxId: number;
 }
+
+
 
 export function getRecords(entityName: Entities, params?: any, config?: AxiosRequestConfig): Observable<EntityRecord[]> {
   if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
@@ -113,9 +122,11 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
         })
       );
     } else if (entityName === Entities.Operations) {
-      return httpService.post<EntityRecord[]>(YNAPI_KZCZ.GetList, params || {}, config).pipe(
+      return httpService.post<OperationListItem[]>(YNAPI_KZCZ.GetList, params || {}, config).pipe(
         map(response => {
-          return response?.data || [];
+          return response?.data?.map(x => {
+            return {id: x.yxId, ...x};
+          }) || [];
         })
       );
     } else if (entityName === Entities.LightingControl) {

@@ -36,6 +36,7 @@
 <script lang="ts">
 import { DataStatus, EntityRecordAlias, ToastType, useEntityContext, useEntityDisplayName, useEntityRecordsStore, YxOperatorParams } from '@/share';
 import { ControlStatusCode, ControlStatusTextMap } from '@/share/entity/data/operations';
+import { Components } from '@ionic/core/dist/types/components';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, toastController } from '@ionic/vue';
 import { arrowBackOutline, chevronForwardOutline, rocketOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
@@ -75,7 +76,7 @@ export default defineComponent({
 
     //#endregion
 
-
+    const toastInstaces: Components.IonToast[] = [];
     onMounted(() => {
       watch(toastMsg, (next, prev) => {
         if (next !== prev && !!next) {
@@ -84,11 +85,15 @@ export default defineComponent({
               message: next,
               duration: 1000,
               color: toastType.value === ToastType.Success ? toastType.value : 'danger'
-            }).then(toast =>  toast.present());
+            }).then(toast =>  {
+              toastInstaces.push(toast);
+              return toast.present();
+            });
         }
       }, { immediate: true });
     });
     onUnmounted(() => {
+      toastInstaces.forEach(toast => toast.dismiss());
       recordStore.destroy();
     });
     function applyForEdit(item: EntityRecordAlias, action: ControlStatusCode) {
