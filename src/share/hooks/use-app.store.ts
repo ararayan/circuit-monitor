@@ -2,11 +2,9 @@ import { defineStore } from "pinia";
 import { Subject } from "rxjs";
 import { httpService, YN_BASE_URL } from "../http";
 
-
-
+const destory$ = new Subject<boolean>();
 
 export function useAppStore() {
-  const destory$ = new Subject<boolean>();
   return defineStore('YNAPP', {
     state: () => {
       const initialState = {
