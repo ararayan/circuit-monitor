@@ -6,8 +6,8 @@
         <ion-item @click="openRecord()" class="entity-list-item">
           <!-- <ion-icon :icon="documentTextOutline" slot="start" color="medium" size="large"></ion-icon> -->
           <ion-label>
-            <h2>{{ item.name }} <span style="margin-left: 1em">{{ item.desc }}</span></h2>
-            <!-- <i style="color: var(--ion-color-medium)">{{ item.desc }}</i> -->
+            <i class="seq-number">{{ item.seq || '' }}</i>
+            <span>{{ item.name }} <span style="margin-left: 1em">{{ item.desc }}</span></span>
           </ion-label>
         </ion-item>
       </template>
@@ -133,5 +133,12 @@ export default defineComponent({
 
 .entity-list-item {
   --border-color: var(--ion-color-light, #f2f2f2);
+}
+.seq-number {
+  margin-right: 1em;
+  color: var(--ion-color-medium);
+}
+.seq-number:empty {
+  margin-right: 0;
 }
 </style>

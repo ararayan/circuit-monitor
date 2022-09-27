@@ -12,7 +12,8 @@
       <ion-list v-for="item in records" :key="item.id">
         <ion-item @click="editRecord(item)">
           <ion-label>
-            <h2>{{ item.name }}</h2>
+            <i class="seq-number">{{ item.seq || '' }}</i>
+            <span>{{ item.name }}</span>
           </ion-label>
           <ion-icon :icon="chevronForwardOutline" slot="end" color="medium"></ion-icon>
         </ion-item>
@@ -161,5 +162,12 @@ ion-modal.auto-height .ion-page {
 ion-modal.auto-height .ion-page .inner-content {
   max-height: 80vh;
   overflow: auto;
+}
+.seq-number {
+  margin-right: 1em;
+  color: var(--ion-color-medium);
+}
+.seq-number:empty {
+  margin-right: 0;
 }
 </style>

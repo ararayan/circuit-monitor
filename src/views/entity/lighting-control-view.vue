@@ -12,8 +12,8 @@
       <ion-list v-for="item in records" :key="item.id">
         <ion-item>
           <ion-label>
-            <h2>{{ item.name }}</h2>
-            <h3>{{ ControlStatusTextMap[item.status as ControlStatusCode] }}</h3>
+            <h2> <i class="seq-number">{{ item.seq || '' }}</i>{{ item.name }}</h2>
+            <h3><i class="seq-number seq-number-transparent">{{ item.seq || '' }}</i> {{ ControlStatusTextMap[item.status as ControlStatusCode] }}</h3>
             <!-- <p> {{ControlStatusTextMap[item.status as ControlStatusCode]}} </p> -->
           </ion-label>
           <!-- <ion-toggle slot="end" name="item.id" :color="item.isPendingStatus ? 'warning' : 'success' " mode="ios" :checked="item.status === 'he'"></ion-toggle> -->
@@ -116,5 +116,15 @@ export default defineComponent({
 .scroller {
   /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
   height: 100%;
+}
+.seq-number {
+  margin-right: 1em;
+  color: var(--ion-color-medium);
+}
+.seq-number:empty {
+  margin-right: 0;
+}
+.seq-number-transparent {
+  color: transparent;
 }
 </style>
