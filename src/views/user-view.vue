@@ -50,10 +50,10 @@ export default defineComponent({
     const entityName = 'user' as any;
 
     const fields: FormField[] = [
-      {id: 'userName', label: '用户名', name: 'userName', type: EntityAttrType.Text, value: user.value.userName, readonly: true, disabled: true, persistent: true },
-      {id: 'oldPwd', label: '旧密码', name: 'oldPwd', type: EntityAttrType.Password, value: '', readonly: false, disabled: false, persistent: true },
-      {id: 'newPwd', label: '新密码', name: 'newPwd', type: EntityAttrType.Password, value: '', readonly: false, disabled: false, persistent: true },
-      {id: 'newPwd2', label: '确认密码', name: 'newPwd2', type: EntityAttrType.Password, value: '',  readonly: false, disabled: false, persistent: true  },
+      {id: 'userName', label: '用户名', name: 'userName', type: EntityAttrType.Text, value: user.value.userName, originValue: user.value.userName,  readonly: true, disabled: true, persistent: true },
+      {id: 'oldPwd', label: '旧密码', name: 'oldPwd', type: EntityAttrType.Password, value: '', originValue: '', readonly: false, disabled: false, persistent: true },
+      {id: 'newPwd', label: '新密码', name: 'newPwd', type: EntityAttrType.Password, value: '', originValue: '', readonly: false, disabled: false, persistent: true },
+      {id: 'newPwd2', label: '确认密码', name: 'newPwd2', type: EntityAttrType.Password, value: '', originValue: '', readonly: false, disabled: false, persistent: true  },
     ];
 
 

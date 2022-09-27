@@ -33,14 +33,14 @@ export enum ToastType {
   Failure = 'failure',
 }
 
-export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
+export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entities, tabId?: string ) {
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.Record, tabId);
   const destory$ = new Subject<boolean>();
   return defineStore(storeId, {
     state: () => {
       const initialState = {
         entityName: '',
-        records: [] as EntityRecord[],
+        records: [] as T[],
         isInited: false,
         pagination: {
           current: 1,
@@ -99,8 +99,15 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
               records: DataStatus.Loading
             }
           });
+        } else if (this.hasPagination) {
+          this.$patch({
+            meta: {
+              records: DataStatus.Loading
+            }
+          });
         } else {
           this.$patch({
+            records: [],
             meta: {
               records: DataStatus.Loading
             }
@@ -111,7 +118,7 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
           ? { ...criteria, startIndex: (queryPageIndex - 1) * this.pagination.pageSize, endIndex: queryPageIndex * this.pagination.pageSize }
           : { ...criteria };
         getRecords(entityName, postData).pipe(
-          catchError(() => {
+          catchError((response) => {
             this.$patch({
               meta: {
                 records: DataStatus.Error,
@@ -254,6 +261,15 @@ export function useEntityRecordsStore(entityName: Entities, tabId?: string ) {
         ob.pipe(
           takeUntil(destory$)
         ).subscribe(subscriber);
+      },
+      clearRecords() {
+        this.$patch({
+          records: [],
+          meta: {
+            records: DataStatus.Unloaded
+          },
+          isInited: false
+        });
       },
       reset() {
         destory$.next(true);

@@ -1,25 +1,28 @@
 import { EntityAttrType, FormField } from "../entity.types";
 
 const fakeFields = [
-  {text: '记录名：', type: EntityAttrType.Text, value: '', }, 
-  {text:  '数量：', type: EntityAttrType.Text, value: '', }, 
-  {text:  '开始日期：', type: EntityAttrType.DateTime, value: '', }, 
-  {text:  '结束日期：', type: EntityAttrType.DateTime, value: '', }, 
-  {text:  '实施中', type: EntityAttrType.Checkbox, value: false, }, 
+  {id: 'recordName', label: '记录名：', type: EntityAttrType.Text, value: '',}, 
+  {id: 'fromDate', label:  '开始日期：', type: EntityAttrType.Date, value: '', required: true},
+  {id: 'fromTime', label:  '开始时间：', type: EntityAttrType.Time, value: '00:00',  }, 
+  {id: 'toDate', label:  '结束日期：', type: EntityAttrType.Date, value: '', required: true, }, 
+  {id: 'toTime', label:  '结束时间：', type: EntityAttrType.Time, value: '00:00', }, 
 ];
 
-export const searchForm = Array.from({ length: 5 }).map((_, i) => ({
-  id: `col${i}`,
-  label: fakeFields[i].text,
-  name: `col${i}`,
-  type: fakeFields[i].type,
-  value: fakeFields[i].value,
+export const searchForm = fakeFields.map(field => ({
+  id: field.id,
+  name: field.id,
+  label: field.label,
+  type: field.type,
+  value: field.value,
+  originValue: field.value,
   layout: {
-    fieldLines:[EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(fakeFields[i].type) ? 'none' : 'full',
-    labelPosition: [EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(fakeFields[i].type) ? 'fixed' :'stacked', // fixed, floating, stacked
+    fieldLines:[EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'none' : 'full',
+    labelPosition: [EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'fixed' :'stacked', // fixed, floating, stacked
     isHideLabel: false,
   },
-  rules: {},
+  rules: {
+    required: !!field.required
+  },
   readonly: false,
   disabled: false,
 } as FormField));

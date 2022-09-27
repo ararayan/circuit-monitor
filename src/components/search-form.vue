@@ -6,7 +6,8 @@
 
 <script lang="ts">
 import AttrField from '@/components/attr-field.vue';
-import { Entities, EntityAttrType, useEntityRecordsStore, useEntitySearchFormStore } from '@/share/entity';
+import { Entities, EntityAttrType, FormField, useEntityRecordsStore, useEntitySearchFormStore } from '@/share/entity';
+import { parse } from '@babel/parser';
 import { IonList } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { storeToRefs } from 'pinia';
@@ -47,7 +48,10 @@ export default defineComponent({
     searchFormStore.getSearchForm(props.entityName);
     // validate
     function validateFn(value: any, ctx: FieldValidationMetaInfo) {
-      return true;
+      const [ , fieldId] = ctx.field.split('.');
+      const isRequired = !!fields.value.find(x => x.id === fieldId)?.rules?.required;
+      const isValid = isRequired ? value !== undefined : true;
+      return isValid;
     }
     const schema = computed(() => {
       return fields.value.reduce((acc, field) => {
@@ -56,23 +60,37 @@ export default defineComponent({
       }, {} as any);
     });
     const { handleSubmit, resetForm } = useForm({
-      validationSchema: schema
+      validationSchema: schema,
     });
-    const onSubmit = handleSubmit(values => {      
-      recordStore.getRecords(props.entityName, {isInit: true});
+    const onSubmit = handleSubmit(() => {     
+      const changedFields = fields.value;
+      let criteria = {} as Record<string, string>;
+      if (changedFields.length) {
+        criteria = changedFields.reduce((acc, field) => {
+          if (field.type === EntityAttrType.Date) {
+            acc[field.id] = (field.value as string)?.replace(/-/gm, '') || ''; //2022-09-14 to 20220914
+          }else if(field.type === EntityAttrType.Time) {
+            const [hoursStr, minutesStr] = (field.value as string).split(':'); //13:04
+            const hours = parseInt(hoursStr);
+            const minutes = parseInt(minutesStr);
+            if (!isNaN(hours) && !isNaN(minutes)) {
+              const milliseconds = hours * 60 * 60 * 60 + minutes * 60 * 60;
+              acc[field.id] = milliseconds.toString();
+            }
+          }else {
+            acc[field.id] = field.value?.toString() || '';
+          }
+          return acc;
+        }, {} as Record<string, string>);
+      }
+      recordStore.getRecords(props.entityName, {criteria: criteria, isInit: true});
     });
     const onReset = () => {
       fields.value.forEach(field => {
-        if ([EntityAttrType.Text, EntityAttrType.Textarea, EntityAttrType.Url].includes(field.type)) {
-          field.value = '';
-        }else if ([EntityAttrType.Checkbox, EntityAttrType.Radio].includes(field.type)) {
-          field.value = false;
-        }
-        
+        field.value = field.originValue;
       });
       resetForm();
-
-      recordStore.getRecords(props.entityName, {});
+      recordStore.clearRecords();
     };
     const componentInterface: SysFormComponent = {
       onSubmit,

@@ -27,15 +27,14 @@
 </template>
 
 <script lang="ts">
-import { Entities } from '@/share/entity';
-import { IonButton, IonButtons, IonContent,
-
-  IonFooter, IonHeader, IonIcon, IonItem, IonList, IonMenu, IonMenuButton, IonTitle, IonToolbar, loadingController, toastController   } from '@ionic/vue';
+import { Entities, useEntityRecordsStore } from '@/share/entity';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonList, IonMenu, IonMenuButton, IonTitle, IonToolbar, menuController
+} from '@ionic/vue';
 import { ref, toRefs } from '@vue/reactivity';
 import { closeOutline } from 'ionicons/icons';
-import { defineComponent, PropType } from 'vue';
+import { storeToRefs } from 'pinia';
+import { defineComponent, PropType, watch } from 'vue';
 import SearchForm, { SysFormComponent } from './search-form.vue';
-import { menuController } from "@ionic/vue";
 
 
 export default defineComponent({
@@ -62,54 +61,19 @@ export default defineComponent({
   setup(props) {
     const formRef = ref<SysFormComponent>(null as never);
     const { menuId: ionMenuId } = toRefs(props);
-    const presentLoading = async (msg: string) => {
-      const loading = await loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: msg,
-          duration: 20*1000,
-        });
-        
-      await loading.present();
-      return loading;
-      // loading.dismiss()
-    };
-    const openToast = async (msg: string) => {
-      const toast = await toastController
-        .create({
-          message: msg,
-          duration: 1000,
-          color: 'success'
-        });
-      toast.present();
-      return toast.onDidDismiss();
-    };
+    const recordStore = useEntityRecordsStore(props.entityName);
+    const { records, isInited } = storeToRefs(recordStore);
+    watch(records, () => {
+      if (records.value.length && isInited.value) {
+        menuController.close(ionMenuId.value);
+      }
+    });
+
     const submitForm = () => {
       formRef.value?.onSubmit();
-      menuController.close(ionMenuId.value);
-      presentLoading('searching...').then(loading => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            loading.dismiss();
-            resolve(true);
-          }, 1000);
-        });
-      }).then(() => {
-        return openToast('success');
-      });
     };
     const resetForm = () => {
       formRef.value?.onReset();
-      presentLoading('reset...').then(loading => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            loading.dismiss();
-            resolve(true);
-          }, 1000);
-        });
-      }).then(() => {
-        return openToast('success');
-      });
     };
     return {
       ionMenuId,

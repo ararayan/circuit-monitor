@@ -18,26 +18,23 @@
         </ion-header>
         <ion-content fullscreen :scroll-y="false">
           <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="88" key-field="id"
+            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="60" key-field="id"
               ref="virtualScroller">
               <template #default="{ item }">
                 <ion-item>
                   <ion-label>
-                    <h2>{{ item.displayName }}</h2>
-                    <h3>{{ item.colA }}</h3>
-                    <p>{{ item.colB }}</p>
+                    <span style="margin-left: 0.5em">pos: {{ item.pos }}</span>
+                    <span style="margin-left: 0.5em">{{ ControlStatusTextMap[item.state as ControlStatusCode] }}</span>
+                    <i style="color: var(--ion-color-medium); margin-left: 0.25em" v-if="!!item.msg">({{ item.msg }})</i>
                   </ion-label>
                 </ion-item>
               </template>
-              <template #after>
-                <ion-infinite-scroll @ionInfinite="loadData($event)" threshold="50px" id="infinite-scroll">
-                  <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading more data...">
-                  </ion-infinite-scroll-content>
-                </ion-infinite-scroll>
-              </template>
             </RecycleScroller>
           </ion-list>
-
+          <div class="empty-list" v-if="!records.length">
+            <span v-if="!isInited">请使用搜索获取事件列表</span>
+            <span v-if="isInited">当前日期时间范围内没有事件，请重新输入范围搜索。</span>
+          </div>
         </ion-content>
       </div>
     </ion-split-pane>
@@ -46,12 +43,13 @@
 
 <script lang="ts">
 import SearchFormPanel from '@/components/search-form-panel.vue';
-import { DataStatus, useEntityContext, useEntityDisplayName } from '@/share';
-import { useEntityRecordsStore } from '@/share/entity';
-import { InfiniteScrollCustomEvent, IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { useEntityContext, useEntityDisplayName } from '@/share';
+import { EventRecord, useEntityRecordsStore } from '@/share/entity';
+import { ControlStatusCode, ControlStatusTextMap } from '@/share/entity/data/operations';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
-import { MutationType, storeToRefs } from 'pinia';
+import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
@@ -74,9 +72,7 @@ export default defineComponent({
     IonContent,
     IonLabel,
     SearchFormPanel,
-    RecycleScroller,
-    IonInfiniteScroll, 
-    IonInfiniteScrollContent, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
+    RecycleScroller, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
   },
   setup() {
     const { entityName } = useEntityContext();
@@ -86,38 +82,38 @@ export default defineComponent({
     const contentId = ref(`${entityName}_panel`);
     const { title } = useEntityDisplayName(entityName);
 
-    const recordStore = useEntityRecordsStore(entityName);
-    const { records } = storeToRefs(recordStore);
+    const recordStore = useEntityRecordsStore<EventRecord>(entityName);
+    const { records, isInited } = storeToRefs(recordStore);
 
-    function loadData (evt: InfiniteScrollCustomEvent) {
-      // load data 
-      setTimeout(() => {
-        const subscription = recordStore.$subscribe((mutation) => {
-          if (mutation.type === MutationType.patchObject) {
-            if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
-              console.log('Loaded data');
-              if (virtualScroller.value) {
-                virtualScroller.value?.['updateVisibleItems'](true);
-              }
-              evt.target.complete();
-              subscription();
-            }
-          }
-        }, {detached: true});
+    // function loadData (evt: InfiniteScrollCustomEvent) {
+    //   // load data 
+    //   setTimeout(() => {
+    //     const subscription = recordStore.$subscribe((mutation) => {
+    //       if (mutation.type === MutationType.patchObject) {
+    //         if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
+    //           console.log('Loaded data');
+    //           if (virtualScroller.value) {
+    //             virtualScroller.value?.['updateVisibleItems'](true);
+    //           }
+    //           evt.target.complete();
+    //           subscription();
+    //         }
+    //       }
+    //     }, {detached: true});
 
-        recordStore.getRecords(entityName, { criteria: {} });
-      }, 500);
-    }
+    //     recordStore.getRecords(entityName, { criteria: {} });
+    //   }, 500);
+    // }
 
     
     
-    recordStore.getRecords(entityName, {isInit: true});
+    // recordStore.getRecords(entityName, {isInit: true});
     onUnmounted(() => {
       recordStore.destroy();
     });
-    return {
-      entityName, menuId, contentId,
-      records, loadData, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
+    return { ControlStatusTextMap,
+      entityName, menuId, contentId, isInited,
+      records, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
 });
@@ -127,5 +123,19 @@ export default defineComponent({
 .scroller {
   /* 100% => Rendered items limit reached, issue: https://github.com/Akryum/vue-virtual-scroller/issues/78; */
   height: 100%;
+}
+.empty-list{
+  position: relative;
+  z-index: 1;
+  transform: translateY(-100%);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.empty-list span {
+  max-width: 80%;
+  color: var(--ion-color-medium);
+  margin-top: -4em;
 }
 </style>

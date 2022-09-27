@@ -37,6 +37,7 @@ export interface FormField{
   name: string;
   type: EntityAttrType; 
   value: string | number | boolean;
+  originValue: string | number | boolean;
   readonly: boolean;
   disabled: boolean;
   persistent: boolean,

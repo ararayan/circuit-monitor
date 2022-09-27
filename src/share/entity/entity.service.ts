@@ -86,6 +86,14 @@ export interface LightingControlRecord {
 }
 
 
+export interface EventRecord {
+  id: number;
+  pos: number;
+  state: ControlStatusCode;
+  msg: string;
+}
+
+
 
 export function getRecords(entityName: Entities, params?: any, config?: AxiosRequestConfig): Observable<EntityRecord[]> {
   if ([Entities.SegmentsChild, Entities.Realtime].includes(entityName)) {
@@ -138,15 +146,18 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
         }))
       );
     } 
-    // else if (entityName === Entities.Events) {
-    //   return httpService.post<LightingControlRecord[]>(YNAPI_SJCX.GetEventList, params || {}, config).pipe(
-    //     map(response => (response.data || []).map(item => {
-    //       return {
-    //         ...item,
-    //       };
-    //     }))
-    //   );
-    // } 
+    else if (entityName === Entities.Events) {
+      return httpService.post<EventRecord[]>(YNAPI_SJCX.GetEventList, params || {}, config).pipe(
+        map(response => {
+          return (response.data || []).map((item, index) => {
+            return {
+              ...item,
+              id: index + 1, //#WIP: API Returan Id;
+            };
+          });
+        })
+      );
+    } 
     else {
       const _records: EntityRecord[] = [];
       const startIndex = params?.startIndex || 0;

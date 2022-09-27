@@ -40,18 +40,18 @@ export const ControlStatusTextMap: Record<ControlStatusCode, string> = {
 
 
 export const editForm: FormField[] = [
-  {id: 'changzhan', label: '厂站：', name: 'factoryName', type: EntityAttrType.Text, value: '', readonly: true, disabled: false, persistent: true },
+  {id: 'changzhan', label: '厂站：', name: 'factoryName', type: EntityAttrType.Text, value: '', originValue: '', readonly: true, disabled: false, persistent: true },
   // {id: 'description', label: '描述：', name: 'description', type: EntityAttrType.Text, value: '2号主变高后备314_开关操作', readonly: true, disabled: false, persistent: true  },
-  {id: 'dianming', label: '点名：', name: 'location', type: EntityAttrType.Text, value: '',  readonly: true, disabled: false, persistent: true  },
-  {id: 'status', label: '当前状态：', name: 'currentStatus', type: EntityAttrType.Text, value: '',  readonly: true, disabled: false, persistent: true  },
-  {id: 'controlType', label: '遥控类型：', name: 'currentStatus', type: EntityAttrType.Select, value: 'control3',  readonly: false, disabled: false, persistent: true, 
+  {id: 'dianming', label: '点名：', name: 'location', type: EntityAttrType.Text, value: '', originValue: '', readonly: true, disabled: false, persistent: true  },
+  {id: 'status', label: '当前状态：', name: 'currentStatus', type: EntityAttrType.Text, value: '', originValue: '', readonly: true, disabled: false, persistent: true  },
+  {id: 'controlType', label: '遥控类型：', name: 'currentStatus', type: EntityAttrType.Select, value: 'control3', originValue: 'control3', readonly: false, disabled: false, persistent: true, 
     options: [
       {id: 'control1', value: '遥控1'},
       {id: 'control2', value: '遥控2'},
       {id: 'control3', value: '其它'},
     ]
   },
-  {id: 'zhaStatus', label: '操作类型：', name: 'powerSwitch', type: EntityAttrType.RadioGroup, value: '',  readonly: false, disabled: false, persistent: true, 
+  {id: 'zhaStatus', label: '操作类型：', name: 'powerSwitch', type: EntityAttrType.RadioGroup, value: '', originValue: '', readonly: false, disabled: false, persistent: true, 
     options: [
       {id: 'fen', value: ControlStatusTextMap.fen},
       {id: 'he', value: ControlStatusTextMap.he},
