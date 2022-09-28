@@ -86,7 +86,7 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
           hasPagination: hasPagination
         });
       },
-      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean}) {
+      getRecords(entityName: Entities, params: { criteria?: Record<string, any>, isInit?: boolean}, axionConfig?: AxiosRequestConfig) {
         const { criteria, isInit } = params;
         if (isInit && this.hasPagination) {
           this.$patch({
@@ -117,7 +117,7 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
         const postData = this.hasPagination 
           ? { ...criteria, startIndex: (queryPageIndex - 1) * this.pagination.pageSize, endIndex: queryPageIndex * this.pagination.pageSize }
           : { ...criteria };
-        getRecords(entityName, postData).pipe(
+        getRecords(entityName, postData, axionConfig).pipe(
           catchError((response) => {
             this.$patch({
               meta: {

@@ -8,21 +8,24 @@ const fakeFields = [
   {id: 'toTime', label:  '结束时间：', type: EntityAttrType.Time, value: '00:00', }, 
 ];
 
-export const searchForm = fakeFields.map(field => ({
-  id: field.id,
-  name: field.id,
-  label: field.label,
-  type: field.type,
-  value: field.value,
-  originValue: field.value,
-  layout: {
-    fieldLines:[EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'none' : 'full',
-    labelPosition: [EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'fixed' :'stacked', // fixed, floating, stacked
-    isHideLabel: false,
-  },
-  rules: {
-    required: !!field.required
-  },
-  readonly: false,
-  disabled: false,
-} as FormField));
+
+export const getSearchForm = function() {
+  return fakeFields.map(field => ({
+    id: field.id,
+    name: field.id,
+    label: field.label,
+    type: field.type,
+    value: field.value,
+    originValue: field.value,
+    layout: {
+      fieldLines:[EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'none' : 'full',
+      labelPosition: [EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'fixed' :'stacked', // fixed, floating, stacked
+      isHideLabel: false,
+    },
+    rules: {
+      required: !!field.required
+    },
+    readonly: false,
+    disabled: false,
+  } as FormField));
+};

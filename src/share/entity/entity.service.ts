@@ -25,25 +25,7 @@ export function getSearchForm$(entityName: Entities) {
   let result: FormField[] = [];
   switch(entityName) {
   case Entities.Events:
-    result = events.searchForm;
-    break;
-  case Entities.Realtime:
-    result = realtime.searchForm;
-    break;
-  case Entities.Segments:
-    result = segments.searchForm;
-    break;
-  case Entities.SegmentsChild:
-    result = segmentsChild.searchForm;
-    break;
-  case Entities.Operations:
-    result = operations.searchForm;
-    break;
-  case Entities.Wirings:
-    result = wirings.searchForm;
-    break;
-  case Entities.LightingControl:
-    result = lightingControl.searchForm;
+    result = events.getSearchForm();
     break;
   default:
     break;

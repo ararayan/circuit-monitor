@@ -83,7 +83,7 @@ export default defineComponent({
           return acc;
         }, {} as Record<string, string>);
       }
-      recordStore.getRecords(props.entityName, {criteria: criteria, isInit: true});
+      recordStore.getRecords(props.entityName, {criteria: criteria, isInit: true}, {timeout: 10000});
     });
     const onReset = () => {
       fields.value.forEach(field => {

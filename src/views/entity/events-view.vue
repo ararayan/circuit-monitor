@@ -32,7 +32,7 @@
             </RecycleScroller>
           </ion-list>
           <div class="empty-list" v-if="!records.length">
-            <span v-if="!isInited">请使用搜索获取事件列表</span>
+            <span v-if="!isInited">请使用搜索来获取事件列表。</span>
             <span v-if="isInited">当前日期时间范围内没有事件，请重新输入范围搜索。</span>
           </div>
         </ion-content>
