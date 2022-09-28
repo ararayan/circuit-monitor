@@ -34,6 +34,7 @@ export enum YNAPI_ZMGL {
 
 
 export enum YNAPI_SJCX {
-  GetEventList = '/PtlInterface/SJCX_GetEventData'
+  GetEventList = '/PtlInterface/SJCX_GetEventData',
+  GetEmergencyEvents = '/PtlInterface/SJCX_GetEventResult',
 }
 

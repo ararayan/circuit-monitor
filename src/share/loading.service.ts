@@ -77,18 +77,27 @@ const loadingResponseInterceptor = [
       loadingService.hide();
     }
     return response;
-  }, (error: any) => {
+  }, (err: any) => {
+    const error: AxiosError = err as AxiosError;
     loadingService.hide();
-    if (isNetworkError(error as AxiosError)) {
-      const appStore = useAppStore();
+    const appStore = useAppStore();
+    if (isNetworkError(error)) {
       appStore.setNetWorkError();
     }
-    alertService.create({
-      header: '提示',
-      message: (error as AxiosError)?.message || '未知网络错误！',
-      buttons: ['OK']
-    });
-    
+    if (!error.config?.headers?.errorSilent) {
+      alertService.create({
+        header: '提示',
+        message: error?.message || '未知网络错误！',
+        buttons: ['OK']
+      });
+    }else {
+      appStore.logError({
+        url: error.config.url || '',
+        params: error.config.data?.toString(),
+        msg: error?.message,
+      });
+    }
+   
     return Promise.reject(error);
   }
 ];

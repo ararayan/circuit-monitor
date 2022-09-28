@@ -30,6 +30,7 @@ export default defineComponent({
     });
     const appSubscriptions:  Array<Promise<PluginListenerHandle> & PluginListenerHandle> = [];
     const appStore = useAppStore();
+    appStore.startCheckEmergencyEvents();
     appSubscriptions.push(
       App.addListener('appUrlOpen', data => appStore.setOperUrl(data.url)),
       App.addListener('appRestoredResult', data => console.log('Restored state:', data)),
