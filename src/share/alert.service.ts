@@ -1,12 +1,28 @@
 import { alertController, AlertOptions  } from '@ionic/vue';
+import { Components } from '@ionic/core';
 
 
 class AlertService {
+  private count = 0;
+  private _controls: Components.IonAlert[] = [];
   async create(options: AlertOptions) {
-    const alert =await alertController.create(options);
+    const alert = await alertController.create(options);
+    this._controls.push(alert);
     await alert.present();
     const didmismiss = await alert.onDidDismiss();
     return didmismiss;
+  }
+  pop() {
+    if (this._controls.length) {
+      const lastAlert = this._controls.splice(this._controls.length - 1, 1)[0];
+      if (lastAlert) {
+        lastAlert.dismiss();
+      }
+    }
+  }
+  empty() {
+    this._controls.reverse().forEach(alert => alert.dismiss());
+    this._controls = [];
   }
 }
 

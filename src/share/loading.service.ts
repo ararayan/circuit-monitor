@@ -2,6 +2,7 @@ import { Components } from '@ionic/core';
 import { loadingController, LoadingOptions } from '@ionic/vue';
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useAppStore } from '@/share/hooks/use-app.store';
+import { alertService } from './alert.service';
 
 
 function isNetworkError(err: AxiosError) {
@@ -82,6 +83,11 @@ const loadingResponseInterceptor = [
       const appStore = useAppStore();
       appStore.setNetWorkError();
     }
+    alertService.create({
+      header: '提示',
+      message: (error as AxiosError)?.message || '未知网络错误！',
+      buttons: ['OK']
+    });
     
     return Promise.reject(error);
   }
