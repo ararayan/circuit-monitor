@@ -10,9 +10,10 @@ function isNetworkError(err: AxiosError) {
 }
 
 class LoadingService {
-  private count = 0;
-  private loadingControl: Components.IonLoading = null as any as Components.IonLoading;
+  count = 0;
+  loadingControl: Components.IonLoading = null as any as Components.IonLoading;
   async show(options?: LoadingOptions) {
+    // this.loadingControl
     if (this.count > 0 ){
       this.count++;
       await this.loadingControl;
@@ -53,6 +54,12 @@ class LoadingService {
     }
     return false;
     
+  }
+  empty() {
+    this.count = 0;
+    const previous = this.loadingControl;
+    this.loadingControl = null as any as Components.IonLoading;
+    previous.dismiss();
   }
 }
 

@@ -3,8 +3,7 @@ import { Components } from '@ionic/core';
 
 
 class AlertService {
-  private count = 0;
-  private _controls: Components.IonAlert[] = [];
+  _controls: Components.IonAlert[] = [];
   async create(options: AlertOptions) {
     const alert = await alertController.create(options);
     this._controls.push(alert);
@@ -21,8 +20,9 @@ class AlertService {
     }
   }
   empty() {
-    this._controls.reverse().forEach(alert => alert.dismiss());
+    const copy = this._controls.slice(0);
     this._controls = [];
+    copy.forEach(item => item.dismiss());
   }
 }
 

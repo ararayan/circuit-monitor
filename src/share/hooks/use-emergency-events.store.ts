@@ -64,7 +64,7 @@ export function useEmergencyEvents() {
                 return from(toastService.create({
                   header: '突发事件',
                   message: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
-                  duration: 3 * 1000,
+                  duration: 5 * 1000,
                   position: 'top',
                   animated: true,
                   // icon?: string;

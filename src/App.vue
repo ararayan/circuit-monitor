@@ -13,6 +13,10 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { IonApp, IonRouterOutlet, useBackButton } from '@ionic/vue';
 import { defineComponent, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { alertService } from '@/share/alert.service';
+import { toastService } from '@/share/toast.service';
+import { loadingService } from '@/share/loading.service';
+import { alertController } from '@ionic/core';
 
 export default defineComponent({
   name: 'App',
@@ -35,7 +39,25 @@ export default defineComponent({
     appSubscriptions.push(
       App.addListener('appUrlOpen', data => appStore.setOperUrl(data.url)),
       App.addListener('appRestoredResult', data => console.log('Restored state:', data)),
-      App.addListener('appStateChange', (appState) => appStore.setActive(appState.isActive)),
+      App.addListener('appStateChange', (appState) => {
+        if (!appState.isActive) {
+          alertService.empty();
+          loadingService.empty();
+          toastService.empty();
+        }
+        // else {
+        //   alertController.create({
+        //     message: `alertControlsCount = ${alertService._controls.length};
+        //     toastControlCount =  ${toastService._controls.length};
+        //     hasLoadingControl =  ${loadingService.loadingControl ? 1 : 0};
+        //     loadingControlCount = ${loadingService.count}`,
+            
+        //   }).then(test => {
+        //     return test.present();
+        //   });
+        // }
+        appStore.setActive(appState.isActive);
+      }),
     );
 
     const emergencyEventsStore = useEmergencyEvents();
