@@ -47,8 +47,9 @@ export default defineComponent({
       const parentRecordStore = useEntityRecordsStore(parentEntityName);
       parentRecordName.value = parentRecordStore.getRecord(recordId)?.name || '';
     }
-    const result = useBackButton(10, () => {
+    const result = useBackButton(10, (next) => {
       router.back();
+      next();
     });
 
     function gotoTab(tabId: MixedModuleType) {
