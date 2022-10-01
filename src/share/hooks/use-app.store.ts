@@ -1,19 +1,11 @@
-import { alertService } from "@/share/alert.service";
-import { LocalNotifications } from '@capacitor/local-notifications';
 import { defineStore } from "pinia";
-import { from, of, Subject } from "rxjs";
-import { catchError, delay, map, repeat, switchMap, tap } from "rxjs/operators";
-import { httpService, YNAPI_SJCX, YN_BASE_URL } from "../http";
-import { toastService } from "@/share/toast.service";
-
-
-
-
+import { Subject } from "rxjs";
+import { httpService, YN_BASE_URL } from "../http";
 
 const destory$ = new Subject<boolean>();
 
 export function useAppStore() {
-  return defineStore('YNAPP', {
+  return defineStore('App', {
     state: () => {
       const initialState = {
         loadingCount: 0,

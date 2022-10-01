@@ -16,7 +16,7 @@ import { useRoute } from 'vue-router';
 import { alertService } from '@/share/alert.service';
 import { toastService } from '@/share/toast.service';
 import { loadingService } from '@/share/loading.service';
-import { alertController } from '@ionic/core';
+// import { alertController } from '@ionic/core';
 
 export default defineComponent({
   name: 'App',
