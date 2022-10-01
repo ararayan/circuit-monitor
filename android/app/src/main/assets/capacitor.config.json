@@ -2,5 +2,11 @@
 	"appId": "com.yanneng.circuitmonitor",
 	"appName": "circuitmonitor",
 	"webDir": "dist",
-	"bundledWebRuntime": false
+	"bundledWebRuntime": false,
+	"plugins": {
+		"LocalNotifications": {
+			"smallIcon": "ic_launcher",
+			"iconColor": "#b100fb"
+		}
+	}
 }
