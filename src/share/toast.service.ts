@@ -3,7 +3,7 @@ import { Components } from '@ionic/core';
 
 
 class ToastService {
-  _controls: Components.IonToast[] = [];
+  private _controls: Components.IonToast[] = [];
   async create(options: ToastOptions) {
     const toast = await toastController.create(options);
     this._controls.push(toast);
@@ -22,7 +22,7 @@ class ToastService {
   empty() {
     const copy = this._controls.slice(0);
     this._controls = [];
-    copy.forEach(item => item.dismiss());
+    copy.forEach(item => item?.dismiss());
   }
 }
 

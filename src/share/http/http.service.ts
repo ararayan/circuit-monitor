@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Observable } from 'rxjs';
-import { alertService } from '../alert.service';
 import { authRequestInterceptor, authResponseInterceptor } from '../auth';
 import { useAppStore } from '../hooks/use-app.store';
 import { loadingRequestInterceptor, loadingResponseInterceptor } from '../loading.service';
@@ -16,6 +15,8 @@ const YNAxios = axios.create({
 });
 
 // stack, LIFO
+YNAxios.interceptors.request.use(...loadingRequestInterceptor);
+
 YNAxios.interceptors.request.use(...authRequestInterceptor);
 // convert postdata to URLSearchParams    
 YNAxios.interceptors.request.use((config: AxiosRequestConfig) => {
@@ -25,10 +26,10 @@ YNAxios.interceptors.request.use((config: AxiosRequestConfig) => {
 
   return config;  
 });
-YNAxios.interceptors.request.use(...loadingRequestInterceptor);
 
 
-// queue
+
+// queue, FIFO
 YNAxios.interceptors.response.use(...loadingResponseInterceptor);
 YNAxios.interceptors.response.use(...authResponseInterceptor);
 
@@ -50,26 +51,10 @@ function createAxiosRequestOb<T>(instance: AxiosInstance, method: 'get' | 'post'
   const appStore = useAppStore();
   return new Observable<AxiosResponse<T, any>>(obsrever => {    
     const abortController = new AbortController();
+    if (appStore.debug) {
+      appStore.logRequest({url, params, msg: ''});
+    }
     if (method === 'get') {
-      if (appStore.debug) {
-        alertService.create({
-          header: "Request Params",
-          message: JSON.stringify(params?.data || ''),
-          // inputs: [],
-          buttons: [
-            {
-              text: 'OK',
-              role: 'confirm',
-              // handler: () => {
-              //   this.handlerMessage = 'Alert confirmed';
-              // },
-            },
-          ],
-          backdropDismiss: true,
-          keyboardClose: true
-        });
-      }
-
       instance.get(url, {
         ...params?.config,
         signal: abortController.signal
@@ -77,24 +62,6 @@ function createAxiosRequestOb<T>(instance: AxiosInstance, method: 'get' | 'post'
         obsrever.error(err);
       }).finally(() => obsrever.complete());
     }else if (method === 'post') {
-      if (appStore.debug) {
-        alertService.create({
-          header: "Request Params",
-          message: JSON.stringify(params?.data || ''),
-          // inputs: [],
-          buttons: [
-            {
-              text: 'OK',
-              role: 'confirm',
-              // handler: () => {
-              //   this.handlerMessage = 'Alert confirmed';
-              // },
-            },
-          ],
-          backdropDismiss: true,
-          keyboardClose: true
-        });
-      }
       instance.post(url, params?.data, {
         ...params?.config,
         signal: abortController.signal

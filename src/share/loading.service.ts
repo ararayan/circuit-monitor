@@ -1,7 +1,7 @@
+import { useAppStore } from '@/share/hooks/use-app.store';
 import { Components } from '@ionic/core';
 import { loadingController, LoadingOptions } from '@ionic/vue';
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { useAppStore } from '@/share/hooks/use-app.store';
 import { alertService } from './alert.service';
 
 
@@ -10,56 +10,40 @@ function isNetworkError(err: AxiosError) {
 }
 
 class LoadingService {
-  count = 0;
-  loadingControl: Components.IonLoading = null as any as Components.IonLoading;
-  async show(options?: LoadingOptions) {
-    // this.loadingControl
-    if (this.count > 0 ){
-      this.count++;
-      await this.loadingControl;
-      return this.loadingControl;
-    }
-    
-    this.count++;  
-    this.loadingControl = await loadingController
+  private _count = 0;
+  private _loadingControl: Components.IonLoading = null as any as Components.IonLoading;
+  async create(options?: LoadingOptions) {
+    this._loadingControl = await loadingController
       .create({
-        cssClass: 'loading-wrapper',
+        cssClass: ['loading-wrapper'],
         message: '正在查询，请稍候...',
         ...options,
       });
-    
-    const appStore = useAppStore();
-    appStore.setLoadingCount(this.count);
+    return this._loadingControl;
+  }
+  show(options?: LoadingOptions) {
+    this._count++;
 
-    // check the this.count again, may network was very fast, the response is back and hide loading been called;
-    if (this.count === 0) {
-      return null;
+    if (this._loadingControl.cssClass?.includes('ion-hide')) {
+      this._loadingControl.cssClass = (this._loadingControl.cssClass as string[]).splice(0, this._loadingControl.cssClass.indexOf('ion-hide'));
     }
-
-    await this.loadingControl.present();
-    return this.loadingControl;
+    this._loadingControl.message = options?.message ? options.message : this._loadingControl.message;
+    this._loadingControl.present();
   }
   async hide() {
-    this.count = this.count === 0 ? this.count : this.count - 1;
+    this._count = this._count === 0 ? this._count : this._count - 1;
 
-    const appStore = useAppStore();
-    appStore.setLoadingCount(this.count);
-
-    if (this.count === 0) {
-      if (this.loadingControl){
-        await this.loadingControl.dismiss();
-        return true;
+    if (this._count === 0 && this._loadingControl) {
+      if (!this._loadingControl?.cssClass?.includes('ion-hide')) {
+        this._loadingControl.cssClass = [...(this._loadingControl?.cssClass as string[] || []), 'ion-hide'];
       }
-      return true;
     }
-    return false;
-    
   }
   empty() {
-    this.count = 0;
-    const previous = this.loadingControl;
-    this.loadingControl = null as any as Components.IonLoading;
-    previous.dismiss();
+    this._count = 0;
+    const previous = this._loadingControl;
+    this._loadingControl = null as any as Components.IonLoading;
+    previous?.dismiss();
   }
 }
 
@@ -100,7 +84,7 @@ const loadingResponseInterceptor = [
     }else {
       appStore.logError({
         url: error.config.url || '',
-        params: error.config.data?.toString(),
+        params: Object.fromEntries(new URLSearchParams(error.config.data || '')),
         msg: error?.message,
       });
     }

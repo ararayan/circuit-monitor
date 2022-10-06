@@ -31,11 +31,14 @@ export function useEmergencyEvents() {
       check() {
         if (!this.startCheck) {
           const appStore = useAppStore();
+          // const userStore = useUserStore();
           this.$patch({
             startCheck: true
           });
           
           of(0).pipe(
+            // delay(60 * 1000),
+            // filter(() => userStore.isAuth),
             switchMap(() => {
               return  httpService.post(YNAPI_SJCX.GetEmergencyEvents, {
                 validateDate: this.checkDateTime || formatDateToEmergencyParams(new Date()),
@@ -66,7 +69,7 @@ export function useEmergencyEvents() {
                   message: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
                   duration: 5 * 1000,
                   position: 'top',
-                  animated: true,
+                  // animated: true,
                   // icon?: string;
                   // color?: Color;
                   // mode?: Mode;

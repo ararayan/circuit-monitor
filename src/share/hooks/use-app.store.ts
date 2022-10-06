@@ -8,13 +8,13 @@ export function useAppStore() {
   return defineStore('App', {
     state: () => {
       const initialState = {
-        loadingCount: 0,
         isNetWorkError: false,
-        isActive:  false,
+        isActive:  true,
         openUrl: '',
         baseUrl: YN_BASE_URL,
         enterBaseURLInited: false, 
         debug: false,
+        requestLogs: [] as Array< {url: string, params: any, msg: string}>,
         errorMsgLogs: [] as Array< {url: string, params: any, msg: string}>,
         localNotificationsPermissions: false,
       };
@@ -22,9 +22,6 @@ export function useAppStore() {
       return { ...initialState };
     },
     actions: {
-      setLoadingCount(value: number) {
-        this.$patch({loadingCount: value});
-      },
       setBaseUrl(url: string) {
         if (url) {
           this.baseUrl = url;
@@ -56,9 +53,18 @@ export function useAppStore() {
         });
       },
       logError(errorInfo: {url: string, params: any, msg: string}) {
-        this.$patch({
-          errorMsgLogs: [...this.errorMsgLogs, errorInfo]
-        });
+        if (this.debug) {
+          this.$patch({
+            errorMsgLogs: [...this.errorMsgLogs, errorInfo]
+          });
+        }
+      },
+      logRequest(requestInfo: {url: string, params: any, msg: string}) {
+        if (this.debug) {
+          this.$patch({
+            requestLogs: [...this.requestLogs, requestInfo]
+          });
+        }
       },
       destroy() {
         // fix: pinia.state will cache state even the store instance was remove by call self dispose;

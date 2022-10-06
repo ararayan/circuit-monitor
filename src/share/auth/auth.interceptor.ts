@@ -18,16 +18,15 @@ const authRequestInterceptor = [
     return config;
   },
   (error: any) => {
-
-    return error;
+    return Promise.reject(error);
   }
 ];
 
 const authResponseInterceptor = [
-  async (response:AxiosResponse) => {
+  (response:AxiosResponse) => {
     return response;
   },
-  async (error: any) => {
+  (error: any) => {
     const isNetWorkError = isNetworkError(error);
     if (isNetWorkError) {
       error.message = '网络出错，请稍候重试。';
