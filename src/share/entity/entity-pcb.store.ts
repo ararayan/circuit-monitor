@@ -1,8 +1,9 @@
 import { AxiosRequestConfig } from "axios";
 import { defineStore } from "pinia";
 import { EMPTY, of, Subject } from "rxjs";
-import { catchError, delay, filter, map, repeat, switchMap, take, takeUntil } from 'rxjs/operators';
-import {  DataStatus } from "../data.meta";
+import { catchError, delay, dematerialize, filter, map, materialize, repeat, switchMap, take, takeUntil } from 'rxjs/operators';
+import { DataStatus } from "../data.meta";
+import { appState$ } from "../hooks/use-app.store";
 import { httpService, YNAPI_JXT } from "../http";
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 import { Entities } from "./entity.types";
@@ -228,7 +229,14 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
           this.$patch({
             isStartSwitchItemUpdate: true
           });
-          of(0).pipe(
+
+          appState$.pipe(
+            switchMap(x => {
+              // use materialize wrap next/error/complete to next, so the of(0) will emit the next value that come from complete
+              return x ? of(0).pipe(materialize()) : EMPTY;
+            }),
+            // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
+            dematerialize(),
             switchMap(() => {
               const yxIds = Object.keys(this.switchItems);
               if (!yxIds.length) {
@@ -258,7 +266,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
             }),
             repeat({
               delay: () => {
-                return of(0).pipe(delay(5000));
+                return of(0).pipe(delay(10 * 1000));
               }
             }),
             filter(patchChangedInfos => {

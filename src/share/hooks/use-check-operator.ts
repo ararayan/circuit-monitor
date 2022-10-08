@@ -92,7 +92,7 @@ class CheckControlResultService {
           return httpService.post<YxCheckResponse>(item.url, item.payload, skipMaskConfig);
         }),
         repeat({
-          count: retryCount,
+          count: retryCount + 1,
           delay: () => {
             retryCount--;
             const incrementFactor = item.retryCount - retryCount - 1;
@@ -187,7 +187,7 @@ class CheckControlResultService {
     return this._accCheck$.pipe(
       filter(x => x[itemId] !== undefined),
       map(x => x[itemId]),
-      takeUntil(this._destory$)
+      takeUntil(merge(this._destory$, this._end$.pipe(filter(id => id === itemId))))
     );
   }
   destroy() {

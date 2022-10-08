@@ -29,6 +29,8 @@ export interface YxOperatorResponse {
 
 export type YxCheckResponse =  Record<'hasNewControlResult' | 'result', 0 | 1>;
 
+const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
+
 export function useEntityEditFormStore(entityName: Entities, recordId: string) {
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.EditForm, recordId);
   const destory$ = new Subject<boolean>();
@@ -111,7 +113,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         }
       },
       requestSelect(data: YxOperatorParams) {
-        const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
+
         loadingService.show({
           message: '申请遥控选择中，请等候...'
         });
@@ -121,7 +123,6 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteSelect, data, skipMaskConfig).pipe(
           tap(() =>  loadingService.hide()),
           switchMap(response => {
-            loadingService.hide();
             const result = response.data || {};
             const checkId = getCheckItemId(entityName, recordId, OperatorType.RemoteSelect);
             if (result.isYxEffect && result.sendActionSuccess) {
@@ -153,11 +154,14 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                 return !checkResult.hasNewControlResult && checkResult.result === 1;
               });
               return checkControlResultService.getCheckResult$(checkId).pipe(
-                finalize(() => this.checkItemIds.delete(checkId))
+                finalize(() => {
+                  this.checkItemIds.delete(checkId);
+                })
               );  
             }
+
             this.$patch({
-              operatorMsg: '申请遥控选择失败.'
+              operatorMsg: '申请遥控选择失败, 请稍候重试.'
             });
             return EMPTY;
           }),
@@ -169,14 +173,13 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
               });
             }else {
               this.$patch({
-                operatorMsg: '申请遥控选择失败.'
+                operatorMsg: '申请遥控选择失败, 请稍候重试.'
               });
             }
           }),
           catchError(err => {
-            loadingService.hide();
             this.$patch({
-              operatorMsg: '申请遥控选择失败.'
+              operatorMsg: '申请遥控选择失败, 请稍候重试.'
             });
             return of(err);
           }),
@@ -185,7 +188,6 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         ).subscribe();
       },
       requestExcute(data: YxOperatorParams) {
-        const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
         loadingService.show({
           message: '遥控执行中，请等候...'
         });
@@ -225,7 +227,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
               ); 
             }
             this.$patch({
-              operatorMsg: '遥控执行失败.'
+              operatorMsg: '遥控执行失败, 请稍候重试.'
             });
             return EMPTY;
           }),
@@ -237,13 +239,13 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
               });
             }else {
               this.$patch({
-                operatorMsg: '遥控执行失败.'
+                operatorMsg: '遥控执行失败, 请稍候重试.'
               });
             }
           }),
           catchError(err => {
             this.$patch({
-              operatorMsg: '遥控执行失败.'
+              operatorMsg: '遥控执行失败, 请稍候重试.'
             });
             return of(err);
           }),
