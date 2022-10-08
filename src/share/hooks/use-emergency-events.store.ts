@@ -1,10 +1,14 @@
+import { IonicPredefinedColors } from "@/model";
 import { useAppStore } from "@/share/hooks/use-app.store";
 import { httpService, YNAPI_SJCX } from "@/share/http";
 import { toastService } from "@/share/toast.service";
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { closeOutline } from 'ionicons/icons';
 import { defineStore } from "pinia";
 import { EMPTY, from, of, Subject } from "rxjs";
-import { catchError, delay, map, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
+import { catchError, delay, filter, map, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
+
+
 
 function formatDateToEmergencyParams (date: Date) {
   const firstPart = `${date.getFullYear()}/${date.getMonth()}/${ date.getDate()}`;
@@ -37,6 +41,7 @@ export function useEmergencyEvents() {
           });
           
           of(0).pipe(
+            filter(() => false),
             // delay(60 * 1000),
             // filter(() => userStore.isAuth),
             switchMap(() => {
@@ -69,6 +74,11 @@ export function useEmergencyEvents() {
                   message: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
                   duration: 5 * 1000,
                   position: 'top',
+                  color: IonicPredefinedColors.Warning,
+                  buttons: [{
+                    icon: closeOutline,
+                    side: 'end'
+                  }]
                   // animated: true,
                   // icon?: string;
                   // color?: Color;

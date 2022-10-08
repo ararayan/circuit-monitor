@@ -30,6 +30,17 @@ import { useAppStore } from './share/hooks/use-app.store';
 import { loadingService } from './share/loading.service';
 import './theme/variables.css';
 
+//#region add global icon
+// import { addIcons } from 'ionicons';
+// import { closeOutline, checkmarkOutline } from 'ionicons/icons';
+
+// addIcons({
+//   closeOutline,
+//   checkmarkOutline,
+// });
+
+//#endregion
+
 router.beforeEach(authGuards);
 
 const app = createApp(App)

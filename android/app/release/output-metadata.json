@@ -10,9 +10,9 @@
     {
       "type": "SINGLE",
       "filters": [],
-      "versionCode": 29,
-      "versionName": "0.0.29",
-      "outputFile": "com.yanneng_release_v0.0.29.apk"
+      "versionCode": 35,
+      "versionName": "0.0.35",
+      "outputFile": "com.yanneng_release_v0.0.35.apk"
     }
   ]
 }
