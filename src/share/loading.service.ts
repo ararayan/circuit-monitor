@@ -10,13 +10,14 @@ function isNetworkError(err: AxiosError) {
 }
 
 class LoadingService {
+  private _defaultLoadingText = '正在查询，请稍候...';
   private _count = 0;
   private _loadingControl: Components.IonLoading = null as any as Components.IonLoading;
   async create(options?: LoadingOptions) {
     this._loadingControl = await loadingController
       .create({
         cssClass: ['loading-wrapper'],
-        message: '正在查询，请稍候...',
+        message: this._defaultLoadingText,
         ...options,
       });
     return this._loadingControl;
@@ -27,7 +28,7 @@ class LoadingService {
     if (this._loadingControl.cssClass?.includes('ion-hide')) {
       this._loadingControl.cssClass = (this._loadingControl.cssClass as string[]).splice(0, this._loadingControl.cssClass.indexOf('ion-hide'));
     }
-    this._loadingControl.message = options?.message ? options.message : this._loadingControl.message;
+    this._loadingControl.message = options?.message ? options.message : this._defaultLoadingText;
     this._loadingControl.present();
   }
   async hide() {
