@@ -27,7 +27,7 @@ export function useEmergencyEvents() {
     state: () => {
       const initialState = {
         startCheck: false,
-        checkDateTime: '',
+        startIndex: 0,
         records: [] as string[],
       };
       return { ...initialState };
@@ -42,6 +42,7 @@ export function useEmergencyEvents() {
           });
           
           auth$.pipe(
+            filter(() => false),
             switchMap(x => {
               // use materialize wrap next/error/complete to next, so the of(x) will emit the next value that come from complete
               return x ? of(x).pipe(materialize()) : EMPTY;
@@ -50,7 +51,7 @@ export function useEmergencyEvents() {
             dematerialize(),
             switchMap(() => {
               return  httpService.post(YNAPI_SJCX.GetEmergencyEvents, {
-                validateDate: this.checkDateTime || formatDateToEmergencyParams(new Date()),
+                startIndex: this.startIndex,
                 recordName: ''
               }, {headers: {errorSilent: true}, });
             }),
@@ -61,9 +62,9 @@ export function useEmergencyEvents() {
               return of({data: null});
             }),
             map(response => {
-              return response.data || {} as {result: any[], validateDate: string};
+              return response.data || {} as {result: any[], startIndex: number};
             }),
-            tap(result => this.$patch({checkDateTime: result.validateDate})),
+            tap(result => this.$patch({startIndex: result.startIndex})),
             repeat({
               delay: () => {
                 //LocalNotifications can only fire once per 9 minutes, per app when app inactivate

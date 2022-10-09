@@ -31,7 +31,7 @@ export interface OperatorCheckListItem {
     controlType: OperatorType,
     kfkhID: string,
     action: string;
-    validateDate: string;
+    startIndex: number;
   };
   /**
    * check result valid callback;

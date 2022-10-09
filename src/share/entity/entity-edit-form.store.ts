@@ -29,7 +29,7 @@ export interface YxOperatorParams {
 export interface YxOperatorResponse {
   isYxEffect: boolean;
   sendActionSuccess: boolean;
-  validateDate: string;
+  startIndex: number;
 }
 
 export type YxCheckResponse =  Record<'hasNewControlResult' | 'result', 0 | 1>;
@@ -139,7 +139,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                   controlType: OperatorType.RemoteSelect,
                   kfkhID: data[ControlStatusCodeIds[data.action as ControlStatusCode.Fen | ControlStatusCode.He]],
                   action: data.action,
-                  validateDate: result.validateDate,
+                  startIndex: result.startIndex
                 },
                 retryCount: 5,
                 intervalTime: 10 * 1000,
@@ -213,7 +213,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                   controlType: OperatorType.RemoteExcute,
                   kfkhID: data[ControlStatusCodeIds[data.action as ControlStatusCode.Fen | ControlStatusCode.He]],
                   action: data.action,
-                  validateDate: result.validateDate,
+                  startIndex: result.startIndex,
                 },
                 retryCount: 5,
                 intervalTime: 10 * 1000,
