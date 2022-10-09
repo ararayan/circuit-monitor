@@ -108,13 +108,12 @@ export default defineComponent({
 
     };
 
-    const result = useBackButton(10, (next) => {
+    const result = useBackButton(10, () => {
       if (router.canGoBack()) {
         router.back();
       } else {
         router.push(backToHref);
       }
-      next();
     });
 
     onUnmounted(() => {
