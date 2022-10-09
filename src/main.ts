@@ -30,6 +30,8 @@ import { useAppStore } from './share/hooks/use-app.store';
 import { loadingService } from './share/loading.service';
 import './theme/variables.css';
 
+import { AndroidSettings, NativeSettings } from 'capacitor-native-settings';
+
 //#region add global icon
 // import { addIcons } from 'ionicons';
 // import { closeOutline, checkmarkOutline } from 'ionicons/icons';
@@ -56,16 +58,23 @@ async function initializeApp() {
     /** 
      * requestPermissions only work in ios, not in andorid, in andorid need popup the message tell the user to turn on the notification on app;
      */
-    const nextStatus =  await LocalNotifications.requestPermissions();
-    if (nextStatus.display === 'granted') {
-      appStore.localNotificationsPermissions = true;
-    }
-    // alertController.create({
-    //   header: '提示',
-    //   message: `${appStore.localNotificationsPermissions}`
-    // }).then(x => x.present());
+    // const nextStatus =  await LocalNotifications.requestPermissions();
+    // if (nextStatus.display === 'granted') {
+    //   appStore.localNotificationsPermissions = true;
+    // }
+
+    const ntfPermissionsResult = await NativeSettings.openAndroid({
+      option: AndroidSettings.AppNotification,
+    });
+    const alert = await alertController.create({
+      header: '提示',
+      message: `ntfPermissionsResult: ${ntfPermissionsResult.status}`
+    });
+    await alert.present();
+  }else {
+    appStore.localNotificationsPermissions = true;
   }
-  appStore.localNotificationsPermissions = true;
+
   // init loading control for using
   const loading = await loadingService.create({
     cssClass: ['ion-hide']
