@@ -1,4 +1,4 @@
-import { IonicVue } from '@ionic/vue';
+import { alertController, IonicVue } from '@ionic/vue';
 import { createApp } from 'vue';
 import App from './App.vue';
 
@@ -62,10 +62,10 @@ async function initializeApp() {
     }
     // alertController.create({
     //   header: '提示',
-    //   message: '请打开通知权限。'
+    //   message: `${appStore.localNotificationsPermissions}`
     // }).then(x => x.present());
   }
-
+  appStore.localNotificationsPermissions = true;
   // init loading control for using
   const loading = await loadingService.create({
     cssClass: ['ion-hide']

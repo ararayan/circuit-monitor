@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { BehaviorSubject, Subject, } from "rxjs";
 import { httpService, YN_BASE_URL } from "../http";
+import { Capacitor } from '@capacitor/core';
 
 const destory$ = new Subject<boolean>();
 const isAppActive$ = new BehaviorSubject(false);
@@ -11,6 +12,7 @@ const appStore = defineStore('App', {
     const initialState = {
       isNetWorkError: false,
       isActive:  true,
+      isNativePlatform: Capacitor.isNativePlatform(),
       openUrl: '',
       baseUrl: YN_BASE_URL,
       enterBaseURLInited: false, 

@@ -76,20 +76,25 @@ const loadingResponseInterceptor = [
     if (isNetworkError(error)) {
       appStore.setNetWorkError();
     }
-    if (!error.config?.headers?.errorSilent) {
-      alertService.create({
-        header: '提示',
-        message: error?.message || '未知网络错误！',
-        buttons: ['OK']
-      });
-    }else {
-      appStore.logError({
-        url: error.config.url || '',
-        params: Object.fromEntries(new URLSearchParams(error.config.data || '')),
-        msg: error?.message,
-      });
-    }
-   
+    // if (!error.config?.headers?.errorSilent) {
+    //   alertService.create({
+    //     header: '提示',
+    //     message: error?.message || '未知网络错误！',
+    //     buttons: ['OK']
+    //   });
+    // }else {
+    //   appStore.logError({
+    //     url: error.config.url || '',
+    //     params: Object.fromEntries(new URLSearchParams(error.config.data || '')),
+    //     msg: error?.message,
+    //   });
+    // }
+
+    appStore.logError({
+      url: error.config.url || '',
+      params: Object.fromEntries(new URLSearchParams(error.config.data || '')),
+      msg: error?.message,
+    });
     return Promise.reject(error);
   }
 ];

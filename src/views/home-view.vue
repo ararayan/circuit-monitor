@@ -110,6 +110,7 @@ import { useUserStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
 import { personOutline, homeOutline } from 'ionicons/icons';
 import MainMenus from '@/components/main-menus.vue';
+import { Capacitor } from '@capacitor/core';
 
 
 export default defineComponent({
@@ -132,9 +133,12 @@ export default defineComponent({
       slidesPerView: 1,
       autoplay:true
     };
-    App.getInfo().then(info => {
-      appInfo.value = `${info.id}_${info.name}_${info.version}_${info.build}`;
-    });
+    if (Capacitor.isNativePlatform()) {
+      App.getInfo().then(info => {
+        appInfo.value = `${info.id}_${info.name}_${info.version}_${info.build}`;
+      });
+    }
+
 
     
     onIonViewWillEnter(() => {

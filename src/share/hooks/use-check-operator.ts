@@ -135,27 +135,29 @@ class CheckControlResultService {
     this._check$.pipe(
       takeUntil(this._destory$),
     ).subscribe(check => {
-      if (this._checkItemNotifyStyle[OperatorCheckNotifyStyle.Default].has(check.id) && !!check.item.notifyInfo) {
-        this.defaultResultNotifyHandle(check.id, check.result, check.item.notifyInfo);
+      if (check.item.notifyInfo) {
+        this.resultNotifyHandle(check.id, check.result, check.item.notifyInfo);
       }
     });
   }
-  private defaultResultNotifyHandle (itemId: string, checkResult: any, notifyInfo: Required<OperatorCheckListItem>['notifyInfo']) {
-    debugger;
+  private resultNotifyHandle (itemId: string, checkResult: any, notifyInfo: Required<OperatorCheckListItem>['notifyInfo']) {
     const appStore = useAppStore();
     if (appStore.isActive || !appStore.localNotificationsPermissions) {
-      toastService.create({
-        id: itemId,
-        header: checkResult ? notifyInfo.success.title : notifyInfo.failure.title,
-        message: checkResult ? notifyInfo.success.message : notifyInfo.failure.message,
-        duration: 5 * 1000,
-        position: 'top',
-        color: checkResult ? IonicPredefinedColors.Success : IonicPredefinedColors.Warning,
-        buttons: [{
-          icon: closeOutline,
-          side: 'end'
-        }],        
-      });
+      if (this._checkItemNotifyStyle[OperatorCheckNotifyStyle.Default].has(itemId)) {
+        toastService.create({
+          id: itemId,
+          header: checkResult ? notifyInfo.success.title : notifyInfo.failure.title,
+          message: checkResult ? notifyInfo.success.message : notifyInfo.failure.message,
+          duration: 5 * 1000,
+          position: 'top',
+          color: checkResult ? IonicPredefinedColors.Success : IonicPredefinedColors.Warning,
+          buttons: [{
+            icon: closeOutline,
+            side: 'end'
+          }], 
+          animated: false,       
+        });
+      }
     } else{
       LocalNotifications.schedule({
         notifications: [{

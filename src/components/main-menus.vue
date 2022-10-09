@@ -37,9 +37,14 @@
           <ion-label>关于</ion-label>
           <ion-ripple-effect></ion-ripple-effect>
         </ion-item>
-        <ion-item color="light" class="ion-activatable ripple-parent main-menu-item">
+        <!-- <ion-item color="light" class="ion-activatable ripple-parent main-menu-item">
           <ion-icon :icon="colorFilterOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label>版本检查</ion-label>
+          <ion-ripple-effect></ion-ripple-effect>
+        </ion-item> -->
+        <ion-item color="light" @click="gotoEmergencyEvents()" class="ion-activatable ripple-parent main-menu-item">
+          <ion-icon :icon="colorFilterOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
+          <ion-label>突发事件</ion-label>
           <ion-ripple-effect></ion-ripple-effect>
         </ion-item>
         <ion-item>
@@ -130,10 +135,14 @@ export default defineComponent({
     const gotoAbout = () => {
       router.push('/about');
     };
+    const gotoEmergencyEvents = () => {
+      router.push('/emergencyevents');
+    };
+    
     function exitApp() {
       App.exitApp();
     }
-    return { exitApp, user, menuId, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
+    return { exitApp, user, menuId, gotoEmergencyEvents, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
   }
 });
 </script>

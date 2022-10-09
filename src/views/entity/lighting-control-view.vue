@@ -126,5 +126,6 @@ export default defineComponent({
 }
 .seq-number-transparent {
   color: transparent;
+  opacity: 0;
 }
 </style>

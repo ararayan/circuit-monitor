@@ -12,6 +12,7 @@ import { PluginListenerHandle } from '@capacitor/core';
 import { IonApp, IonRouterOutlet, useBackButton } from '@ionic/vue';
 import { defineComponent, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useUserStore } from './share/user/user.store';
 // import { alertController } from '@ionic/core';
 
 export default defineComponent({
@@ -39,6 +40,7 @@ export default defineComponent({
         appStore.setActive(appState.isActive);
       }),
     );
+    const user = useUserStore();
 
     const emergencyEventsStore = useEmergencyEvents();
     emergencyEventsStore.check();

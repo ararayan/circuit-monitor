@@ -6,19 +6,21 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { closeOutline } from 'ionicons/icons';
 import { defineStore } from "pinia";
 import { EMPTY, from, of, Subject } from "rxjs";
-import { catchError, delay, dematerialize, filter, map, materialize, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
+import { catchError, delay, dematerialize, map, materialize, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
 import { auth$ } from "../user/user.store";
 
 
 
-function formatDateToEmergencyParams (date: Date) {
-  const firstPart = `${date.getFullYear()}/${date.getMonth()}/${ date.getDate()}`;
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
-  const secondsPart = `${hours >= 10 ? '' + hours : '0' + hours}:${minutes >= 10 ? '' + minutes : '0' + minutes }:${seconds >= 10 ? '' + seconds : '0' + seconds }`;
-  return `${firstPart} ${secondsPart}`;
-}
+// function formatDateToEmergencyParams (date: Date) {
+//   const firstPart = `${date.getFullYear()}/${date.getMonth()}/${ date.getDate()}`;
+//   const hours = date.getHours();
+//   const minutes = date.getMinutes();
+//   const seconds = date.getSeconds();
+//   const secondsPart = `${hours >= 10 ? '' + hours : '0' + hours}:${minutes >= 10 ? '' + minutes : '0' + minutes }:${seconds >= 10 ? '' + seconds : '0' + seconds }`;
+//   return `${firstPart} ${secondsPart}`;
+// }
+
+let emergencyEventCount = 0;
 
 const destory$ = new Subject<boolean>();
 
@@ -28,7 +30,7 @@ export function useEmergencyEvents() {
       const initialState = {
         startCheck: false,
         startIndex: 0,
-        records: [] as string[],
+        records: [] as {seq: number, message: string}[],
       };
       return { ...initialState };
     },
@@ -40,9 +42,8 @@ export function useEmergencyEvents() {
           this.$patch({
             startCheck: true
           });
-          
-          auth$.pipe(
-            filter(() => false),
+
+          const check$ = auth$.pipe(
             switchMap(x => {
               // use materialize wrap next/error/complete to next, so the of(x) will emit the next value that come from complete
               return x ? of(x).pipe(materialize()) : EMPTY;
@@ -53,7 +54,7 @@ export function useEmergencyEvents() {
               return  httpService.post(YNAPI_SJCX.GetEmergencyEvents, {
                 startIndex: this.startIndex,
                 recordName: ''
-              }, {headers: {errorSilent: true}, });
+              }, {headers: {errorSilent: true, skipMask: true}, });
             }),
             catchError(() => {
               // alertService.create({
@@ -68,23 +69,27 @@ export function useEmergencyEvents() {
             repeat({
               delay: () => {
                 //LocalNotifications can only fire once per 9 minutes, per app when app inactivate
-                // return of(0).pipe(delay(this.isActive ?  9 * 60 * 1000 :  2 * 60 * 1000));
-                return of(0).pipe(delay(20 * 1000));
+                // return of(0).pipe(delay(appStore.isActive ?  9 * 60 * 1000 :  5 * 60 * 1000));
+                return of(0).pipe(delay(1 * 60 * 1000));
               }
             }),
             switchMap(() => {
+              this.$patch({
+                records: [...this.records, {seq: ++emergencyEventCount,  message: '测试突发事件' }]
+              });
+
               if (appStore.isActive) {
                 return from(toastService.create({
                   header: '突发事件',
-                  message: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
+                  message: '测试突发事件',
                   duration: 5 * 1000,
                   position: 'top',
                   color: IonicPredefinedColors.Warning,
                   buttons: [{
                     icon: closeOutline,
                     side: 'end'
-                  }]
-                  // animated: true,
+                  }],
+                  animated: false,
                   // icon?: string;
                   // color?: Color;
                   // mode?: Mode;
@@ -93,29 +98,38 @@ export function useEmergencyEvents() {
                 }));
               }
 
-              if (!appStore.localNotificationsPermissions) {
-                this.$patch({
-                  records: [...this.records, 'pending msg']
-                });
-                return EMPTY;
+              // if (!appStore.localNotificationsPermissions) {
+              //   this.$patch({
+              //     records: [...this.records, {seq: emergencyEventCount++,  message: '突发事件' }]
+              //   });
+              //   return EMPTY;
+              // }
+
+              if (appStore.localNotificationsPermissions) {
+                return from(LocalNotifications.schedule({
+                  notifications: [{
+                    schedule: {
+                      allowWhileIdle: true,
+                    },
+                    id: new Date().getTime(),
+                    largeBody: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
+                    title: 'Test Notification',
+                    body: '测试突发事件',
+                    group: 'EmergencyEvents'
+                  }]
+                }));
               }
 
-              return from(LocalNotifications.schedule({
-                notifications: [{
-                  schedule: {
-                    allowWhileIdle: true,
-                  },
-                  id: new Date().getTime(),
-                  largeBody: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
-                  title: 'Test Notification',
-                  body: '$$$$ LLL',
-                  group: 'EmergencyEvents'
-                }]
-              }));
+              return EMPTY;
+
+
 
             }),
             takeUntil(destory$),
-          ).subscribe();
+          );
+          setTimeout(() => {
+            check$.subscribe();
+          }, 10 * 1000);
 
         }
       },

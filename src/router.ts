@@ -6,6 +6,7 @@ import NotFoundView from '@/views/not-found-view.vue';
 import EntityView from '@/views/entity/entity-view.vue';
 import AboutView from '@/views/about-view.vue';
 import UserView from '@/views/user-view.vue';
+import EmergencyEventsView from '@/views/emergency-events.vue';
 
 let anyCount = 0;
 export const routes: Array<RouteRecordRaw> = [
@@ -26,6 +27,11 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: '/about',
     component: AboutView,
+    meta: {requireAuth: true}
+  },
+  {
+    path: '/emergencyevents',
+    component: EmergencyEventsView,
     meta: {requireAuth: true}
   },
   // {

@@ -120,8 +120,8 @@ export default defineComponent({
       }
     };
 
-    const result = useBackButton(11, (next) => {
-      next();
+    const result = useBackButton(10, () => {
+      ionRouter.back();
     });
 
     onUnmounted(() => {
