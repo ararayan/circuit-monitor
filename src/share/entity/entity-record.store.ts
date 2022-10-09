@@ -1,8 +1,9 @@
 import { AxiosRequestConfig } from "axios";
 import { defineStore, MutationType } from "pinia";
-import { EMPTY, Observable, of, Subject } from "rxjs";
-import { catchError, delay, map, repeat, switchMap, takeUntil, takeWhile, tap } from "rxjs/operators";
+import { EMPTY, Observable, of, Subject, throwError } from "rxjs";
+import { catchError, delay, dematerialize, map, materialize, repeat, switchMap, takeUntil, takeWhile, tap } from "rxjs/operators";
 import { DataStatus } from "../data.meta";
+import { appState$ } from "../hooks/use-app.store";
 import { httpService, YNAPI_KZCZ } from "../http";
 import { loadingService } from "../loading.service";
 import { YxOperatorParams, YxOperatorResponse } from "./entity-edit-form.store";
@@ -156,7 +157,14 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
           this.$patch({
             startSyncRecrod: true
           });
-          of(0).pipe(
+
+          appState$.pipe(
+            switchMap(x => {
+              // use materialize wrap next/error/complete to next, so the of(0) will emit the next value that come from complete
+              return x ? of(0).pipe(materialize()) : EMPTY;
+            }),
+            // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
+            dematerialize(),
             delay(5000),
             takeWhile(() => this.isInited),
             switchMap(() => {
@@ -187,14 +195,15 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
               maxErrorCount--;
               console.error(err.message);
               if (!maxErrorCount) { 
-                return EMPTY;
+                return throwError(() => err);
               }
               return of({} as Record<string, any>);
             }),
             repeat(),
             takeUntil(destory$),
           ).subscribe({
-            next: ({list, isChanged}) => {
+            next: (result) => {
+              const {list, isChanged} = result;
               if (isChanged) {
                 this.$patch({
                   records: list
@@ -205,7 +214,12 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
               this.$patch({
                 startSyncRecrod: false
               });
-            }
+            },
+            error: () => {
+              this.$patch({
+                startSyncRecrod: false
+              });
+            },
           });
         }
       },

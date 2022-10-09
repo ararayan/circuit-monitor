@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, SwitchItemStateInfo, SwitchItemStatusImageKeyMap, useEntityContext, useEntityEditFormStore, useEntityPCBStore } from '@/share';
+import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, ControlStatusIds, SwitchItemStatusImageKeyMap, useEntityContext, useEntityEditFormStore, useEntityPCBStore } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, useBackButton } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
@@ -109,7 +109,7 @@ export default defineComponent({
           currRecordInfo: {
             kfId: switchItem.kf,
             khId: switchItem.kh,
-          } as SwitchItemStateInfo
+          } as ControlStatusIds
         });
         ionRouter.push({
           path: `/entity/${entityName}/${recordId}/${Entities.Operations}/${clickedItemId}`,

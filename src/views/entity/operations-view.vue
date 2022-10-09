@@ -28,7 +28,7 @@
 
 <script lang="ts">
 import EnsurePasswordModal from '@/components/ensure-password-modal.vue';
-import { Entities, EntityRecord, FormField, SwitchItemStateInfo, useEntityContext, useEntityDisplayName, useEntityEditFormStore, useEntityRecordsStore } from '@/share';
+import { Entities, EntityRecord, FormField, ControlStatusIds, useEntityContext, useEntityDisplayName, useEntityEditFormStore, useEntityRecordsStore } from '@/share';
 import { authService } from '@/share/auth';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { ref } from '@vue/reactivity';
@@ -73,7 +73,7 @@ export default defineComponent({
         currRecordInfo: {
           kfId: item.kfId,
           khId: item.khId,
-        } as SwitchItemStateInfo
+        } as ControlStatusIds
       });
       // router.push({
       //   path: `/entity/${entityName}/${recordId}`,

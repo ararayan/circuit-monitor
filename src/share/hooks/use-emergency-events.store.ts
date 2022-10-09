@@ -6,7 +6,8 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { closeOutline } from 'ionicons/icons';
 import { defineStore } from "pinia";
 import { EMPTY, from, of, Subject } from "rxjs";
-import { catchError, delay, filter, map, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
+import { catchError, delay, dematerialize, filter, map, materialize, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
+import { auth$ } from "../user/user.store";
 
 
 
@@ -40,10 +41,13 @@ export function useEmergencyEvents() {
             startCheck: true
           });
           
-          of(0).pipe(
-            filter(() => false),
-            // delay(60 * 1000),
-            // filter(() => userStore.isAuth),
+          auth$.pipe(
+            switchMap(x => {
+              // use materialize wrap next/error/complete to next, so the of(x) will emit the next value that come from complete
+              return x ? of(x).pipe(materialize()) : EMPTY;
+            }),
+            // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
+            dematerialize(),
             switchMap(() => {
               return  httpService.post(YNAPI_SJCX.GetEmergencyEvents, {
                 validateDate: this.checkDateTime || formatDateToEmergencyParams(new Date()),
@@ -63,7 +67,7 @@ export function useEmergencyEvents() {
             repeat({
               delay: () => {
                 //LocalNotifications can only fire once per 9 minutes, per app when app inactivate
-                // return of(0).pipe(delay(this.isActive ?  9 * 60 * 1000 : 20 * 1000));
+                // return of(0).pipe(delay(this.isActive ?  9 * 60 * 1000 :  2 * 60 * 1000));
                 return of(0).pipe(delay(20 * 1000));
               }
             }),

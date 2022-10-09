@@ -1,3 +1,4 @@
+import { ControlStatusIds } from "../entity-edit-form.store";
 import { EntityAttrType, FormField } from "../entity.types";
 
 const fakeFields = [
@@ -31,12 +32,17 @@ export enum ControlStatusCode {
   Wx = 'wx'
 }
 
-export const ControlStatusTextMap: Record<ControlStatusCode, string> = {
+export const ControlStatusCodeTexts: Record<ControlStatusCode, string> = {
   fen: '分闸',
   he: '合闸',
   wx: '无效',
 };
 
+export const ControlStatusCodeIds: Record<ControlStatusCode.Fen | ControlStatusCode.He, keyof ControlStatusIds> = {
+  fen: 'kfId',
+  he: 'khId',
+  // wx: '无效',
+};
 
 
 export const editForm: FormField[] = [
@@ -53,7 +59,7 @@ export const editForm: FormField[] = [
   },
   {id: 'zhaStatus', label: '操作类型：', name: 'powerSwitch', type: EntityAttrType.RadioGroup, value: '', originValue: '', readonly: false, disabled: false, persistent: true, 
     options: [
-      {id: 'fen', value: ControlStatusTextMap.fen},
-      {id: 'he', value: ControlStatusTextMap.he},
+      {id: 'fen', value: ControlStatusCodeTexts.fen},
+      {id: 'he', value: ControlStatusCodeTexts.he},
     ] },
 ];

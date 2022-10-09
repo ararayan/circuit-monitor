@@ -29,7 +29,7 @@ export interface OperatorCheckListItem {
    */
   payload: {
     controlType: OperatorType,
-    yxIds: string,
+    kfkhID: string,
     action: string;
     validateDate: string;
   };
@@ -91,6 +91,11 @@ class CheckControlResultService {
         switchMap(() => {
           return httpService.post<YxCheckResponse>(item.url, item.payload, skipMaskConfig);
         }),
+        catchError(err => {
+          console.error(err.message);
+          return of({data: {hasNewControlResult: 0, result: 0}});
+        }),
+        // repeat must been after catchError, so the error was convert to completed, and repeat still alive, otherwise, need use retry catch the error;
         repeat({
           count: retryCount + 1,
           delay: () => {
@@ -99,18 +104,14 @@ class CheckControlResultService {
             return of(0).pipe(delay(item.intervalTime + item.incrementIntervalTime * incrementFactor));
           }
         }),
-        catchError(err => {
-          console.error(err.message);
-          return of({data: {hasNewControlResult: 0, result: 0}});
-        }),
         filter(result => {
-          if (item.validCallback(result) || !retryCount) {
+          if (item.validCallback(result.data) || !retryCount) {
             return true;
           } 
           return false;
         }),
         map(result => {
-          return { id: item.id, result: item.validCallback(result), item};
+          return { id: item.id, result: item.validCallback(result.data), item};
         }),
         take(1),
         takeUntil(merge(this._end$.pipe(filter(id => item.id === id)), this._destory$)),

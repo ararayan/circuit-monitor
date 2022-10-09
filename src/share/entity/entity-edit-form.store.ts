@@ -6,7 +6,7 @@ import { DataStatus } from "../data.meta";
 import { checkControlResultService, getCheckItemId, OperatorCheckNotifyStyle } from "../hooks/use-check-operator";
 import { httpService, YNAPI_KZCZ } from "../http";
 import { loadingService } from "../loading.service";
-import { ControlStatusCode, ControlStatusTextMap } from "./data/operations";
+import { ControlStatusCode, ControlStatusCodeIds, ControlStatusCodeTexts } from "./data/operations";
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 import { getEditForm$ } from './entity.service';
 import { Entities, FormField } from "./entity.types";
@@ -15,11 +15,16 @@ export enum OperatorType {
   RemoteSelect = 'remoteSelect',
   RemoteExcute = 'remoteExcute',
 }
-export interface SwitchItemStateInfo {
+export interface ControlStatusIds {
   kfId: string;
   khId: string;
 }
-export type YxOperatorParams = Record<'yxIds' | 'khId' | 'kfId' | 'action', string>;
+export interface YxOperatorParams {
+  yxIds: string;
+  khId: string;
+  kfId: string;
+  action: ControlStatusCode;
+}
 
 export interface YxOperatorResponse {
   isYxEffect: boolean;
@@ -40,7 +45,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
       const initialState = { 
         entityName: entityName, 
         recordId: recordId,
-        currRecordInfo: {} as SwitchItemStateInfo, //#WIP, special for pcb entry operator control, change api to remove this state; 
+        currRecordInfo: {} as ControlStatusIds, //#WIP, special for pcb entry operator control, change api to remove this state; 
         editForm: [] as FormField[],
         meta: {
           editForm: DataStatus.Unloaded,
@@ -72,7 +77,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                         let resultValue = value;
                         let readonly = false;
                         if (id === 'status') {
-                          resultValue = ControlStatusTextMap[value as 'wx' | 'fen' | 'he'] || '';
+                          resultValue = ControlStatusCodeTexts[value as 'wx' | 'fen' | 'he'] || '';
                           readonly = true;
                         }
                         const item: FormField = {
@@ -132,26 +137,26 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                 url: YNAPI_KZCZ.CheckControlResult,
                 payload: {
                   controlType: OperatorType.RemoteSelect,
-                  yxIds: data.yxIds,
+                  kfkhID: data[ControlStatusCodeIds[data.action as ControlStatusCode.Fen | ControlStatusCode.He]],
                   action: data.action,
                   validateDate: result.validateDate,
                 },
-                retryCount: 4,
+                retryCount: 5,
                 intervalTime: 10 * 1000,
                 incrementIntervalTime: 0,
                 notifyInfo: {
                   success: {
                     title: '申请遥控选择成功',
-                    message: `控制类型：遥控选择; 遥信ID: ${data.yxIds}; 操作： ${ControlStatusTextMap[data.action as ControlStatusCode]};.`,
+                    message: `遥信ID: ${data.yxIds}; 操作：${ControlStatusCodeTexts[data.action as ControlStatusCode]};`,
                   },
                   failure: {
                     title: '申请遥控选择失败',
-                    message: `控制类型：遥控选择; 遥信ID: ${data.yxIds}; 操作： ${ControlStatusTextMap[data.action as ControlStatusCode]};.`,
+                    message: `遥信ID: ${data.yxIds}; 操作：${ControlStatusCodeTexts[data.action as ControlStatusCode]};`,
                   }
                 },
                 style: OperatorCheckNotifyStyle.Custom 
               }, (checkResult) => {
-                return !checkResult.hasNewControlResult && checkResult.result === 1;
+                return checkResult.hasNewControlResult === 1 && checkResult.result === 1;
               });
               return checkControlResultService.getCheckResult$(checkId).pipe(
                 finalize(() => {
@@ -191,48 +196,55 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         loadingService.show({
           message: '遥控执行中，请等候...'
         });
+        this.$patch({
+          operatorMsg: ''
+        });
         httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteExcute, data, skipMaskConfig).pipe(
+          tap(() =>  loadingService.hide()),
           switchMap(response => {
-            const action = response.data || {};
-            let retryCount = 3;
-            // eslint-disable-next-line no-constant-condition
-            if (action.isYxEffect && action.sendActionSuccess) {
-              return of(0).pipe(
-                switchMap(() => {
-                  return httpService.post<YxCheckResponse>(YNAPI_KZCZ.CheckControlResult, {
-                    controlType: OperatorType.RemoteExcute,
-                    yxIds: data.yxIds,
-                    action: data.action,
-                  },skipMaskConfig);
-                }),
-                repeat({
-                  count: retryCount + 1,
-                  delay: () => {
-                    retryCount--;
-                    return of(0).pipe(delay(500));
+            const result = response.data || {};
+            const checkId = getCheckItemId(entityName, recordId, OperatorType.RemoteExcute);
+            if (result.isYxEffect && result.sendActionSuccess) {
+              this.checkItemIds.add(checkId);
+              checkControlResultService.addCheckItem({
+                id: checkId,
+                url: YNAPI_KZCZ.CheckControlResult,
+                payload: {
+                  controlType: OperatorType.RemoteExcute,
+                  kfkhID: data[ControlStatusCodeIds[data.action as ControlStatusCode.Fen | ControlStatusCode.He]],
+                  action: data.action,
+                  validateDate: result.validateDate,
+                },
+                retryCount: 5,
+                intervalTime: 10 * 1000,
+                incrementIntervalTime: 0,
+                notifyInfo: {
+                  success: {
+                    title: '遥控执行成功',
+                    message: `遥信ID: ${data.yxIds}; 操作：${ControlStatusCodeTexts[data.action as ControlStatusCode]};`,
+                  },
+                  failure: {
+                    title: '遥控执行失败',
+                    message: `遥信ID: ${data.yxIds}; 操作：${ControlStatusCodeTexts[data.action as ControlStatusCode]};`,
                   }
-                }),
-                catchError(err => {
-                  console.error(err.message);
-                  return of({data: {hasNewControlResult: 0, result: 0}});
-                }),
-                filter(x => {
-                  const checkResult = x.data;
-                  if ((!checkResult.hasNewControlResult && checkResult.result === 1) || !retryCount) {
-                    return true;
-                  } 
-                  return false;
-                }),
-                take(1),
-              ); 
+                },
+                style: OperatorCheckNotifyStyle.Custom 
+              }, (checkResult) => {
+                return checkResult.hasNewControlResult === 1 && checkResult.result === 1;
+              });
+              return checkControlResultService.getCheckResult$(checkId).pipe(
+                finalize(() => {
+                  this.checkItemIds.delete(checkId);
+                })
+              );  
             }
             this.$patch({
               operatorMsg: '遥控执行失败, 请稍候重试.'
             });
             return EMPTY;
           }),
-          tap(response => {
-            if (!response.data?.hasNewControlResult && response.data?.result === 1) {
+          tap(checkResult => {
+            if (checkResult) {
               this.$patch({
                 operatorId: OperatorType.RemoteSelect,
                 operatorMsg: '遥控执行成功.'
@@ -251,11 +263,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
           }),
           take(1),
           takeUntil(destory$),
-        ).subscribe({
-          next: () => () => {loadingService.hide();},
-          complete: () => {loadingService.hide();},
-          error: () => {loadingService.hide();}
-        });
+        ).subscribe();
       },
       destroy() {
         [...this.checkItemIds].forEach(checkId => {

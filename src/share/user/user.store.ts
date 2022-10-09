@@ -1,7 +1,7 @@
 import { YNCacheKey, cacheService, DataStatus } from '@/share';
 import { authService, RequestUserInfo, ResponseUserInfo, UpdatePasswordInfo } from '@/share/auth';
 import { defineStore } from 'pinia';
-import { of,  } from 'rxjs';
+import { BehaviorSubject, of,  } from 'rxjs';
 import {  catchError, delay, take, tap } from 'rxjs/operators';
 import { UserMenu, userService } from './user.service';
 
@@ -16,6 +16,9 @@ export interface UserState {
     menus: UserMenu[];
     menusStatus: DataStatus,
 }
+
+
+const isAuth$ = new BehaviorSubject(false);
 
 const initialState: UserState = user
   ? {isAuth: true, loginErrorMsg: '',  updatePasswordResultMsg: '', user, menus: [] as UserMenu[], menusStatus: DataStatus.Unloaded, }
@@ -147,9 +150,13 @@ export const useUserStore = () => {
     instance = userStoreFactory();
     // check is auto unsubscribe when store is dispose;
     instance.$subscribe(() => {
+      if (isAuth$.value !== instance.isAuth) {
+        isAuth$.next(instance.isAuth);
+      }
       instance.getUserMenu();
     }, {immediate: true, detached: true, deep: false});
   }
   return instance;
 };
 
+export const auth$ = isAuth$.asObservable();

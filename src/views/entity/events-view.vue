@@ -24,7 +24,7 @@
                 <ion-item>
                   <ion-label>
                     <span style="margin-left: 0.5em">pos: {{ item.pos }}</span>
-                    <span style="margin-left: 0.5em">{{ ControlStatusTextMap[item.state as ControlStatusCode] }}</span>
+                    <span style="margin-left: 0.5em">{{ ControlStatusCodeTexts[item.state as ControlStatusCode] }}</span>
                     <i style="color: var(--ion-color-medium); margin-left: 0.25em" v-if="!!item.msg">({{ item.msg }})</i>
                   </ion-label>
                 </ion-item>
@@ -45,7 +45,7 @@
 import SearchFormPanel from '@/components/search-form-panel.vue';
 import { useEntityContext, useEntityDisplayName } from '@/share';
 import { EventRecord, useEntityRecordsStore } from '@/share/entity';
-import { ControlStatusCode, ControlStatusTextMap } from '@/share/entity/data/operations';
+import { ControlStatusCode, ControlStatusCodeTexts } from '@/share/entity/data/operations';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
 import { Ref, ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
@@ -111,7 +111,7 @@ export default defineComponent({
     onUnmounted(() => {
       recordStore.destroy();
     });
-    return { ControlStatusTextMap,
+    return { ControlStatusCodeTexts,
       entityName, menuId, contentId, isInited,
       records, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };

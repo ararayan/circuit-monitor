@@ -1,9 +1,9 @@
 /* eslint-disable no-else-return */
 import { AxiosRequestConfig } from 'axios';
-import { delay, Observable, of, take, map } from 'rxjs';
+import { delay, map, Observable, of, take } from 'rxjs';
 import { httpService, YNAPI_JGSJ, YNAPI_JXT, YNAPI_KZCZ, YNAPI_SJCX, YNAPI_ZMGL } from '../http';
-import { events, lightingControl, operations, realtime, segments, segmentsChild, wirings } from "./data";
-import { ControlStatusCode, ControlStatusTextMap } from './data/operations';
+import { events, operations } from "./data";
+import { ControlStatusCode } from './data/operations';
 import { MixedModuleType } from './entity-tab.store';
 import { Entities, EntityRecord, EntityRecordAlias, FormField } from "./entity.types";
 
@@ -85,7 +85,7 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
         return response?.data.map(item => {
           let desc;
           if (params.type === MixedModuleType.Yx) {
-            // desc = ControlStatusTextMap[item.status];
+            // desc = ControlStatusCodeTexts[item.status];
             desc = item.status === ControlStatusCode.Wx
               ? '1(无效)'
               : item.status === ControlStatusCode.He
