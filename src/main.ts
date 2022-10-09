@@ -66,11 +66,12 @@ async function initializeApp() {
     const ntfPermissionsResult = await NativeSettings.openAndroid({
       option: AndroidSettings.AppNotification,
     });
-    const alert = await alertController.create({
-      header: '提示',
-      message: `ntfPermissionsResult: ${ntfPermissionsResult.status}`
-    });
-    await alert.present();
+    // const alert = await alertController.create({
+    //   header: '提示',
+    //   message: `ntfPermissionsResult: ${ntfPermissionsResult.status}`
+    // });
+    // await alert.present();
+    appStore.localNotificationsPermissions = ntfPermissionsResult.status;
   }else {
     appStore.localNotificationsPermissions = true;
   }

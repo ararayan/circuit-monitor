@@ -69,8 +69,8 @@ export function useEmergencyEvents() {
             repeat({
               delay: () => {
                 //LocalNotifications can only fire once per 9 minutes, per app when app inactivate
-                // return of(0).pipe(delay(appStore.isActive ?  9 * 60 * 1000 :  5 * 60 * 1000));
-                return of(0).pipe(delay(1 * 60 * 1000));
+                return of(0).pipe(delay(appStore.isActive ?  9 * 60 * 1000 :  2 * 60 * 1000));
+                // return of(0).pipe(delay(1 * 60 * 1000));
               }
             }),
             switchMap(() => {
