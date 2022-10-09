@@ -47,4 +47,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Starting on Android 12, scheduled notifications won't be exact unless this permission is added to your AndroidManifest.xml -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    
+    <!-- Permissions for read/wirte fiels -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>
