@@ -141,9 +141,9 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                   action: data.action,
                   startIndex: result.startIndex
                 },
-                retryCount: 5,
-                intervalTime: 10 * 1000,
-                incrementIntervalTime: 0,
+                retryCount: 6,
+                intervalTime: 2 * 1000,
+                incrementIntervalTime: 3 * 1000,
                 notifyInfo: {
                   success: {
                     title: '申请遥控选择成功',
@@ -215,9 +215,9 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                   action: data.action,
                   startIndex: result.startIndex,
                 },
-                retryCount: 5,
-                intervalTime: 10 * 1000,
-                incrementIntervalTime: 0,
+                retryCount: 6,
+                intervalTime: 2 * 1000,
+                incrementIntervalTime: 3 * 1000,
                 notifyInfo: {
                   success: {
                     title: '遥控执行成功',

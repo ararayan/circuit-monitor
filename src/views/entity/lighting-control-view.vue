@@ -40,7 +40,7 @@ import { Components } from '@ionic/core/dist/types/components';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, toastController } from '@ionic/vue';
 import { arrowBackOutline, chevronForwardOutline, rocketOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
-import { defineComponent, onMounted, onUnmounted, watch } from 'vue';
+import { defineComponent, onMounted, onUnmounted, watch, WatchStopHandle } from 'vue';
 
 
 export default defineComponent({
@@ -76,14 +76,15 @@ export default defineComponent({
 
     //#endregion
 
+    let msgSubscription: WatchStopHandle;
     const toastInstaces: Components.IonToast[] = [];
     onMounted(() => {
-      watch(toastMsg, (next, prev) => {
+      msgSubscription = watch(toastMsg, (next, prev) => {
         if (next !== prev && !!next) {
           toastController
             .create({
               message: next,
-              duration: 1000,
+              duration: 2000,
               color: toastType.value === ToastType.Success ? toastType.value : 'danger'
             }).then(toast =>  {
               toastInstaces.push(toast);
@@ -93,6 +94,7 @@ export default defineComponent({
       }, { immediate: true });
     });
     onUnmounted(() => {
+      msgSubscription?.();
       toastInstaces.forEach(toast => toast.dismiss());
       recordStore.destroy();
     });

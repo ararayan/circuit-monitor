@@ -1,74 +1,25 @@
+import { Directory } from '@capacitor/filesystem';
 import { AxiosRequestConfig } from "axios";
 import { defineStore } from "pinia";
-import { EMPTY, from, of, Subject } from "rxjs";
-import { catchError, concatMap, delay, dematerialize, filter, map, materialize, repeat, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { asyncScheduler, EMPTY, from, of, Subject } from "rxjs";
+import { catchError, concatMap, delay, dematerialize, filter, map, materialize, repeat, switchMap, take, takeUntil } from 'rxjs/operators';
 import { DataStatus } from "../data.meta";
 import { appState$ } from "../hooks/use-app.store";
 import { httpService, YNAPI_JXT } from "../http";
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 import { Entities } from "./entity.types";
-import { Filesystem, Directory, Encoding, GetUriOptions } from '@capacitor/filesystem';
 // import { alertController } from "@ionic/vue";
 import { Capacitor } from '@capacitor/core';
+import { pcbFielCache } from "../pcb-cache.service";
 
 
 //cache
 
-const writePCBImageFile = async (path: string, data: string) => {
-  const result = await Filesystem.writeFile({
-    path,
-    data,
-    directory: Directory.Data,
-    encoding: Encoding.UTF8,
-  });
-  return result;
-  // alertController.create({
-  //   message: `Write file success: ${result.uri}; path: ${path}, data: ${data.length}`,
-  // }).then(x => x.present());
-};
-
-const readPCBImageFile = async (path: string) => {
-  const contents = await Filesystem.readFile({
-    path,
-    directory: Directory.Data,
-    encoding: Encoding.UTF8,
-  });
-
-  // console.log('read files:', contents);
-  return  contents.data;
-};
-
-const deletePCBImageFile = async (path: string) => {
-  await Filesystem.deleteFile({
-    path,
-    directory: Directory.Data,
-  });
-};
-
-const checkFileExists = async (getUriOptions: GetUriOptions): Promise<boolean> => {
-  try {
-    await Filesystem.stat(getUriOptions);
-    return true;
-  } catch (err: any) {
-    return false;
-    // if (err.message === 'File does not exist') {
-    //   return false;
-    // }
-    // throw err;
-  }
-};
-// const readFilePath = async () => {
-//   // Here's an example of reading a file with a full file path. Use this to
-//   // read binary data (base64 encoded) from plugins that return File URIs, such as
-//   // the Camera.
-//   const contents = await Filesystem.readFile({
-//     path: 'file:///var/mobile/Containers/Data/Application/22A433FD-D82D-4989-8BE6-9FC49DEA20BB/Documents/text.txt'
-//   });
 
 //   console.log('data:', contents);
 // };
 
-const pcbImageCachePrefixKey = 'cache-pcb-image-';
+const pcbImageCachePrefixKey = 'cache-pcb-image';
 
 function getPCBImageData$(openRecordId: string) {
 
@@ -76,23 +27,13 @@ function getPCBImageData$(openRecordId: string) {
   const path = `${fileName}.txt`;
   const isNativePlatform = Capacitor.isNativePlatform();
   if (isNativePlatform) {
-    return from(checkFileExists({
+    return from(pcbFielCache.checkFileExists({
       path: path,
       directory: Directory.Data
     })).pipe(
-      // tap(exist => {
-      //   alertController.create({
-      //     message: `Check file exist: ${exist}`
-      //   }).then(x => x.present());
-      // }),
       concatMap(exist => {
         if (exist) {
-          return from(readPCBImageFile(path)).pipe(
-            // tap(() => {
-            //   alertController.create({
-            //     message: `Read file success`
-            //   }).then(x => x.present());
-            // }),
+          return from(pcbFielCache.readPCBImageFile(path)).pipe(
             map(conents => {
               return JSON.parse(conents);
             })
@@ -101,12 +42,7 @@ function getPCBImageData$(openRecordId: string) {
         return httpService.post(YNAPI_JXT.GetPicture, {id: openRecordId}).pipe(
           map(response => response.data),
           concatMap(data => {
-            return from(writePCBImageFile(path, JSON.stringify(data))).pipe(
-              // tap(() => {
-              //   alertController.create({
-              //     message: `Write file success`
-              //   }).then(x => x.present());
-              // }),
+            return from(pcbFielCache.writePCBImageFile(path, JSON.stringify(data))).pipe(
               map(() => data)
             );
           }),
@@ -377,7 +313,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
             }),
             repeat({
               delay: () => {
-                return of(0).pipe(delay(10 * 1000));
+                return of(0).pipe(delay(10 * 1000, asyncScheduler));
               }
             }),
             filter(patchChangedInfos => {

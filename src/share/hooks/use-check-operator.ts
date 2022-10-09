@@ -2,7 +2,7 @@ import { IonicPredefinedColors } from "@/model";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { AxiosRequestConfig } from "axios";
 import { closeOutline } from 'ionicons/icons';
-import { BehaviorSubject, merge, of, Subject } from "rxjs";
+import { asyncScheduler, BehaviorSubject, merge, of, Subject } from "rxjs";
 import { catchError, delay, filter, finalize, map, mergeMap, repeat, scan, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { Entities, OperatorType, YxCheckResponse } from "../entity";
 import { httpService } from "../http";
@@ -66,7 +66,7 @@ export function getCheckItemId(entityName: Entities, recordId: string, operator:
   return `${entityName}_${recordId}_${operator}@${++idCount}`;
 }
 
-const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
+const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {errorSilent: true, skipMask: true}};
 class CheckControlResultService {
   private _aliveItems = new Set<string>();
   private _checkItemNotifyStyle: Record<OperatorCheckNotifyStyle, Set<string>> = {
@@ -101,7 +101,7 @@ class CheckControlResultService {
           delay: () => {
             retryCount--;
             const incrementFactor = item.retryCount - retryCount - 1;
-            return of(0).pipe(delay(item.intervalTime + item.incrementIntervalTime * incrementFactor));
+            return of(0).pipe(delay(item.intervalTime + item.incrementIntervalTime * incrementFactor, asyncScheduler));
           }
         }),
         filter(result => {

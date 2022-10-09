@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from "axios";
 import { defineStore, MutationType } from "pinia";
-import { EMPTY, Observable, of, Subject, throwError } from "rxjs";
-import { catchError, delay, dematerialize, map, materialize, repeat, switchMap, takeUntil, takeWhile, tap } from "rxjs/operators";
+import { asyncScheduler, EMPTY, Observable, of, Subject, throwError } from "rxjs";
+import { catchError, delay, dematerialize, map, materialize, repeat, switchMap, take, takeUntil, takeWhile, tap } from "rxjs/operators";
 import { DataStatus } from "../data.meta";
 import { appState$ } from "../hooks/use-app.store";
 import { httpService, YNAPI_KZCZ } from "../http";
@@ -157,16 +157,15 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
           this.$patch({
             startSyncRecrod: true
           });
-
           appState$.pipe(
+            delay(10 * 1000, asyncScheduler),
+            takeWhile(() => this.isInited),
             switchMap(x => {
               // use materialize wrap next/error/complete to next, so the of(0) will emit the next value that come from complete
               return x ? of(0).pipe(materialize()) : EMPTY;
             }),
             // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
             dematerialize(),
-            delay(5000),
-            takeWhile(() => this.isInited),
             switchMap(() => {
               const postData = {
                 ...checkParams,
@@ -199,11 +198,15 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
               }
               return of({} as Record<string, any>);
             }),
-            repeat(),
+            repeat({
+              delay: () => {
+                return of(0).pipe(delay(1 * 1000, asyncScheduler));
+              }
+            }),
             takeUntil(destory$),
           ).subscribe({
             next: (result) => {
-              const {list, isChanged} = result;
+              const {list, isChanged} = result as any;
               if (isChanged) {
                 this.$patch({
                   records: list
@@ -248,6 +251,7 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
             loadingService.hide();
             return of(err);
           }),
+          take(1),
           takeUntil(destory$),
         ).subscribe(success => {
           const msg = success ? '发送遥控执行成功。' : '发送遥控执行失败！';

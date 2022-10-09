@@ -5,7 +5,7 @@ import { toastService } from "@/share/toast.service";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { closeOutline } from 'ionicons/icons';
 import { defineStore } from "pinia";
-import { EMPTY, from, of, Subject } from "rxjs";
+import { asyncScheduler, EMPTY, from, of, Subject } from "rxjs";
 import { catchError, delay, dematerialize, map, materialize, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
 import { auth$ } from "../user/user.store";
 
@@ -69,8 +69,9 @@ export function useEmergencyEvents() {
             repeat({
               delay: () => {
                 //LocalNotifications can only fire once per 9 minutes, per app when app inactivate
-                return of(0).pipe(delay(appStore.isActive ?  9 * 60 * 1000 :  2 * 60 * 1000));
-                // return of(0).pipe(delay(1 * 60 * 1000));
+                const delayDurantion = appStore.isActive ?  5 * 60 * 1000 :  8 * 60 * 1000;
+                return of(0).pipe(delay(delayDurantion, asyncScheduler));
+                // return of(0).pipe(delay(1 * 10 * 1000, asyncScheduler));
               }
             }),
             switchMap(() => {
@@ -98,13 +99,6 @@ export function useEmergencyEvents() {
                 }));
               }
 
-              // if (!appStore.localNotificationsPermissions) {
-              //   this.$patch({
-              //     records: [...this.records, {seq: emergencyEventCount++,  message: '突发事件' }]
-              //   });
-              //   return EMPTY;
-              // }
-
               if (appStore.localNotificationsPermissions) {
                 return from(LocalNotifications.schedule({
                   notifications: [{
@@ -115,7 +109,7 @@ export function useEmergencyEvents() {
                     largeBody: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
                     title: 'Test Notification',
                     body: '测试突发事件',
-                    group: 'EmergencyEvents'
+                    group: 'EmergencyEvents', // need setGroup
                   }]
                 }));
               }
@@ -138,11 +132,14 @@ export function useEmergencyEvents() {
         this.$reset();
       },
       destroy() {
+        destory$.next(true);
+        destory$.complete();
+
         // fix: pinia.state will cache state even the store instance was remove by call self dispose;
         // manual call reset make cahce state backto inital status; more detail see the state fn on below;
-        this.reset();
-        destory$.complete();
+        // call the dispose first, to remove all subscribe which may invoke by $reset state;
         this.$dispose();
+        this.$reset();
       },
     }
   })();

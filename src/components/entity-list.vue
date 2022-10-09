@@ -3,7 +3,7 @@
     <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="48" key-field="id"
       ref="virtualScroller">
       <template #default="{ item }">
-        <ion-item @click="openRecord()" class="entity-list-item">
+        <ion-item class="entity-list-item">
           <!-- <ion-icon :icon="documentTextOutline" slot="start" color="medium" size="large"></ion-icon> -->
           <ion-label>
             <i class="seq-number">{{ item.seq || '' }}</i>
@@ -113,14 +113,12 @@ export default defineComponent({
       // load data 
       recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value } });
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    function openRecord() { }
+    
     onUnmounted(() => {
       window.clearTimeout(initTimeoutId);
       recordStore.destroy();
     });
-    return { ionInfiniteScroll, records, scaleOutline, pulseOutline, radioOutline, loadData, skeletonSize, openRecord, virtualScroller };
+    return { ionInfiniteScroll, records, scaleOutline, pulseOutline, radioOutline, loadData, skeletonSize, virtualScroller };
   },
 });
 </script>

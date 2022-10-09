@@ -29,6 +29,7 @@ import { router } from './router';
 import { useAppStore } from './share/hooks/use-app.store';
 import { loadingService } from './share/loading.service';
 import './theme/variables.css';
+import { Capacitor } from '@capacitor/core';
 
 import { AndroidSettings, NativeSettings } from 'capacitor-native-settings';
 
@@ -62,17 +63,19 @@ async function initializeApp() {
     // if (nextStatus.display === 'granted') {
     //   appStore.localNotificationsPermissions = true;
     // }
+    if (Capacitor.isNativePlatform()) {
+      const ntfPermissionsResult = await NativeSettings.openAndroid({
+        option: AndroidSettings.AppNotification,
+      });
+      // const alert = await alertController.create({
+      //   header: '提示',
+      //   message: `ntfPermissionsResult: ${ntfPermissionsResult.status}`
+      // });
+      // await alert.present();
+      appStore.localNotificationsPermissions = ntfPermissionsResult.status;
+    }
 
-    const ntfPermissionsResult = await NativeSettings.openAndroid({
-      option: AndroidSettings.AppNotification,
-    });
-    // const alert = await alertController.create({
-    //   header: '提示',
-    //   message: `ntfPermissionsResult: ${ntfPermissionsResult.status}`
-    // });
-    // await alert.present();
-    appStore.localNotificationsPermissions = ntfPermissionsResult.status;
-  }else {
+  } else {
     appStore.localNotificationsPermissions = true;
   }
 
