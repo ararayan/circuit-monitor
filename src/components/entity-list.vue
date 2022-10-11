@@ -81,7 +81,7 @@ export default defineComponent({
         virtualScroller.value?.scrollToPosition(0);
 
         // setTimeout to ensure reset and scroll to both process UI ready;
-        initTimeoutId = setTimeout(() => {
+        initTimeoutId = window.setTimeout(() => {
           recordStore.setHasPagination(true);
           recordStore.setSyncFields(tabId.value === MixedModuleType.Yx ? ['status'] : ['value']);
           recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value }, isInit: true });
