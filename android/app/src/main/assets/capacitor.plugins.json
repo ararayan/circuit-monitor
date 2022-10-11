@@ -24,6 +24,10 @@
 		"classpath": "com.capacitorjs.plugins.statusbar.StatusBarPlugin"
 	},
 	{
+		"pkg": "@transistorsoft/capacitor-background-fetch",
+		"classpath": "com.transistorsoft.bgfetch.capacitor.BackgroundFetchPlugin"
+	},
+	{
 		"pkg": "capacitor-native-settings",
 		"classpath": "nl.raphael.settings.NativeSettingsPlugin"
 	}
