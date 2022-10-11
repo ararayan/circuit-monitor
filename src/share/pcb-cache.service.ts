@@ -1,7 +1,7 @@
 import { Directory, Encoding, Filesystem, GetUriOptions } from "@capacitor/filesystem";
 
 class PcbFielCache {
-  async writePCBImageFile (path: string, data: string, directory: Directory = Directory.Data) {
+  async writePCBImageFile (path: string, data: string, directory: Directory = Directory.Cache) {
     const result = await Filesystem.writeFile({
       path,
       data,
@@ -13,7 +13,7 @@ class PcbFielCache {
     //   message: `Write file success: ${result.uri}; path: ${path}, data: ${data.length}`,
     // }).then(x => x.present());
   }
-  async readPCBImageFile (path: string, directory: Directory = Directory.Data) {
+  async readPCBImageFile (path: string, directory: Directory = Directory.Cache) {
     const contents = await Filesystem.readFile({
       path,
       directory,
@@ -24,7 +24,7 @@ class PcbFielCache {
     return  contents.data;
   }
 
-  async deletePCBImageFile (path: string, directory: Directory = Directory.Data) {
+  async deletePCBImageFile (path: string, directory: Directory = Directory.Cache) {
     await Filesystem.deleteFile({
       path,
       directory: directory,
