@@ -22,14 +22,14 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 /* Theme variables */
 import { authGuards } from '@/share/auth';
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { createPinia } from 'pinia';
 import VueVirtualScroller from 'vue-virtual-scroller';
 import { router } from './router';
 import { useAppStore } from './share/hooks/use-app.store';
-import { loadingService } from './share/loading.service';
 import './theme/variables.css';
-import { Capacitor } from '@capacitor/core';
 
 import { AndroidSettings, NativeSettings } from 'capacitor-native-settings';
 
@@ -44,52 +44,86 @@ import { AndroidSettings, NativeSettings } from 'capacitor-native-settings';
 
 //#endregion
 
-router.beforeEach(authGuards);
 
-const app = createApp(App)
-  .use(IonicVue)
-  .use(createPinia())
-  .use(VueVirtualScroller)
-  .use(router);
+
+const wairForAppStateActive = () => new Promise<boolean>((resolve) => {
+  const _handler = CapacitorApp.addListener('appStateChange', (appState) => {
+    if (appState.isActive) {
+      resolve(appState.isActive);
+      _handler.remove();
+    }
+  });
+});
+
+const initLocalNotifications  = async () => {
+  await LocalNotifications.removeAllListeners();
+  const listChannelsResult = await LocalNotifications.listChannels();
+  const importanChannel = listChannelsResult.channels.find(x => x.id === 'important_info_channel');
+  if (!importanChannel) {
+    await LocalNotifications.createChannel({
+      id: 'important_info_channel',
+      name: 'important_info_channel',
+      importance: 5,
+      visibility: 1,
+    });
+  }
+};
+const loadCacheData = async () => {
+  return true;
+};
 
 async function initializeApp() {
-  const status = await LocalNotifications.checkPermissions();
-  const appStore = useAppStore();
-  if (status.display !== 'granted') {
-    /** 
-     * requestPermissions only work in ios, not in andorid, in andorid need popup the message tell the user to turn on the notification on app;
-     */
-    // const nextStatus =  await LocalNotifications.requestPermissions();
-    // if (nextStatus.display === 'granted') {
-    //   appStore.localNotificationsPermissions = true;
-    // }
-    if (Capacitor.isNativePlatform()) {
-      const ntfPermissionsResult = await NativeSettings.openAndroid({
+  await loadCacheData();
+  
+  router.beforeEach(authGuards);
+
+  const isNativePlatform = Capacitor.isNativePlatform();
+  let localNotificationsPermissions = false;
+
+  if (isNativePlatform) {
+    const status = await LocalNotifications.checkPermissions();
+    if (status.display !== 'granted') {
+      /** 
+       * requestPermissions only work in ios, not in andorid, in andorid need popup the message tell the user to turn on the notification on app;
+       */
+      // const nextStatus =  await LocalNotifications.requestPermissions();
+      // if (nextStatus.display === 'granted') {
+      //   appStore.localNotificationsPermissions = true;
+      // }
+      await NativeSettings.openAndroid({
         option: AndroidSettings.AppNotification,
       });
-      // const alert = await alertController.create({
-      //   header: '提示',
-      //   message: `ntfPermissionsResult: ${ntfPermissionsResult.status}`
-      // });
-      // await alert.present();
-      appStore.localNotificationsPermissions = ntfPermissionsResult.status;
+      await wairForAppStateActive();
+      const newStatus = await LocalNotifications.checkPermissions();
+      localNotificationsPermissions = newStatus.display === 'granted';
+    } else {
+      localNotificationsPermissions = true;
     }
-
-  } else {
-    appStore.localNotificationsPermissions = true;
   }
+   
+  await initLocalNotifications();
 
-  // init loading control for using
-  const loading = await loadingService.create({
-    cssClass: ['ion-hide']
-  });
-  await loading.present();
-  return true;
+  return {
+    localNotificationsPermissions
+  };
 }
 
-router.isReady()
-  .then(() => initializeApp())
-  .then(() => {
-    app.mount('#app');
-  });
+initializeApp().then(({ localNotificationsPermissions }) => {
+  const app = createApp(App)
+    .use(IonicVue)
+    .use(createPinia())
+    .use(VueVirtualScroller)
+    .use(router);
+    
+  router.isReady()
+    .then(() => {
+      const appStore = useAppStore();
+      appStore.localNotificationsPermissions = localNotificationsPermissions;
+      app.mount('#app');
+    });
+});
+
+
+
+
 

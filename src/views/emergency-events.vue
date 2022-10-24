@@ -27,11 +27,9 @@
 </template>
 
 <script lang="ts">
-import { useEmergencyEvents } from '@/share/hooks/use-emergency-events.store';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
 import { arrowBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { storeToRefs } from 'pinia';
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
 
 
@@ -49,8 +47,7 @@ export default defineComponent({
     RecycleScroller, IonButtons, IonBackButton,
   },
   setup() {
-    const emergencyEventsStore = useEmergencyEvents();
-    const { records } = storeToRefs(emergencyEventsStore);
+    const records = ref([]);
   
     return {
       records, arrowBackOutline, chevronForwardOutline

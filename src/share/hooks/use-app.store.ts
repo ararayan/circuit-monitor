@@ -20,6 +20,7 @@ const appStore = defineStore('App', {
       requestLogs: [] as Array< {url: string, params: any, msg: string}>,
       errorMsgLogs: [] as Array< {url: string, params: any, msg: string}>,
       localNotificationsPermissions: false,
+      batteryOptimization: false,
     };
    
     return { ...initialState };
