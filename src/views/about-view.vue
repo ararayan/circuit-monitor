@@ -24,8 +24,8 @@
       
 </template>
 <script lang="ts">
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonImg, IonPage, IonText, IonToolbar, IonTitle, } from '@ionic/vue';
-import { defineComponent } from 'vue';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonImg, IonPage, IonText, IonToolbar, IonTitle, useBackButton, useIonRouter, } from '@ionic/vue';
+import { defineComponent, onUnmounted } from 'vue';
 
 export default defineComponent({
   name: 'AboutView',
@@ -33,5 +33,18 @@ export default defineComponent({
     IonHeader, IonToolbar, IonButtons, IonBackButton, IonImg, IonText, IonTitle,
     IonContent, IonPage,
   },
+  setup() {
+    const router = useIonRouter();
+    const result = useBackButton(10, () => {
+      if (router.canGoBack()) {
+        router.back();
+      }else {
+        router.push('/home');
+      }
+    });
+    onUnmounted(() => {
+      result.unregister();
+    });
+  }
 });
 </script>
