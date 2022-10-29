@@ -13,18 +13,16 @@
         <ion-item>
           <ion-label>
             <h2> <i class="seq-number">{{ item.seq || '' }}</i>{{ item.name }}</h2>
-            <h3><i class="seq-number seq-number-transparent">{{ item.seq || '' }}</i> {{ ControlStatusCodeTexts[item.status as ControlStatusCode] }}</h3>
+            <!-- <h3><i class="seq-number seq-number-transparent">{{ item.seq || '' }}</i> {{ ControlStatusCodeTexts[item.status as ControlStatusCode] }}</h3> -->
             <!-- <p> {{ControlStatusCodeTexts[item.status as ControlStatusCode]}} </p> -->
           </ion-label>
           <!-- <ion-toggle slot="end" name="item.id" :color="item.isPendingStatus ? 'warning' : 'success' " mode="ios" :checked="item.status === 'he'"></ion-toggle> -->
           <!-- <ion-toggle slot="end" name="item.id" color="success" mode="ios" :checked="item.status === 'he'" class="toggle-disabled"></ion-toggle> -->
-          <ion-button
+          <ion-button :v-if="item.status !== ControlStatusCode.Wx"
             @click="applyForEdit(item, item.status === ControlStatusCode.Fen ? ControlStatusCode.He : ControlStatusCode.Fen)"
-            style="min-width: 5em; min-height: 2.5em;" color="light">
+            style="min-width: 5em; min-height: 2.5em; margin-right: 1em;" color="light">
             <ion-icon :icon="rocketOutline" slot="start" color="warning"></ion-icon>
-            <ion-label color="primary">{{ ControlStatusCodeTexts[item.status === ControlStatusCode.Fen ?
-                ControlStatusCode.He : ControlStatusCode.Fen]
-            }}</ion-label>
+            <ion-label color="primary">{{ LightControlStatusCodeTexts[item.status as ControlStatusCode]}}</ion-label>
           </ion-button>
         </ion-item>
       </ion-list>
@@ -35,13 +33,19 @@
 
 <script lang="ts">
 import { DataStatus, EntityRecordAlias, ToastType, useEntityContext, useEntityDisplayName, useEntityRecordsStore, YxOperatorParams } from '@/share';
-import { ControlStatusCode, ControlStatusCodeTexts } from '@/share/entity/data/operations';
+import { ControlStatusCode } from '@/share/entity/data/operations';
 import { Components } from '@ionic/core/dist/types/components';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, toastController } from '@ionic/vue';
 import { arrowBackOutline, chevronForwardOutline, rocketOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onMounted, onUnmounted, watch, WatchStopHandle } from 'vue';
 
+
+const LightControlStatusCodeTexts = {
+  [ControlStatusCode.He]: '打开',
+  [ControlStatusCode.Fen]: '关闭',
+  [ControlStatusCode.Wx]: '无效',
+};
 
 export default defineComponent({
   name: 'LightingControlView',
@@ -108,7 +112,7 @@ export default defineComponent({
       recordStore.requestExcute(data);
     }
     return {
-      entityName, ControlStatusCodeTexts, rocketOutline, ControlStatusCode, applyForEdit,
+      entityName, rocketOutline, ControlStatusCode, applyForEdit, LightControlStatusCodeTexts,
       records, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },

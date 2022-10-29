@@ -7,7 +7,8 @@
           <!-- <ion-icon :icon="documentTextOutline" slot="start" color="medium" size="large"></ion-icon> -->
           <ion-label>
             <i class="seq-number">{{ item.seq || '' }}</i>
-            <span>{{ item.name }} <span style="margin-left: 1em">{{ item.desc }}</span></span>
+            <span>{{ item.name }}</span>
+            <span style="float: right;margin-right: 0.5em;">{{ item.desc }}</span>
           </ion-label>
         </ion-item>
       </template>
@@ -84,7 +85,7 @@ export default defineComponent({
         initTimeoutId = window.setTimeout(() => {
           recordStore.setHasPagination(true);
           recordStore.setSyncFields(tabId.value === MixedModuleType.Yx ? ['status'] : ['value']);
-          recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value }, isInit: true });
+          recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value }, isInit: true }, { headers: { errorSilent: true, skipMask: true }});
           const params = {
             jgid: props.recordId || -1,
             type: tabId.value
@@ -111,7 +112,7 @@ export default defineComponent({
 
     function loadData() {
       // load data 
-      recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value } });
+      recordStore.getRecords(props.entityName, { criteria: { jgid: props.recordId, type: tabId.value } }, { headers: { errorSilent: true, skipMask: true }});
     }
     
     onUnmounted(() => {

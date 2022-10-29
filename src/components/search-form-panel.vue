@@ -1,6 +1,6 @@
 <template>
       <ion-menu side="end" :menuId="ionMenuId"  style="--side-max-width: 400px">
-        <ion-header mode="md" collapse="fade">
+        <ion-header mode="md">
           <ion-toolbar color="primary">
             <ion-buttons slot="start" >
               <ion-menu-button :menu="menuId">

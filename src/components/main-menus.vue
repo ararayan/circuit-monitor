@@ -21,12 +21,12 @@
     <ion-content style="--ion-background-color: transparent" color="light">
 
       <ion-list color="light">
-        <ion-item color="light" @click="gotoHome()" class="ion-activatable ripple-parent main-menu-item">
+        <!-- <ion-item color="light" @click="gotoHome()" class="ion-activatable ripple-parent main-menu-item">
           <ion-icon :icon="homeOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label class="menu-item-text">首页</ion-label>
           <ion-ripple-effect></ion-ripple-effect>
 
-        </ion-item>
+        </ion-item> -->
         <ion-item color="light" @click="gotoUser()" class="ion-activatable ripple-parent main-menu-item">
           <ion-icon :icon="settingsOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label>修改密码</ion-label>
@@ -37,11 +37,11 @@
           <ion-label>关于</ion-label>
           <ion-ripple-effect></ion-ripple-effect>
         </ion-item>
-        <ion-item color="light" class="ion-activatable ripple-parent main-menu-item">
+        <!-- <ion-item color="light" class="ion-activatable ripple-parent main-menu-item">
           <ion-icon :icon="colorFilterOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label>版本检查</ion-label>
           <ion-ripple-effect></ion-ripple-effect>
-        </ion-item>
+        </ion-item> -->
         <!-- <ion-item color="light" @click="gotoEmergencyEvents()" class="ion-activatable ripple-parent main-menu-item">
           <ion-icon :icon="colorFilterOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
           <ion-label>突发事件</ion-label>
@@ -126,9 +126,9 @@ export default defineComponent({
     const userStore = useUserStore();
     const { user } = storeToRefs(userStore);
     const menuId = toRef(props, 'contentId');
-    const gotoHome = () => {
-      router.push('/home');
-    };
+    // const gotoHome = () => {
+    //   router.push('/home');
+    // };
     const gotoUser = () => {
       router.push('/user');
     };
@@ -142,7 +142,7 @@ export default defineComponent({
     function exitApp() {
       App.exitApp();
     }
-    return { exitApp, user, menuId, gotoEmergencyEvents, settingsOutline, homeOutline, bookOutline, gotoHome, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
+    return { exitApp, user, menuId, gotoEmergencyEvents, settingsOutline, homeOutline, bookOutline, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
   }
 });
 </script>

@@ -19,7 +19,7 @@ export const getSearchForm = function() {
     originValue: field.value,
     layout: {
       fieldLines:[EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'none' : 'full',
-      labelPosition: [EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'fixed' :'stacked', // fixed, floating, stacked
+      labelPosition:  'fixed', // [EntityAttrType.Radio, EntityAttrType.Checkbox, EntityAttrType.RadioGroup].includes(field.type) ? 'fixed' :'stacked', // fixed, floating, stacked
       isHideLabel: false,
     },
     rules: {

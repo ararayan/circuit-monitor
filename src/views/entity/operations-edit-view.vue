@@ -15,7 +15,8 @@
       :class="[operator.cssClass]">
       <ion-button @click="applyForEdit()" style="min-width: 10em;" :color="operator.color"
         :disabled="operator.disabled">
-        <ion-icon :icon="operator.icon" slot="start"></ion-icon>
+        <ion-spinner name="lines-sharp-small" v-if="operator.showSpinner"></ion-spinner>
+        <ion-icon :icon="operator.icon" slot="start" v-if="!operator.showSpinner"></ion-icon>
         <ion-label>{{ operator.value }}</ion-label>
       </ion-button>
     </ion-footer>
@@ -24,17 +25,17 @@
 
 <script lang="ts">
 import EditForm from '@/components/edit-form.vue';
-import { OperatorType, useEntityContext, useEntityDisplayName, useEntityEditFormStore } from '@/share';
+import { OperatorStatus, OperatorType, useEntityContext, useEntityDisplayName, useEntityEditFormStore } from '@/share';
 import { ControlStatusCode } from '@/share/entity/data/operations';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar, toastController, useBackButton, useIonRouter } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonSpinner, IonLabel, IonPage, IonTitle, IonToolbar, toastController, useBackButton, useIonRouter } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline, rocketOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onMounted, onUnmounted, watch } from 'vue';
 
 const operators = {
-  [OperatorType.RemoteSelect]: { id: OperatorType.RemoteSelect, value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline, disabled: false },
-  [OperatorType.RemoteExcute]: { id: OperatorType.RemoteExcute, value: '遥控执行', color: 'danger', cssClass: 'bg-contrast-danger', icon: rocketOutline, disabled: false },
+  [OperatorType.RemoteSelect]: { id: OperatorType.RemoteSelect, value: '遥控选择', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline, disabled: false, showSpinner: false },
+  [OperatorType.RemoteExcute]: { id: OperatorType.RemoteExcute, value: '遥控执行', color: 'danger', cssClass: 'bg-contrast-danger', icon: rocketOutline, disabled: false, showSpinner: false },
 };
 const openToast = async (msg: string, color: string) => {
   const toast = await toastController
@@ -54,7 +55,7 @@ export default defineComponent({
   components: {
     IonPage, IonHeader, IonContent, IonIcon, IonLabel,
     IonButtons, IonBackButton, IonToolbar, IonTitle, IonButton,
-    EditForm, IonFooter
+    EditForm, IonFooter,IonSpinner,
   },
   setup() {
     const router = useIonRouter();
@@ -62,16 +63,22 @@ export default defineComponent({
     const { title } = useEntityDisplayName(entityName);
 
     const entityEditFormStore = useEntityEditFormStore(entityName, recordId);
-    const { editForm: fields, operatorId, operatorMsg } = storeToRefs(entityEditFormStore);
+    const { editForm: fields, operatorId, operatorMsg, operatorStatus } = storeToRefs(entityEditFormStore);
 
     const operator = computed(() => {
       const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as ControlStatusCode;
       const isvalidAction = [ControlStatusCode.Fen, ControlStatusCode.He].includes(action);
-      return {
-        ...operators[operatorId.value],
-        disabled: !isvalidAction
-      };
+      const op = {...operators[operatorId.value]};
+      if (operatorStatus.value === OperatorStatus.RemoteSelect) {
+        op.value = '正在遥控选择...';
+      } else if (operatorStatus.value === OperatorStatus.RemoteExcute) {
+        op.value = '正在遥控执行..';
+      }
+      op.showSpinner = operatorStatus.value !==  OperatorStatus.Empty;
+      op.disabled = op.showSpinner || !isvalidAction;
+      return op;
     });
+
     onMounted(() => {
       if (!entityEditFormStore.currRecordInfo.kfId || !entityEditFormStore.currRecordInfo.khId) {
         if (router.canGoBack()) {
@@ -133,5 +140,15 @@ export default defineComponent({
 
 .bg-contrast-success {
   background-color: var(--ion-color-success-contrast, #fff);
+}
+.operator-status-text {
+  flex: 1 1 auto;
+  min-width: 0%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 1.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

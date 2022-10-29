@@ -32,6 +32,12 @@ export interface YxOperatorResponse {
   startIndex: number;
 }
 
+export enum OperatorStatus {
+  Empty = 'empty',
+  RemoteSelect =  'remoteSelect',
+  RemoteExcute = 'remoteExcute',
+}
+
 export type YxCheckResponse =  Record<'hasNewControlResult' | 'result', 0 | 1>;
 
 const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
@@ -50,6 +56,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
         meta: {
           editForm: DataStatus.Unloaded,
         },
+        operatorStatus: OperatorStatus.Empty,
         operatorId: OperatorType.RemoteSelect,
         operatorMsg: '',
         checkItemIds: new Set<string>(),
@@ -123,7 +130,8 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
           message: '申请遥控选择中，请等候...'
         });
         this.$patch({
-          operatorMsg: ''
+          operatorMsg: '',
+          operatorStatus: OperatorStatus.RemoteSelect,
         });
         httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteSelect, data, skipMaskConfig).pipe(
           tap(() =>  loadingService.hide()),
@@ -166,7 +174,8 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
             }
 
             this.$patch({
-              operatorMsg: '申请遥控选择失败, 请稍候重试.'
+              operatorMsg: '申请遥控选择失败, 请稍候重试.',
+              operatorStatus: OperatorStatus.Empty,
             });
             return EMPTY;
           }),
@@ -174,17 +183,20 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
             if (checkResult) {
               this.$patch({
                 operatorId: OperatorType.RemoteExcute,
-                operatorMsg: '申请遥控选择成功.'
+                operatorMsg: '申请遥控选择成功.',
+                operatorStatus: OperatorStatus.Empty,
               });
             }else {
               this.$patch({
-                operatorMsg: '申请遥控选择失败, 请稍候重试.'
+                operatorMsg: '申请遥控选择失败, 请稍候重试.',
+                operatorStatus: OperatorStatus.Empty,
               });
             }
           }),
           catchError(err => {
             this.$patch({
-              operatorMsg: '申请遥控选择失败, 请稍候重试.'
+              operatorMsg: '申请遥控选择失败, 请稍候重试.',
+              operatorStatus: OperatorStatus.Empty,
             });
             return of(err);
           }),
@@ -197,7 +209,8 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
           message: '遥控执行中，请等候...'
         });
         this.$patch({
-          operatorMsg: ''
+          operatorMsg: '',
+          operatorStatus: OperatorStatus.RemoteExcute,
         });
         httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteExcute, data, skipMaskConfig).pipe(
           tap(() =>  loadingService.hide()),
@@ -239,7 +252,8 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
               );  
             }
             this.$patch({
-              operatorMsg: '遥控执行失败, 请稍候重试.'
+              operatorMsg: '遥控执行失败, 请稍候重试.',
+              operatorStatus: OperatorStatus.Empty,
             });
             return EMPTY;
           }),
@@ -247,17 +261,20 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
             if (checkResult) {
               this.$patch({
                 operatorId: OperatorType.RemoteSelect,
-                operatorMsg: '遥控执行成功.'
+                operatorMsg: '遥控执行成功.',
+                operatorStatus: OperatorStatus.Empty,
               });
             }else {
               this.$patch({
-                operatorMsg: '遥控执行失败, 请稍候重试.'
+                operatorMsg: '遥控执行失败, 请稍候重试.',
+                operatorStatus: OperatorStatus.Empty,
               });
             }
           }),
           catchError(err => {
             this.$patch({
-              operatorMsg: '遥控执行失败, 请稍候重试.'
+              operatorMsg: '遥控执行失败, 请稍候重试.',
+              operatorStatus: OperatorStatus.Empty,
             });
             return of(err);
           }),
