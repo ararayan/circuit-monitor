@@ -10,11 +10,8 @@ import { BackgroundFetch } from "@transistorsoft/capacitor-background-fetch";
 import { closeOutline } from 'ionicons/icons';
 import { asyncScheduler, combineLatest, EMPTY, from, of, Subject } from "rxjs";
 import { catchError, delay, dematerialize, filter, finalize, map, materialize, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
-import { cacheService, StorageType } from "./cache.service";
+import { cacheService, ICacheService, StorageType, YNCacheKey } from "./cache.service";
 import { auth$ } from "./user";
-
-const YN_IsStartBgCheckKey = '__YN_isStartBgCheck__';
-const YN_StartBgCheckIndexKey = '__YN_StartBgCheckIndex__'; //???
 
 export interface CheckEmergencyEventsResponseData {
   events: any[];
@@ -30,13 +27,24 @@ enum DestroyFlag {
 let fgEmergencyEventCount = 0;
 export let bgEmergencyEventCount = 0;
 
-class EmergencyEventsService {
+export class EmergencyEventsService {
   private isStartFgCheck = false;
-  private isStartBgCheck: boolean = cacheService.get(YN_IsStartBgCheckKey) || false;
-  private startIndex: string = (cacheService.get(YN_StartBgCheckIndexKey) || 0).toString();
+  private isStartBgCheck = false;
+  private startIndex = '0';
   private records: any[] = [];
   private destroy$ = new Subject<DestroyFlag>();
+  private static _instance: EmergencyEventsService = null as any as EmergencyEventsService;
   fgHintMsg = '';
+  constructor(cacheService: ICacheService) {
+    this.isStartBgCheck = cacheService.get(YNCacheKey.IsStartBgCheck) || false;
+    this.startIndex = (cacheService.get(YNCacheKey.StartBgCheckIndex) || 0).toString();
+  }
+  static getInstance(cacheService: ICacheService) {
+    if (!EmergencyEventsService._instance) {
+      EmergencyEventsService._instance = new EmergencyEventsService(cacheService);
+    }
+    return this._instance;
+  }
   startFgCheck() {
     if (!this.isStartFgCheck) {
       const appStore = useAppStore();
@@ -109,7 +117,7 @@ class EmergencyEventsService {
     const appStore = useAppStore();
     if (!appStore.localNotificationsPermissions && !this.isStartBgCheck) return;
     this.isStartBgCheck = true;
-    cacheService.set(YN_IsStartBgCheckKey, true, StorageType.Persistent);
+    cacheService.set(YNCacheKey.IsStartBgCheck, true, StorageType.Persistent);
 
     alertController.create({ message: 'configure BackgroundFetch Events!!!' }).then(x => x.present());
 
@@ -136,7 +144,7 @@ class EmergencyEventsService {
         if (response.status === 200) {
           // successful
           this.startIndex = response.data?.startIndex?.toString() || '0';
-          cacheService.set(YN_StartBgCheckIndexKey, this.startIndex, StorageType.Persistent);
+          cacheService.set(YNCacheKey.StartBgCheckIndex, this.startIndex, StorageType.Persistent);
           this.records = [...this.records, { seq: bgEmergencyEventCount, message: 'bg: 测试突发事件' }];
         }
       } catch (err) {
@@ -148,7 +156,7 @@ class EmergencyEventsService {
         notifications: [{
           schedule: {
             allowWhileIdle: true,
-            at: new Date(Date.now() + 1000), // in a minute
+            at: new Date(Date.now() + 3000), // in a minute
             repeats: false,
           },
           id: notifyId,
@@ -157,6 +165,9 @@ class EmergencyEventsService {
           channelId: 'important_info_channel',
           ongoing: true,
           autoCancel: false,
+          group: 'emergencyEvents',
+          groupSummary: true,
+          summaryText: '突发事件',
         }]
       });
       BackgroundFetch.finish(taskId);
@@ -209,4 +220,3 @@ class EmergencyEventsService {
   // }
 }
 
-export const emergencyEventsService = new EmergencyEventsService();

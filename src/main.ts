@@ -32,6 +32,7 @@ import { useAppStore } from './share/hooks/use-app.store';
 import './theme/variables.css';
 
 import { AndroidSettings, NativeSettings } from 'capacitor-native-settings';
+import { cacheService } from './share/cache.service';
 
 //#region add global icon
 // import { addIcons } from 'ionicons';
@@ -45,6 +46,8 @@ import { AndroidSettings, NativeSettings } from 'capacitor-native-settings';
 //#endregion
 
 
+const isNativePlatform = Capacitor.isNativePlatform();
+
 
 const wairForAppStateActive = () => new Promise<boolean>((resolve) => {
   const _handler = CapacitorApp.addListener('appStateChange', (appState) => {
@@ -57,27 +60,28 @@ const wairForAppStateActive = () => new Promise<boolean>((resolve) => {
 
 const initLocalNotifications  = async () => {
   await LocalNotifications.removeAllListeners();
-  const listChannelsResult = await LocalNotifications.listChannels();
-  const importanChannel = listChannelsResult.channels.find(x => x.id === 'important_info_channel');
-  if (!importanChannel) {
-    await LocalNotifications.createChannel({
-      id: 'important_info_channel',
-      name: 'important_info_channel',
-      importance: 5,
-      visibility: 1,
-    });
+  if (isNativePlatform) {
+    const listChannelsResult = await LocalNotifications.listChannels();
+    const importanChannel = listChannelsResult.channels.find(x => x.id === 'important_info_channel');
+    if (!importanChannel) {
+      await LocalNotifications.createChannel({
+        id: 'important_info_channel',
+        name: 'important_info_channel',
+        importance: 5,
+        visibility: 1,
+      });
+    }
   }
 };
 const loadCacheData = async () => {
-  return true;
+  await cacheService.load();
 };
 
 async function initializeApp() {
   await loadCacheData();
-  
-  router.beforeEach(authGuards);
 
-  const isNativePlatform = Capacitor.isNativePlatform();
+  router.beforeEach(authGuards);
+  
   let localNotificationsPermissions = false;
 
   if (isNativePlatform) {

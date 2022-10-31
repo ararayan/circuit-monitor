@@ -1,78 +1,95 @@
 /* eslint-disable no-prototype-builtins */
+import { Preferences } from '@capacitor/preferences';
 
 const enum YNCacheKey {
     User = 'YN:User',
     AccessToken = 'YN:TOKEN',
+    BaseUrl = 'YN:BaseUrl',
+    IsRPBatteryOptimization = 'YN:IsRP:BatteryOptimization',
+    IsStartBgCheck = 'YN:isStartBgCheck',
+    StartBgCheckIndex = 'YN:StartBgCheckIndex'
 }
 
-const CacheKeys = [
-  YNCacheKey.AccessToken,
-  YNCacheKey.User
-];
 
 export const enum StorageType {
   Persistent = 'persistent',
   Session = 'session', 
 }
 
-function getAppAllCacheValueFromStorage(storage: Storage) {
-  return CacheKeys.reduce((acc, key) => {
-    const stringValue = storage.getItem(key);
-    if (stringValue !== null) {
-      const value = JSON.parse(stringValue);
-      acc[key] = value;
-    }
-    return acc;
-  }, {} as Record<string, any>);
-}
+// function getAppAllCacheValueFromStorage(storage: Storage) {
+//   return CacheKeys.reduce((acc, key) => {
+//     const stringValue = storage.getItem(key);
+//     if (stringValue !== null) {
+//       const value = JSON.parse(stringValue);
+//       acc[key] = value;
+//     }
+//     return acc;
+//   }, {} as Record<string, any>);
+// }
 
-function removeAppAllCacheFromStorage(storages: Storage[]) {
-  storages.forEach(storage => {
-    CacheKeys.forEach(key => {
-      storage.removeItem(key);
-    });
-  });
-}
+// function removeAppAllCacheFromStorage(storages: Storage[]) {
+//   storages.forEach(storage => {
+//     CacheKeys.forEach(key => {
+//       storage.removeItem(key);
+//     });
+//   });
+// }
 
 class CacheService {
-  private _session: {[key: string]: any};
-  private _persistent:  {[key: string]: any};
-  constructor() {
-    this._session = getAppAllCacheValueFromStorage(sessionStorage);
-    this._persistent =  getAppAllCacheValueFromStorage(localStorage);
+  private isInit = false;
+  private _session: {[key: string]: any} = Object.create(null);
+  private _persistent:  {[key: string]: any} = Object.create(null);
+
+  async load() {
+    if (!this.isInit) {
+      const persistent = await Preferences.get({ key: StorageType.Persistent });
+      if (persistent.value !== null ){
+        this._persistent = JSON.parse(persistent.value);
+      }
+      const session = await Preferences.get({ key: StorageType.Session });
+      if (session.value !== null ){
+        this._session = JSON.parse(session.value);
+      }
+    }
+  }
+  async save() {
+    if (this._persistent) {
+      await Preferences.set({
+        key: StorageType.Persistent,
+        value: JSON.stringify(this._persistent)
+      });
+    }
+    if (this._session) {
+      await Preferences.set({
+        key: StorageType.Session,
+        value: JSON.stringify(this._session)
+      });
+    }
   }
   get(key: string) {
-    if (this._session.hasOwnProperty(key)) {
-      return this._session[key];
-    }
-    return this._persistent[key];
+    return this._session[key] ?? this._persistent[key];
   }
   set(key: string, value: any, type: StorageType) {
     if (type === StorageType.Persistent) {
       this._persistent[key] = value;
-      localStorage.setItem(key, JSON.stringify(value));
+      // localStorage.setItem(key, JSON.stringify(value));
     }else if (type === StorageType.Session) {
       this._session[key] = value;
-      sessionStorage.setItem(key, JSON.stringify(value));
+      // sessionStorage.setItem(key, JSON.stringify(value));
     }
   }
   remove(key: string) {
-    if (this._persistent.hasOwnProperty(key)) {
-      delete this._persistent[key];
-      localStorage.removeItem(key);
-    }else if (this._session.hasOwnProperty(key)){
-      delete this._session[key];
-      sessionStorage.removeItem(key);
-    }
+    delete this._persistent[key];
+    delete this._session[key];
   }
   clear() {
-    this._session = {};
-    this._persistent = {};
-    localStorage.removeAppAllCacheFromStorage([localStorage, sessionStorage]);
+    this._session = Object.create(null);
+    this._persistent =  Object.create(null);
+    // localStorage.removeAppAllCacheFromStorage([localStorage, sessionStorage]);
   }
 }
 const cacheService = new CacheService();
-
+export type ICacheService = InstanceType<typeof CacheService>;
 export {
   cacheService,
   YNCacheKey

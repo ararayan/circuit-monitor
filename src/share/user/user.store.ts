@@ -5,41 +5,42 @@ import { BehaviorSubject, of,  } from 'rxjs';
 import {  catchError, delay, take, tap } from 'rxjs/operators';
 import { UserMenu, userService } from './user.service';
 
-const user = cacheService.get(YNCacheKey.User) as ResponseUserInfo;
-
-
 export interface UserState {
     isAuth: boolean;
     loginErrorMsg: string;
     updatePasswordResultMsg: string;
+    isUpdatPasswordSuccess: boolean;
     user: ResponseUserInfo;
     menus: UserMenu[];
     menusStatus: DataStatus,
 }
 
-
 const isAuth$ = new BehaviorSubject(false);
 
-const initialState: UserState = user
-  ? {isAuth: true, loginErrorMsg: '',  updatePasswordResultMsg: '', user, menus: [] as UserMenu[], menusStatus: DataStatus.Unloaded, }
-  : {
-    isAuth: false, 
-    loginErrorMsg: '',
-    updatePasswordResultMsg: '',
-    user: {
-      userId: '',
-      userName: '',
-      loginUserName: '',
-      email: '',
-      remenberPassword: false,
-      password: '',
-    },
-    menus: []  as UserMenu[], 
-    menusStatus: DataStatus.Unloaded, 
-  };
-
 const userStoreFactory =  defineStore('user', {
-  state: () => initialState,
+  state: () => {
+    const user = cacheService.get(YNCacheKey.User) as ResponseUserInfo;
+    const token = cacheService.get(YNCacheKey.AccessToken);
+    const initialState: UserState = user
+      ? {isAuth: !!token, loginErrorMsg: '',  updatePasswordResultMsg: '',isUpdatPasswordSuccess: false, user, menus: [] as UserMenu[], menusStatus: DataStatus.Unloaded, }
+      : {
+        isAuth: false, 
+        loginErrorMsg: '',
+        updatePasswordResultMsg: '',
+        isUpdatPasswordSuccess: false,
+        user: {
+          userId: '',
+          userName: '',
+          loginUserName: '',
+          email: '',
+          remenberPassword: false,
+          password: '',
+        },
+        menus: []  as UserMenu[], 
+        menusStatus: DataStatus.Unloaded, 
+      };
+    return initialState;
+  },
   getters: {
     loginError: (state) => {
       return !state.isAuth && !!state.loginErrorMsg;
@@ -99,7 +100,8 @@ const userStoreFactory =  defineStore('user', {
       authService.updatePassword(updateInfo).pipe(take(1)).subscribe(result => {
         if (result.message) {
           this.$patch({
-            updatePasswordResultMsg: result.message
+            updatePasswordResultMsg: result.message,
+            isUpdatPasswordSuccess: true,
           });
         }
       });
