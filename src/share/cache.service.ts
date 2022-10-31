@@ -6,7 +6,7 @@ const enum YNCacheKey {
     AccessToken = 'YN:TOKEN',
     BaseUrl = 'YN:BaseUrl',
     IsRPBatteryOptimization = 'YN:IsRP:BatteryOptimization',
-    IsStartBgCheck = 'YN:isStartBgCheck',
+    // IsStartBgCheck = 'YN:isStartBgCheck',
     StartBgCheckIndex = 'YN:StartBgCheckIndex'
 }
 
@@ -39,7 +39,7 @@ class CacheService {
   private isInit = false;
   private _session: {[key: string]: any} = Object.create(null);
   private _persistent:  {[key: string]: any} = Object.create(null);
-
+  isLoaded = false;
   async load() {
     if (!this.isInit) {
       const persistent = await Preferences.get({ key: StorageType.Persistent });
@@ -51,6 +51,7 @@ class CacheService {
         this._session = JSON.parse(session.value);
       }
     }
+    this.isLoaded = true;
   }
   async save() {
     if (this._persistent) {

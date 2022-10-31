@@ -29,14 +29,15 @@ export let bgEmergencyEventCount = 0;
 
 export class EmergencyEventsService {
   private isStartFgCheck = false;
-  private isStartBgCheck = false;
+  // private isStartBgCheck = false;
   private startIndex = '0';
   private records: any[] = [];
   private destroy$ = new Subject<DestroyFlag>();
   private static _instance: EmergencyEventsService = null as any as EmergencyEventsService;
   fgHintMsg = '';
   constructor(cacheService: ICacheService) {
-    this.isStartBgCheck = cacheService.get(YNCacheKey.IsStartBgCheck) || false;
+    //alertController.create({ message: `cache is loaded:  ${cacheService.isLoaded}, cache.IsStartBgCheck: ${cacheService.get(YNCacheKey.IsStartBgCheck)} `}).then(x => x.present());
+    // this.isStartBgCheck = cacheService.get(YNCacheKey.IsStartBgCheck) || false;
     this.startIndex = (cacheService.get(YNCacheKey.StartBgCheckIndex) || 0).toString();
   }
   static getInstance(cacheService: ICacheService) {
@@ -115,10 +116,10 @@ export class EmergencyEventsService {
   }
   async startBgCheck(url: string) {
     const appStore = useAppStore();
-    if (!appStore.localNotificationsPermissions && !this.isStartBgCheck) return;
-    this.isStartBgCheck = true;
-    cacheService.set(YNCacheKey.IsStartBgCheck, true, StorageType.Persistent);
-
+    if (!appStore.localNotificationsPermissions) return;
+    // this.isStartBgCheck = true;
+    // cacheService.set(YNCacheKey.IsStartBgCheck, true, StorageType.Persistent);
+   
     alertController.create({ message: 'configure BackgroundFetch Events!!!' }).then(x => x.present());
 
     const status = await BackgroundFetch.configure({
