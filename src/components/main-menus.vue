@@ -107,6 +107,10 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
 import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import { cacheService, YNCacheKey } from '@/share';
+
+const isNativePlatform = Capacitor.isNativePlatform();
 
 export default defineComponent({
   name: 'MainMenus',
@@ -140,7 +144,12 @@ export default defineComponent({
     };
     
     function exitApp() {
-      App.exitApp();
+      cacheService.remove(YNCacheKey.AccessToken);
+      userStore.isAuth = false;
+      if(isNativePlatform) {
+        App.exitApp();
+      }
+   
     }
     return { exitApp, user, menuId, gotoEmergencyEvents, settingsOutline, homeOutline, bookOutline, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
   }

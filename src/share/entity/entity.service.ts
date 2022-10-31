@@ -86,11 +86,15 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
           let desc;
           if (params.type === MixedModuleType.Yx) {
             // desc = ControlStatusCodeTexts[item.status];
-            desc = item.status === ControlStatusCode.Wx
-              ? '1(无效)'
-              : item.status === ControlStatusCode.He
-                ? '1'
-                : '0';
+            if (item.status === ControlStatusCode.FenWx) {
+              desc = '0(无效)';
+            } else if (item.status === ControlStatusCode.HeWx) {
+              desc = '1(无效)';
+            } else if (item.status === ControlStatusCode.He) {
+              desc = '1';
+            } else {
+              desc = '0';
+            }
           }else {
             desc = item.value;
           }

@@ -90,7 +90,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                         let resultValue = value;
                         let readonly = false;
                         if (id === 'status') {
-                          resultValue = ControlStatusCodeTexts[value as 'wx' | 'fen' | 'he'] || '';
+                          resultValue = ControlStatusCodeTexts[value as ControlStatusCode] || '';
                           readonly = true;
                         }
                         const item: FormField = {
@@ -104,19 +104,19 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                       }
                       return null;
                     });
-                    return fields.filter(x => !!x);
+                    return fields.filter(x => !!x) as FormField[];
                   })
                 );
               } 
               return EMPTY;
             }),
-            catchError(err => {
+            catchError(() => {
               this.$patch({
                 meta: {
                   editForm: DataStatus.Error
                 }
               });
-              return of(err);
+              return of([] as FormField[]);
             }),
             take(1),
             takeUntil(destory$),
@@ -162,7 +162,7 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                       let resultValue = value;
                       let readonly = false;
                       if (id === 'status') {
-                        resultValue = ControlStatusCodeTexts[value as 'wx' | 'fen' | 'he'] || '';
+                        resultValue = ControlStatusCodeTexts[value as ControlStatusCode] || '';
                         readonly = true;
                       }
                       const item: FormField = {

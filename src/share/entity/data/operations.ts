@@ -29,13 +29,15 @@ export const searchForm = Array.from({ length: 5 }).map((_, i) => ({
 export enum ControlStatusCode {
   Fen = 'fen',
   He = 'he',
-  Wx = 'wx'
+  FenWx = 'fen(wx)',
+  HeWx = 'he(Wx)',
 }
 
 export const ControlStatusCodeTexts: Record<ControlStatusCode, string> = {
-  fen: '分闸',
-  he: '合闸',
-  wx: '无效',
+  [ControlStatusCode.Fen]: '分闸',
+  [ControlStatusCode.He]: '合闸',
+  [ControlStatusCode.FenWx]: '分(无效)',
+  [ControlStatusCode.HeWx]: '合(无效)',
 };
 
 export const ControlStatusCodeIds: Record<ControlStatusCode.Fen | ControlStatusCode.He, keyof ControlStatusIds> = {

@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { BehaviorSubject, Subject, } from "rxjs";
 import { httpService, YN_BASE_URL } from "../http";
 import { Capacitor } from '@capacitor/core';
+import { cacheService, StorageType, YNCacheKey } from "../cache.service";
 
 const destory$ = new Subject<boolean>();
 const isAppActive$ = new BehaviorSubject(false);
@@ -14,7 +15,7 @@ const appStore = defineStore('App', {
       isActive:  true,
       isNativePlatform: Capacitor.isNativePlatform(),
       openUrl: '',
-      baseUrl: YN_BASE_URL,
+      baseUrl: cacheService.get(YNCacheKey.BaseUrl) || YN_BASE_URL,
       enterBaseURLInited: false, 
       debug: false,
       requestLogs: [] as Array< {url: string, params: any, msg: string}>,
@@ -30,6 +31,7 @@ const appStore = defineStore('App', {
       if (url) {
         this.baseUrl = url;
         this.enterBaseURLInited = false;
+        cacheService.set(YNCacheKey.BaseUrl, url, StorageType.Persistent);
         httpService.setBaseUrl(url);
       }else {
         this.enterBaseURLInited = true;

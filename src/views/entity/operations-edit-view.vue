@@ -9,7 +9,12 @@
       </ion-toolbar>
     </ion-header>
     <ion-content fullscreen class="ion-padding">
-      <edit-form :entityName="entityName" ref="formRef" :record-id="recordId" :form-fields="fields"></edit-form>
+      <edit-form v-if="fields.length" :entityName="entityName" ref="formRef" :record-id="recordId" :form-fields="fields"></edit-form>
+      <div v-else style="height: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+        <ion-label size="l" color="medium">未能加载表单, 网络或者服务器出错！</ion-label>
+        <ion-label size="l" color="medium">请稍候请试，或者联系管理人员。</ion-label>
+      </div>
+
     </ion-content>
     <ion-footer style="padding: 0.4em 1em; display: flex; width: 100%; justify-content: flex-end;"
       :class="[operator.cssClass]">

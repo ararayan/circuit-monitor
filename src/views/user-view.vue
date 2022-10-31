@@ -28,11 +28,11 @@ import AttrField from '@/components/attr-field.vue';
 import { UpdatePasswordInfo } from '@/share/auth/auth.service';
 import { EntityAttrType, FormField } from '@/share/entity';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonList, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonList, IonPage, IonTitle, IonToolbar, useBackButton, useIonRouter } from '@ionic/vue';
 import { ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
-import { defineComponent } from 'vue';
+import { defineComponent, onUnmounted, watch } from 'vue';
 
 
 export default defineComponent({
@@ -46,7 +46,9 @@ export default defineComponent({
   setup() {
     const operator = ref({id: 'save', value: '保存', color: 'success', cssClass: 'bg-contrast-success', icon: locateOutline});
     const userStore = useUserStore();
-    const { user, updatePasswordError, updatePasswordResultMsg } = storeToRefs(userStore);
+    const { user, updatePasswordError, updatePasswordResultMsg, isUpdatPasswordSuccess } = storeToRefs(userStore);
+    
+    isUpdatPasswordSuccess.value = false;
     const entityName = 'user' as any;
 
     const fields: FormField[] = [
@@ -55,7 +57,32 @@ export default defineComponent({
       {id: 'newPwd', label: '新密码', name: 'newPwd', type: EntityAttrType.Password, value: '', originValue: '', readonly: false, disabled: false, persistent: true },
       {id: 'newPwd2', label: '确认密码', name: 'newPwd2', type: EntityAttrType.Password, value: '', originValue: '', readonly: false, disabled: false, persistent: true  },
     ];
+    
+    const router = useIonRouter();
+    const result = useBackButton(10, () => {
+      if (router.canGoBack()) {
+        router.back();
+      }else {
+        router.push('/home');
+      }
+    });
 
+    let timeoutId = 0;
+    const updateResultWatch = watch(isUpdatPasswordSuccess, () => {
+      if (isUpdatPasswordSuccess.value) {
+        timeoutId = window.setTimeout(() => {
+          router.back();
+          updateResultWatch();
+        }, 1000);
+
+      }
+    });
+    
+    onUnmounted(() => {
+      clearTimeout(timeoutId);
+      updateResultWatch?.();
+      result.unregister();
+    });
 
     userStore.resetUpdatePwdValidation();
 

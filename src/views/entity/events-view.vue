@@ -22,11 +22,15 @@
               ref="virtualScroller">
               <template #default="{ item }">
                 <ion-item>
-                  <ion-label>
-                    <span style="margin-left: 0.5em">pos: {{ item.pos }}</span>
-                    <span style="margin-left: 0.5em">{{ ControlStatusCodeTexts[item.state as ControlStatusCode] }}</span>
-                    <i style="color: var(--ion-color-medium); margin-left: 0.25em" v-if="!!item.msg">({{ item.msg }})</i>
-                  </ion-label>
+                    <div class="event-list-item">
+                      <div style="color: var(--ion-color-medium); font-style: italic;">{{item.date}}</div>
+                      <div class="event-list-item-main">
+                        <ion-label>{{ item.pos }}</ion-label>
+                        <ion-label>{{ ControlStatusCodeTexts[item.state as ControlStatusCode] }}</ion-label>
+                      </div>
+                      <i style="color: var(--ion-color-medium); margin-left: 0.25em" v-if="!!item.msg">({{ item.msg }})</i>
+                    </div>
+                    
                 </ion-item>
               </template>
             </RecycleScroller>
@@ -137,5 +141,15 @@ export default defineComponent({
   max-width: 80%;
   color: var(--ion-color-medium);
   margin-top: -4em;
+}
+
+.event-list-item {
+  width: 100%;
+}
+
+.event-list-item-main {
+  display: flex;
+  justify-content: space-between;
+
 }
 </style>

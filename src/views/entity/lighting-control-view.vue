@@ -18,7 +18,7 @@
           </ion-label>
           <!-- <ion-toggle slot="end" name="item.id" :color="item.isPendingStatus ? 'warning' : 'success' " mode="ios" :checked="item.status === 'he'"></ion-toggle> -->
           <!-- <ion-toggle slot="end" name="item.id" color="success" mode="ios" :checked="item.status === 'he'" class="toggle-disabled"></ion-toggle> -->
-          <ion-button :v-if="item.status !== ControlStatusCode.Wx"
+          <ion-button :v-if="[ControlStatusCode.He, ControlStatusCode.Fen].includes(item.status)"
             @click="applyForEdit(item, item.status === ControlStatusCode.Fen ? ControlStatusCode.He : ControlStatusCode.Fen)"
             style="min-width: 5em; min-height: 2.5em; margin-right: 1em;" color="light">
             <ion-icon :icon="rocketOutline" slot="start" color="warning"></ion-icon>
@@ -44,7 +44,8 @@ import { defineComponent, onMounted, onUnmounted, watch, WatchStopHandle } from 
 const LightControlStatusCodeTexts = {
   [ControlStatusCode.He]: '打开',
   [ControlStatusCode.Fen]: '关闭',
-  [ControlStatusCode.Wx]: '无效',
+  [ControlStatusCode.HeWx]: '(合)无效',
+  [ControlStatusCode.FenWx]: '(分)无效',
 };
 
 export default defineComponent({

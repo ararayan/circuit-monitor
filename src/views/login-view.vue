@@ -20,7 +20,7 @@
             <ion-checkbox slot="start" color="success" v-model="enableAppDebug"></ion-checkbox>
           </ion-item>
           <ion-item lines="none" style="padding: 4em 1em;">
-            <ion-button style="min-width: 25vw; margin: auto; position: relative; left: 25%;" size="medium"
+            <ion-button style="min-width: 25vw; margin: auto; position: relative; left: 25%;" size="default"
               color="success" @click="initAppBaseurl()">
               <ion-icon :icon="locateOutline" slot="start"></ion-icon>
               <ion-label>ok</ion-label>

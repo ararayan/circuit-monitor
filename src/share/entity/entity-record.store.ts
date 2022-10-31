@@ -119,7 +119,7 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
           ? { ...criteria, startIndex: (queryPageIndex - 1) * this.pagination.pageSize, endIndex: queryPageIndex * this.pagination.pageSize }
           : { ...criteria };
         getRecords(entityName, postData, axionConfig).pipe(
-          catchError((response) => {
+          catchError(() => {
             this.$patch({
               meta: {
                 records: DataStatus.Error,
