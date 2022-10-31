@@ -72,7 +72,7 @@ export default defineComponent({
     const ionInfiniteScroll = ref(null) as Ref<any>;
     let initTimeoutId = 0;
 
-    watch(tabId, () => {
+    const tabIdWatch = watch(tabId, () => {
       if (tabId.value) {
         // clear prev pending timeout init process
         window.clearTimeout(initTimeoutId);
@@ -116,6 +116,7 @@ export default defineComponent({
     }
     
     onUnmounted(() => {
+      tabIdWatch?.();
       window.clearTimeout(initTimeoutId);
       recordStore.destroy();
     });

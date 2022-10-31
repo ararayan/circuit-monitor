@@ -99,6 +99,7 @@ export default defineComponent({
     });
     onUnmounted(() => {
       msgSubscription?.();
+      disposeRecordsWatch?.();
       toastInstaces.forEach(toast => toast.dismiss());
       recordStore.destroy();
     });

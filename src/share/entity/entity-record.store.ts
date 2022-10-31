@@ -152,13 +152,13 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
       startRecordsCheck(params?: Record<string, any>) {
         if (!this.startSyncRecrod && this.syncFields.length > 0) {
           const checkParams = params || {};
-          let maxErrorCount = 5;
+          // let maxErrorCount = 5;
           const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
           this.$patch({
             startSyncRecrod: true
           });
           appState$.pipe(
-            delay(10 * 1000, asyncScheduler),
+            delay(1 * 1000, asyncScheduler),
             takeWhile(() => this.isInited),
             switchMap(x => {
               // use materialize wrap next/error/complete to next, so the of(0) will emit the next value that come from complete
@@ -191,11 +191,12 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
               );
             }),
             catchError(err => {
-              maxErrorCount--;
-              console.error(err.message);
-              if (!maxErrorCount) { 
-                return throwError(() => err);
-              }
+              // maxErrorCount--;
+              // console.error(err.message);
+              // if (!maxErrorCount) { 
+              //   return throwError(() => err);
+              // }
+              // not stop the check, may network offline
               return of({} as Record<string, any>);
             }),
             repeat({

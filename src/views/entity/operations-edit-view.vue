@@ -63,7 +63,7 @@ export default defineComponent({
     const { title } = useEntityDisplayName(entityName);
 
     const entityEditFormStore = useEntityEditFormStore(entityName, recordId);
-    const { editForm: fields, operatorId, operatorMsg, operatorStatus } = storeToRefs(entityEditFormStore);
+    const { editForm: fields, operatorId, operatorMsg, operatorStatus, isInited } = storeToRefs(entityEditFormStore);
 
     const operator = computed(() => {
       const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as ControlStatusCode;
@@ -115,6 +115,14 @@ export default defineComponent({
 
     };
 
+    const disposeFormWatch = watch(fields, () => {
+      if (fields.value.length && isInited) {
+        entityEditFormStore.syncFields = ['status'];
+        entityEditFormStore.startCheckForm();
+        disposeFormWatch();
+      }
+    });
+
     const result = useBackButton(10, () => {
       if (router.canGoBack()) {
         router.back();
@@ -124,6 +132,7 @@ export default defineComponent({
     });
 
     onUnmounted(() => {
+      disposeFormWatch?.();
       result.unregister();
       entityEditFormStore.destroy();
     });
