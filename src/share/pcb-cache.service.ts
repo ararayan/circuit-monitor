@@ -9,9 +9,7 @@ class PcbFielCache {
       encoding: Encoding.UTF8,
     });
     return result;
-    // alertController.create({
-    //   message: `Write file success: ${result.uri}; path: ${path}, data: ${data.length}`,
-    // }).then(x => x.present());
+
   }
   async readPCBImageFile (path: string, directory: Directory = Directory.Cache) {
     const contents = await Filesystem.readFile({
@@ -19,9 +17,8 @@ class PcbFielCache {
       directory,
       encoding: Encoding.UTF8,
     });
-  
-    // console.log('read files:', contents);
-    return  contents.data;
+    const resultData = contents.data;
+    return  resultData;
   }
 
   async deletePCBImageFile (path: string, directory: Directory = Directory.Cache) {
@@ -31,9 +28,10 @@ class PcbFielCache {
     });
   }
 
-  async checkFileExists (getUriOptions: GetUriOptions): Promise<boolean> {
+  async checkFileExists (path: string, directory: Directory = Directory.Cache): Promise<boolean> {
+    const getUriOptions: GetUriOptions = { path, directory};
     try {
-      await Filesystem.stat(getUriOptions);
+      Filesystem.stat(getUriOptions);
       return true;
     } catch (err: any) {
       return false;

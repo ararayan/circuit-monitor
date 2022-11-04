@@ -7,7 +7,8 @@ const enum YNCacheKey {
     BaseUrl = 'YN:BaseUrl',
     IsRPBatteryOptimization = 'YN:IsRP:BatteryOptimization',
     // IsStartBgCheck = 'YN:isStartBgCheck',
-    StartBgCheckIndex = 'YN:StartBgCheckIndex'
+    StartBgCheckIndex = 'YN:StartBgCheckIndex',
+    JXT = 'YN:JXT',
 }
 
 

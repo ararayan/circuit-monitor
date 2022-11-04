@@ -13,11 +13,7 @@ import { Capacitor } from '@capacitor/core';
 import { pcbFielCache } from "../pcb-cache.service";
 
 
-//cache
-
-
-//   console.log('data:', contents);
-// };
+const isNativePlatform = Capacitor.isNativePlatform();
 
 const pcbImageCachePrefixKey = 'cache-pcb-image';
 
@@ -25,12 +21,9 @@ function getPCBImageData$(openRecordId: string) {
 
   const fileName = `${pcbImageCachePrefixKey}-${openRecordId}`;
   const path = `${fileName}.txt`;
-  const isNativePlatform = Capacitor.isNativePlatform();
+
   if (isNativePlatform) {
-    return from(pcbFielCache.checkFileExists({
-      path: path,
-      directory: Directory.Data
-    })).pipe(
+    return from(pcbFielCache.checkFileExists(path)).pipe(
       concatMap(exist => {
         if (exist) {
           return from(pcbFielCache.readPCBImageFile(path)).pipe(

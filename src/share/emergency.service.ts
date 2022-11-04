@@ -5,16 +5,17 @@ import { httpService, YNAPI_SJCX } from "@/share/http";
 import { toastService } from "@/share/toast.service";
 import { Http } from "@capacitor-community/http";
 import { LocalNotifications } from '@capacitor/local-notifications';
-import { alertController } from "@ionic/core";
 import { BackgroundFetch } from "@transistorsoft/capacitor-background-fetch";
 import { closeOutline } from 'ionicons/icons';
 import { asyncScheduler, combineLatest, EMPTY, from, of, Subject } from "rxjs";
-import { catchError, delay, dematerialize, filter, finalize, map, materialize, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
+import { catchError, delay, dematerialize, filter, map, materialize, repeat, switchMap, takeUntil, tap } from "rxjs/operators";
 import { cacheService, ICacheService, StorageType, YNCacheKey } from "./cache.service";
+import { ControlStatusCode, ControlStatusCodeTexts } from "./entity/data/operations";
+import { EventRecord } from "./entity/entity.service";
 import { auth$ } from "./user";
 
 export interface CheckEmergencyEventsResponseData {
-  events: any[];
+  result: EventRecord[];
   startIndex: number;
 }
 
@@ -24,8 +25,8 @@ enum DestroyFlag {
   All = 'all'
 }
 
-let fgEmergencyEventCount = 0;
-export let bgEmergencyEventCount = 0;
+
+
 
 export class EmergencyEventsService {
   private isStartFgCheck = false;
@@ -34,11 +35,13 @@ export class EmergencyEventsService {
   private records: any[] = [];
   private destroy$ = new Subject<DestroyFlag>();
   private static _instance: EmergencyEventsService = null as any as EmergencyEventsService;
-  fgHintMsg = '';
+  debugEETotal = 0;
+  debugEE = 0;
   constructor(cacheService: ICacheService) {
     //alertController.create({ message: `cache is loaded:  ${cacheService.isLoaded}, cache.IsStartBgCheck: ${cacheService.get(YNCacheKey.IsStartBgCheck)} `}).then(x => x.present());
     // this.isStartBgCheck = cacheService.get(YNCacheKey.IsStartBgCheck) || false;
     this.startIndex = (cacheService.get(YNCacheKey.StartBgCheckIndex) || 0).toString();
+    // this.debugEE = cacheService.get(YNCacheKey.StartBgCheckIndex) || 0
   }
   static getInstance(cacheService: ICacheService) {
     if (!EmergencyEventsService._instance) {
@@ -65,51 +68,63 @@ export class EmergencyEventsService {
           }, { headers: { errorSilent: true, skipMask: true }, });
         }),
         catchError(() => of({ data: null })),
-        map(response => response.data || { events: [], startIndex: this.startIndex }),
-        tap(result => this.startIndex = result.startIndex.toString() ),
+        map(response => response.data || { result: [] as EventRecord[], startIndex: Number(this.startIndex) } as CheckEmergencyEventsResponseData),
+        tap(result => {
+          this.startIndex = result.startIndex.toString();
+          cacheService.set(YNCacheKey.StartBgCheckIndex, this.startIndex, StorageType.Persistent);
+        } ),
         repeat({
           delay: () => {
             //LocalNotifications can only fire once per 9 minutes, per app when app inactivate
             // const delayDurantion = appStore.isActive ?  5 * 60 * 1000 :  8 * 60 * 1000;
-            return of(0).pipe(delay(1 * 60 * 1000, asyncScheduler));
+            return of(0).pipe(delay(5 * 60 * 1000, asyncScheduler));
             // return of(0).pipe(delay(1 * 10 * 1000, asyncScheduler));
           }
         }),
-        switchMap(() => {
-          this.records = [...this.records, { seq: ++fgEmergencyEventCount, message: 'fg: 测试突发事件' }];
-          if (appStore.isActive) {
-            return from(toastService.create({
-              header: '突发事件',
-              message: '测试突发事件',
-              duration: 5 * 1000,
-              position: 'top',
-              color: IonicPredefinedColors.Warning,
-              buttons: [{
-                icon: closeOutline,
-                side: 'end'
-              }],
-              animated: false,
-            }));
+        switchMap(checked => {
+          if (checked?.result.length) { 
+            this.records = [...this.records, ...checked.result];
+            const message = checked.result.reduce((acc, event) => {
+              return `${acc}#${event.pos} - ${ControlStatusCodeTexts[event.state as ControlStatusCode]}; `;
+            }, '');
+            if (appStore.isActive) {
+              return from(toastService.create({
+                header: '突发事件',
+                message,
+                duration: 5 * 1000,
+                position: 'top',
+                color: IonicPredefinedColors.Warning,
+                buttons: [{
+                  icon: closeOutline,
+                  side: 'end'
+                }],
+                animated: false,
+              }));
+            }
+            if (appStore.localNotificationsPermissions) {
+              return from(LocalNotifications.schedule({
+                notifications: [{
+                  id: new Date().getTime(),
+                  title: '衍能科技',
+                  body: `${checked.result}宗突发事件。`,
+                  largeBody: message,
+                  channelId: 'important_info_channel',
+                  ongoing: true,
+                  autoCancel: false,
+                  group: 'emergencyEvents',
+                  groupSummary: true,
+                  summaryText: '衍能科技',
+                  schedule: {
+                    allowWhileIdle: true,
+                  },
+                }]
+              }));
+            }
           }
-          if (appStore.localNotificationsPermissions) {
-            return from(LocalNotifications.schedule({
-              notifications: [{
-                schedule: {
-                  allowWhileIdle: true,
-                },
-                id: new Date().getTime(),
-                largeBody: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
-                title: 'Test Notification',
-                body:  `fg: 测试突发事件${fgEmergencyEventCount}`,
-                group: 'EmergencyEvents', // need setGroup
-              }]
-            }));
-          }
+        
           return EMPTY;
         }),
-        finalize(() => {
-          this.fgHintMsg = `fg finalize in ${new Date().toTimeString().slice(0, 8)}`;
-        }),
+        // finalize(() => {}),
         takeUntil(this.destroy$.pipe(filter(x => x === DestroyFlag.FG))),
       ).subscribe();
     }
@@ -120,15 +135,24 @@ export class EmergencyEventsService {
     // this.isStartBgCheck = true;
     // cacheService.set(YNCacheKey.IsStartBgCheck, true, StorageType.Persistent);
    
-    alertController.create({ message: 'configure BackgroundFetch Events!!!' }).then(x => x.present());
+    // alertController.create({ message: 'configure BackgroundFetch Events!!!' }).then(x => x.present());
 
     const status = await BackgroundFetch.configure({
       minimumFetchInterval: 15,
       stopOnTerminate: false,
       enableHeadless: true,
+      startOnBoot: true,
       forceAlarmManager: true,
     }, async (taskId) => {
-      bgEmergencyEventCount++;
+
+      this.debugEETotal++;
+
+      if (appStore.isActive) {
+        BackgroundFetch.finish(taskId);
+        return ;
+      }
+
+      this.debugEE++;
 
       try {
         const response = await Http.post({
@@ -137,40 +161,50 @@ export class EmergencyEventsService {
             ['content-type']: 'application/x-www-form-urlencoded',
             token: '',
           },
-          connectTimeout: 5 * 1000,
+          connectTimeout: 12 * 1000,
           responseType: 'json',
           data: new URLSearchParams({ startIndex: this.startIndex, recordName: '' })
         });
 
         if (response.status === 200) {
           // successful
-          this.startIndex = response.data?.startIndex?.toString() || '0';
+          const checked: CheckEmergencyEventsResponseData = response.data;
+          this.startIndex = checked?.startIndex?.toString() || '0';
           cacheService.set(YNCacheKey.StartBgCheckIndex, this.startIndex, StorageType.Persistent);
-          this.records = [...this.records, { seq: bgEmergencyEventCount, message: 'bg: 测试突发事件' }];
+          if (checked.result.length) {
+            this.records = [...this.records, ...checked.result];
+          }
+
+          const message = checked.result.reduce((acc, event) => {
+            return `${acc}#${event.pos} - ${ControlStatusCodeTexts[event.state as ControlStatusCode]}; `;
+          }, '');
+
+          await LocalNotifications.schedule({
+            notifications: [{
+              id: new Date().getTime(),
+              title: `衍能科技`,
+              body: `${checked.result}宗突发事件。`,
+              largeBody: message,
+              channelId: 'important_info_channel',
+              ongoing: true,
+              autoCancel: false,
+              group: 'emergencyEvents',
+              groupSummary: true,
+              summaryText: '衍能科技',
+              schedule: {
+                allowWhileIdle: true,
+                // at: new Date(Date.now() + 3000), // in a minute
+                // repeats: false,
+              },
+            }]
+          });
         }
+        
       } catch (err) {
         // todo
       }
 
-      const notifyId = bgEmergencyEventCount;
-      await LocalNotifications.schedule({
-        notifications: [{
-          schedule: {
-            allowWhileIdle: true,
-            at: new Date(Date.now() + 3000), // in a minute
-            repeats: false,
-          },
-          id: notifyId,
-          title: `${taskId} ${notifyId}`,
-          body: `${taskId} bg: 测试突发事件${notifyId}`,
-          channelId: 'important_info_channel',
-          ongoing: true,
-          autoCancel: false,
-          group: 'emergencyEvents',
-          groupSummary: true,
-          summaryText: '突发事件',
-        }]
-      });
+
       BackgroundFetch.finish(taskId);
     }, async (taskId) => {
       // The OS has signalled that your remaining background-time has expired.
@@ -188,36 +222,11 @@ export class EmergencyEventsService {
         console.log('Background updates are unavailable and the user cannot enable them again.');
       }
     } else {
-      alertController.create({ message: 'Curr BackgroundFetch Start' }).then(x => x.present());
+      // alertController.create({ message: 'Curr BackgroundFetch Start' }).then(x => x.present());
     }
   }
   stopFgCheck() {
     this.destroy$.next(DestroyFlag.FG);
   }
-  // private _fetchEvents$() {
-  //   return httpService.post<CheckEmergencyEventsResponseData>(YNAPI_SJCX.GetEmergencyEvents, {
-  //     startIndex: this.startIndex,
-  //     recordName: ''
-  //   }, { headers: { errorSilent: true, skipMask: true }, }).pipe(
-  //     catchError(() => of({ data: null })),
-  //     map(response => response.data || { events: [], startIndex: this.startIndex }),
-  //     tap(result => this.startIndex = result.startIndex),
-  //     switchMap(() => {
-  //       this.records = [...this.records, { seq: ++emergencyEventCount, message: '测试突发事件' }];
-  //       return from(LocalNotifications.schedule({
-  //         notifications: [{
-  //           schedule: {
-  //             allowWhileIdle: true,
-  //           },
-  //           id: new Date().getTime(),
-  //           largeBody: 'Capacitor considers each platform project a source asset instead of a build time asset. That means, Capacitor wants you to keep the platform source code in the repository, unlike Cordova which always assumes that you will generate the platform code on build time',
-  //           title: 'Test Notification',
-  //           body: '测试突发事件',
-  //           // group: 'EmergencyEvents', // need setGroup
-  //         }]
-  //       }));
-  //     }),
-  //   );
-  // }
 }
 

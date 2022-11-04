@@ -1,6 +1,7 @@
 /* eslint-disable no-else-return */
 import { AxiosRequestConfig } from 'axios';
-import { delay, map, Observable, of, take } from 'rxjs';
+import { delay, map, Observable, of, take, tap } from 'rxjs';
+import { cacheService, StorageType, YNCacheKey } from '../cache.service';
 import { httpService, YNAPI_JGSJ, YNAPI_JXT, YNAPI_KZCZ, YNAPI_SJCX, YNAPI_ZMGL } from '../http';
 import { events, operations } from "./data";
 import { ControlStatusCode } from './data/operations';
@@ -69,10 +70,12 @@ export interface LightingControlRecord {
 
 
 export interface EventRecord {
+  // id: number;
   id: number;
-  pos: number;
+  pos: string;
   state: ControlStatusCode;
   msg: string;
+  date: string;
 }
 
 
@@ -107,6 +110,21 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
       return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList, params || {}, config).pipe(
         map(response => {
           return response?.data || [];
+        }),
+        tap(list => {
+          // cache??? has issue between get list and get image duration the image file refresh in server;
+          const cache = cacheService.get(YNCacheKey.JXT);
+          const enrichList = list.map(item => {
+            return {
+              ...item,
+              hasNewImage: item.imageVersion !== cache?.imageVersion
+            };
+          });
+          cacheService.set(YNCacheKey.JXT, list.reduce((acc, item) => {
+            acc[item.id] = item.imageVersion;
+            return acc;
+          }, cache || {}), StorageType.Persistent);
+          return enrichList;
         })
       );
     } else if (entityName ===  Entities.Segments) {
@@ -136,9 +154,10 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
       return httpService.post<EventRecord[]>(YNAPI_SJCX.GetEventList, params || {}, config).pipe(
         map(response => {
           return (response.data || []).map((item, index) => {
+            const idFromDate = Date.parse(item?.date);
             return {
               ...item,
-              id: index + 1, //#WIP: API Returan Id;
+              id: isNaN(idFromDate) ? index + 1 : idFromDate, //#WIP: API Returan Id;
             };
           });
         })

@@ -12,7 +12,7 @@ import { alertController } from '@ionic/core';
 import { IonApp, IonRouterOutlet, useBackButton } from '@ionic/vue';
 import { defineComponent, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { bgEmergencyEventCount, EmergencyEventsService } from './share/emergency.service';
+import { EmergencyEventsService } from './share/emergency.service';
 import { YNAPI_SJCX } from './share/http/url';
 import { loadingService } from './share/loading.service';
 import { useUserStore } from './share/user/user.store';
@@ -45,11 +45,13 @@ export default defineComponent({
     onUnmounted(() => {
       dispose.unregister();
     });
+
+    const emergencyEventsService = EmergencyEventsService.getInstance(cacheService);
     if (isNativePlatform && appStore.localNotificationsPermissions) {
-      const emergencyEventsService = EmergencyEventsService.getInstance(cacheService);
       const url = `${appStore.baseUrl}/${YNAPI_SJCX.GetEmergencyEvents}`;
       emergencyEventsService.startBgCheck(url);
     }
+    emergencyEventsService.startFgCheck();
     // const emergencyStore = useEmergencyEvents();
     App.addListener('appUrlOpen', data => appStore.setOperUrl(data.url));
     App.addListener('appRestoredResult', data => console.log('Restored state:', data));
@@ -60,7 +62,7 @@ export default defineComponent({
           const notified =  await LocalNotifications.getDeliveredNotifications();
           const pending = await  LocalNotifications.getPending();
           const alert = await alertController.create({
-            message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Count: ${bgEmergencyEventCount}`,
+            message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}`,
           });
           await alert.present();
         }
