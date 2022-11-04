@@ -1,12 +1,12 @@
 <template>
   <ion-page>
-    <ion-split-pane :contentId="menuConnectId" when="false">
+    <ion-split-pane :contentId="menuConnectId" when="false" :disabled="disabledSplitPane">
       <main-menus :contentId="menuConnectId" menuId="main-menu" type="push"></main-menus>
       <div class="ion-page" :id="menuConnectId">
         <ion-header mode="md" collapse="fade">
           <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-menu-button autoHide="false" menu="main-menu"></ion-menu-button>
+              <ion-menu-button :autoHide="false" menu="main-menu"></ion-menu-button>
             </ion-buttons>
             <ion-title center>衍能科技</ion-title>
           </ion-toolbar>
@@ -124,6 +124,7 @@ export default defineComponent({
     const { menus } = storeToRefs(user);
     const router = useIonRouter();
     const appInfo = ref<string>('');
+    const disabledSplitPane = ref<boolean>(false);
     function gotoEntityView(path: string) {
       router.push('/entity/' + path);
     }
@@ -148,18 +149,21 @@ export default defineComponent({
     onIonViewDidEnter(() => {
       // debugger;
       // ionic view did enter;
+      disabledSplitPane.value = false;
     });
     onIonViewWillLeave(() => {
       // debugger;
       // ionic view will leave;
+     
     });
     onIonViewDidLeave(() => {
       // debugger;
       // ionic view did leave;
+      disabledSplitPane.value = true;
     });
 
     return {
-      menus, gotoEntityView, personOutline, homeOutline, menuConnectId, sliderOptions, appInfo
+      menus, gotoEntityView, personOutline, homeOutline, menuConnectId, sliderOptions, appInfo, disabledSplitPane,
     };
   },
 });

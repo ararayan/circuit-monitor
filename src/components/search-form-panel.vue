@@ -1,5 +1,5 @@
 <template>
-      <ion-menu side="end" :menuId="ionMenuId"  style="--side-max-width: 400px">
+      <ion-menu side="end" :menuId="ionMenuId"  style="--side-max-width: 400px" :swipeGesture="false">
         <ion-header mode="md">
           <ion-toolbar color="primary">
             <ion-buttons slot="start" >

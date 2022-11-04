@@ -1,5 +1,5 @@
 <template>
-  <ion-menu side="start" :content-id="menuId" style="--side-max-width: 400px">
+  <ion-menu side="start" :content-id="menuId" style="--side-max-width: 400px" :swipeGesture="false">
     <ion-header lines="none" class="ion-padding-top">
       <ion-toolbar translucent padding class="drawer-header-toolbar">
         <!-- <ion-title size="large" class="drawer-header-title">衍能科技</ion-title> -->
@@ -100,10 +100,10 @@ import { defineComponent, } from 'vue';
 import { toRef } from '@vue/reactivity';
 import {
   IonHeader, IonListHeader,
-  IonToolbar, IonContent, IonLabel, IonMenu, IonButton, IonFooter, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect, IonToggle,
+  IonToolbar, IonContent, IonLabel, IonMenu, IonButton, IonFooter, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect, IonToggle, useIonRouter,
 } from '@ionic/vue';
 import { settingsOutline, homeOutline, bookOutline, colorFilterOutline, notificationsOutline, powerOutline } from 'ionicons/icons';
-import { useRouter } from 'vue-router';
+
 import { useUserStore } from '@/share/user';
 import { storeToRefs } from 'pinia';
 import { App } from '@capacitor/app';
@@ -126,7 +126,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const router = useRouter();
+    const router = useIonRouter();
     const userStore = useUserStore();
     const { user } = storeToRefs(userStore);
     const menuId = toRef(props, 'contentId');

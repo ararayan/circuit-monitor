@@ -28,7 +28,7 @@ import AttrField from '@/components/attr-field.vue';
 import { UpdatePasswordInfo } from '@/share/auth/auth.service';
 import { EntityAttrType, FormField } from '@/share/entity';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonList, IonPage, IonTitle, IonToolbar, useBackButton, useIonRouter } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonLabel, IonList, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
@@ -59,13 +59,6 @@ export default defineComponent({
     ];
     
     const router = useIonRouter();
-    const result = useBackButton(10, () => {
-      if (router.canGoBack()) {
-        router.back();
-      }else {
-        router.push('/home');
-      }
-    });
 
     let timeoutId = 0;
     const updateResultWatch = watch(isUpdatPasswordSuccess, () => {
@@ -81,7 +74,6 @@ export default defineComponent({
     onUnmounted(() => {
       clearTimeout(timeoutId);
       updateResultWatch?.();
-      result.unregister();
     });
 
     userStore.resetUpdatePwdValidation();
