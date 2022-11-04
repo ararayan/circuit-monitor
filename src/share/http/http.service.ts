@@ -11,7 +11,7 @@ const YNAxios = axios.create({
   headers: {
     ['content-type']: 'application/x-www-form-urlencoded'
   },
-  timeout: 12 * 1000,
+  timeout: 30 * 1000,
 });
 
 // stack, LIFO
