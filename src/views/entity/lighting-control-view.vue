@@ -21,7 +21,7 @@
           <ion-button :v-if="[ControlStatusCode.He, ControlStatusCode.Fen].includes(item.status)"
             @click="applyForEdit(item, item.status === ControlStatusCode.Fen ? ControlStatusCode.He : ControlStatusCode.Fen)"
             style="min-width: 5em; min-height: 2.5em; margin-right: 1em;" color="light">
-            <ion-icon :icon="rocketOutline" slot="start" color="warning"></ion-icon>
+            <ion-icon :icon="bulbOutline" slot="start" color="warning"></ion-icon>
             <ion-label color="primary">{{ LightControlStatusCodeTexts[item.status as ControlStatusCode]}}</ion-label>
           </ion-button>
         </ion-item>
@@ -36,7 +36,7 @@ import { DataStatus, EntityRecordAlias, ToastType, useEntityContext, useEntityDi
 import { ControlStatusCode } from '@/share/entity/data/operations';
 import { Components } from '@ionic/core/dist/types/components';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, toastController } from '@ionic/vue';
-import { arrowBackOutline, chevronForwardOutline, rocketOutline, searchCircleOutline } from 'ionicons/icons';
+import { bulbOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onMounted, onUnmounted, watch, WatchStopHandle } from 'vue';
 
@@ -115,8 +115,8 @@ export default defineComponent({
       recordStore.requestExcute(data);
     }
     return {
-      entityName, rocketOutline, ControlStatusCode, applyForEdit, LightControlStatusCodeTexts,
-      records, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
+      entityName, ControlStatusCode, applyForEdit, LightControlStatusCodeTexts,
+      records, title, bulbOutline
     };
   },
 });
