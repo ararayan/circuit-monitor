@@ -8,16 +8,17 @@
         <ion-title center>{{ title }}</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content class="ion-padding" style="position: relative;">
-      <canvas id="base-layer-canvas" :width="baseMapItem.width" :height="baseMapItem.height"></canvas>
-      <canvas id="dynamic-layer-canvas" :width="baseMapItem.width" :height="baseMapItem.height"
+    <ion-content class="ion-padding" style="position: relative;" :scroll-x="true" >
+      <canvas id="base-layer-canvas" :width="width" :height="height"></canvas>
+      <canvas id="control-layer" :width="width" :height="height"
         @pointerdown="edit($event)"></canvas>
+      <canvas id="fonts-layer" :width="width" :height="height"></canvas>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, ControlStatusIds, SwitchItemStatusImageKeyMap, useEntityContext, useEntityEditFormStore, useEntityPCBStore } from '@/share';
+import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, ControlStatusIds, SwitchItemStatusImageKeyMap, useEntityContext, useEntityEditFormStore, useEntityPCBStore, PCBFontItem } from '@/share';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, useBackButton } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
@@ -47,7 +48,7 @@ export default defineComponent({
     });
     const defaultHref = entityName ? `/entity/${entityName}` : '/home';
     const pcbStore = useEntityPCBStore(entityName, recordId);
-    const { baseMapItem } = storeToRefs(pcbStore);
+    const { width, height, baseMapItem } = storeToRefs(pcbStore);
 
     pcbStore.getPCBInfos(recordId);
     let canvasSwitchItemInfos = {} as Record<string, PCBRect>;
@@ -55,8 +56,10 @@ export default defineComponent({
     onMounted(() => {
       const baseLayerCanvas = document.querySelector('#base-layer-canvas') as HTMLCanvasElement;
       const baseLayerCtx = baseLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
-      const dynamicLayerCanvas = document.querySelector('#dynamic-layer-canvas') as HTMLCanvasElement;
+      const dynamicLayerCanvas = document.querySelector('#control-layer') as HTMLCanvasElement;
       const dynamicLayerCtx = dynamicLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
+      const fontsLayerCanvas = document.querySelector('#fonts-layer') as HTMLCanvasElement;
+      const fontsLayerCtx = dynamicLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
 
       pcbStore.$subscribe((mutation) => {
         if (mutation.type === MutationType.patchObject) {
@@ -88,6 +91,43 @@ export default defineComponent({
                   canvasSwitchItemInfos[switchItem.id] = { left, right, top, bottom };
                 };
               }
+            });
+          
+          }
+          if (mutation.payload.fontItems) {
+            // font-layer
+            fontsLayerCtx.clearRect(0, 0, fontsLayerCanvas.width, fontsLayerCanvas.height);
+            const fontItems = mutation.payload.fontItems as PCBFontItem[];
+            fontItems.forEach(item => {
+              const fontInfo = item.fontGB2312.split('|')?.reduce((acc, x) => {
+                if (x?.startsWith("lfWeight")) {
+                  const weightHex = x.split('=')?.[1];
+                  const weight = parseInt(weightHex, 16) || 500;
+                  acc['weight'] = weight;
+                } else if (x?.startsWith("lfItalic")) {
+                  const italicHex = x.split('=')?.[1];
+                  const italic = parseInt(italicHex, 16) || 0;
+                  acc['italic'] = !!italic;
+                } else if (x?.startsWith("lfHeight")) {
+                  const heightHex = x.split('=')?.[1];
+                  const height = parseInt(heightHex.split('0xff')?.[1], 16) || 0;
+                  acc['height'] = height;
+                }
+                return acc;
+              }, {} as Record<'weight' | 'italic' | 'height', any>);
+
+              const cssHexColorValue = item.colorRGB.split("0x00")[1];
+              // general: bold 700 and normal was 400, other may key not compality with multiple platform;
+              fontsLayerCtx.font = `${fontInfo.italic ? 'italic ' : '' }${fontInfo.weight === 400 ? '' : 'bold '}14px GB2312, Droid Sans, Droid Serif`;
+              fontsLayerCtx.fillStyle =`#${cssHexColorValue}`;
+              fontsLayerCtx.textBaseline = 'top';
+              fontsLayerCtx.fillText(
+                item.Ia ? `Ia = ${item.Ia}` : ''
+                  || item.Ib ? `Ib = ${item.Ib}` : ''
+                  || item.Ic ? `Ic = ${item.Ic}` : ''
+                  || item.name ? `Name = ${item.name}` : '',
+                item.left,
+                item.top);
             });
           }
         }
@@ -128,7 +168,7 @@ export default defineComponent({
       result.unregister();
       pcbStore.destroy();
     });
-    return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, edit, baseMapItem };
+    return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, edit, baseMapItem, width, height, };
   }
 });
 </script>
@@ -147,7 +187,12 @@ export default defineComponent({
   left: 0;
 }
 
-#dynamic-layer-canvas {
+#control-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+#fonts-layer {
   position: absolute;
   top: 0;
   left: 0;

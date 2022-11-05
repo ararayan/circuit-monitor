@@ -1,4 +1,3 @@
-import { Directory } from '@capacitor/filesystem';
 import { AxiosRequestConfig } from "axios";
 import { defineStore } from "pinia";
 import { asyncScheduler, EMPTY, from, of, Subject } from "rxjs";
@@ -11,19 +10,20 @@ import { Entities } from "./entity.types";
 // import { alertController } from "@ionic/vue";
 import { Capacitor } from '@capacitor/core';
 import { pcbFielCache } from "../pcb-cache.service";
+import { useEntityRecordsStore } from './entity-record.store';
 
 
 const isNativePlatform = Capacitor.isNativePlatform();
 
 const pcbImageCachePrefixKey = 'cache-pcb-image';
 
-function getPCBImageData$(openRecordId: string) {
+function getPCBImageData$(openRecordId: string, hasNewImage = false) {
 
   const fileName = `${pcbImageCachePrefixKey}-${openRecordId}`;
   const path = `${fileName}.txt`;
 
   if (isNativePlatform) {
-    return from(pcbFielCache.checkFileExists(path)).pipe(
+    return from(hasNewImage ? Promise.resolve(false) : pcbFielCache.checkFileExists(path)).pipe(
       concatMap(exist => {
         if (exist) {
           return from(pcbFielCache.readPCBImageFile(path)).pipe(
@@ -109,6 +109,9 @@ export interface PCBFontItem {
   ['left|top']: string;
   ['fen_he_other']: string;
   Ia: string;
+  Ib: string;
+  Ic: string;
+  name: string;
   colorRGB:string;
   fontGB2312: string;
   yc: string;
@@ -131,6 +134,8 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
       const initialState = {
         entityName: entityName,
         recordId: recordId,
+        width: 0,
+        height: 0,
         baseMapItem: {
           id: '',
           zlt: '',
@@ -166,8 +171,11 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
         if (openRecordId === '') {
           return ;
         }
+        const pcbRecordStore = useEntityRecordsStore(this.entityName);
+        const currRecord = pcbRecordStore.getRecord(openRecordId);
+        
         if (![DataStatus.Loaded, DataStatus.Loading].includes(this.$state.meta.pcbInfo)) {
-          getPCBImageData$(openRecordId).pipe(
+          getPCBImageData$(openRecordId, currRecord?.hasNewImage).pipe(
             map(data => {
               const imageInfos = data?.image || {};
               let baseMapItem = {} as PCBBaseMapItem;
@@ -223,6 +231,10 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
               };
             }),
             switchMap(({baseMapItem, switchItems, fontItems}) => {
+              this.$patch({
+                width: baseMapItem.width,
+                height: baseMapItem.height,
+              });
               //#region: API
               const ycIds = fontItems.map(x => x.yc) as string[];
               const yxIds = Object.keys(switchItems);
