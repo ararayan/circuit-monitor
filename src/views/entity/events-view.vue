@@ -18,22 +18,20 @@
         </ion-header>
         <ion-content fullscreen :scroll-y="false">
           <ion-list :scroll-y="false" style="height: 100%">
-            <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="60" key-field="id"
-              ref="virtualScroller">
-              <template #default="{ item }">
-                <ion-item>
-                    <div class="event-list-item">
+            <DynamicScroller class="scroller ion-content-scroll-host" :items="records"  :min-item-size="60" key-field="id" >
+              <template v-slot="{ item, index, active }">
+                <DynamicScrollerItem :item="item" :active="active"  :data-index="index">
+                <div class="event-list-item ion-padding-top ion-padding-bottom ion-margin-start ion-margin-end">
                       <div style="color: var(--ion-color-medium); font-style: italic;">{{item.date}}</div>
                       <div class="event-list-item-main">
                         <ion-label>{{ item.pos }}</ion-label>
                         <ion-label>{{ ControlStatusCodeTexts[item.state as ControlStatusCode] }}</ion-label>
                       </div>
-                      <i style="color: var(--ion-color-medium); margin-left: 0.25em" v-if="!!item.msg">({{ item.msg }})</i>
+                      <i style="color: var(--ion-color-medium);" v-if="!!item.msg">({{ item.msg }})</i>
                     </div>
-                    
-                </ion-item>
+                </DynamicScrollerItem>
               </template>
-            </RecycleScroller>
+            </DynamicScroller>
           </ion-list>
           <div class="empty-list" v-if="!records.length">
             <span v-if="!isInited">请使用搜索来获取事件列表。</span>
@@ -50,12 +48,12 @@ import SearchFormPanel from '@/components/search-form-panel.vue';
 import { useEntityContext, useEntityDisplayName } from '@/share';
 import { EventRecord, useEntityRecordsStore } from '@/share/entity';
 import { ControlStatusCode, ControlStatusCodeTexts } from '@/share/entity/data/operations';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
-import { Ref, ref } from '@vue/reactivity';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonLabel, IonList, IonMenuButton, IonPage, IonSplitPane, IonTitle, IonToolbar } from '@ionic/vue';
+import { ref } from '@vue/reactivity';
 import { arrowBackOutline, chevronForwardOutline, searchCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { defineComponent, onUnmounted } from 'vue';
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 
 /* 
   ion-content-scroll-host
@@ -72,15 +70,13 @@ export default defineComponent({
     IonToolbar,
     IonTitle,
     IonList,
-    IonItem,
     IonContent,
     IonLabel,
     SearchFormPanel,
-    RecycleScroller, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon
+    DynamicScroller, IonButtons, IonBackButton, IonSplitPane, IonMenuButton, IonIcon, DynamicScrollerItem
   },
   setup() {
     const { entityName } = useEntityContext();
-    const virtualScroller = ref(null) as Ref<any>;
 
     const menuId = ref(`${entityName}_menu`);
     const contentId = ref(`${entityName}_panel`);
@@ -89,35 +85,12 @@ export default defineComponent({
     const recordStore = useEntityRecordsStore<EventRecord>(entityName);
     const { records, isInited } = storeToRefs(recordStore);
 
-    // function loadData (evt: InfiniteScrollCustomEvent) {
-    //   // load data 
-    //   setTimeout(() => {
-    //     const subscription = recordStore.$subscribe((mutation) => {
-    //       if (mutation.type === MutationType.patchObject) {
-    //         if ([DataStatus.Loaded, DataStatus.Error].includes(mutation.payload.meta?.records as DataStatus)) {
-    //           console.log('Loaded data');
-    //           if (virtualScroller.value) {
-    //             virtualScroller.value?.['updateVisibleItems'](true);
-    //           }
-    //           evt.target.complete();
-    //           subscription();
-    //         }
-    //       }
-    //     }, {detached: true});
-
-    //     recordStore.getRecords(entityName, { criteria: {} });
-    //   }, 500);
-    // }
-
-    
-    
-    // recordStore.getRecords(entityName, {isInit: true});
     onUnmounted(() => {
       recordStore.destroy();
     });
-    return { ControlStatusCodeTexts,
+    return { ControlStatusCodeTexts, ControlStatusCode,
       entityName, menuId, contentId, isInited,
-      records, virtualScroller, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
+      records, title, searchCircleOutline, arrowBackOutline, chevronForwardOutline
     };
   },
 });
@@ -144,7 +117,10 @@ export default defineComponent({
 }
 
 .event-list-item {
-  width: 100%;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .event-list-item-main {
