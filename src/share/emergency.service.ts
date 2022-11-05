@@ -60,7 +60,7 @@ export class EmergencyEventsService {
         }),
         // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
         dematerialize(),
-        delay(10 * 1000, asyncScheduler),
+        delay(1 * 1000, asyncScheduler),
         switchMap(() => {
           return httpService.post<CheckEmergencyEventsResponseData>(YNAPI_SJCX.GetEmergencyEvents, {
             startIndex: this.startIndex,
@@ -77,7 +77,7 @@ export class EmergencyEventsService {
           delay: () => {
             //LocalNotifications can only fire once per 9 minutes, per app when app inactivate
             // const delayDurantion = appStore.isActive ?  5 * 60 * 1000 :  8 * 60 * 1000;
-            return of(0).pipe(delay(5 * 60 * 1000, asyncScheduler));
+            return of(0).pipe(delay(1 * 4 * 1000, asyncScheduler));
             // return of(0).pipe(delay(1 * 10 * 1000, asyncScheduler));
           }
         }),
@@ -109,7 +109,6 @@ export class EmergencyEventsService {
                   body: `${checked.result}宗突发事件。`,
                   largeBody: message,
                   channelId: 'important_info_channel',
-                  ongoing: true,
                   autoCancel: false,
                   group: 'emergencyEvents',
                   groupSummary: true,
@@ -141,7 +140,6 @@ export class EmergencyEventsService {
       minimumFetchInterval: 15,
       stopOnTerminate: false,
       enableHeadless: true,
-      startOnBoot: true,
       forceAlarmManager: true,
     }, async (taskId) => {
 
@@ -161,21 +159,22 @@ export class EmergencyEventsService {
             ['content-type']: 'application/x-www-form-urlencoded',
             token: '',
           },
-          connectTimeout: 12 * 1000,
+          connectTimeout: 10 * 1000,
           responseType: 'json',
           data: new URLSearchParams({ startIndex: this.startIndex, recordName: '' })
         });
 
         if (response.status === 200) {
           // successful
-          const checked: CheckEmergencyEventsResponseData = response.data;
-          this.startIndex = checked?.startIndex?.toString() || '0';
+          const emergencyEventsResponse: CheckEmergencyEventsResponseData = response.data;
+          const result = emergencyEventsResponse?.result || [];
+          this.startIndex = emergencyEventsResponse?.startIndex?.toString() || '0';
           cacheService.set(YNCacheKey.StartBgCheckIndex, this.startIndex, StorageType.Persistent);
-          if (checked.result.length) {
-            this.records = [...this.records, ...checked.result];
+          if (result.length) {
+            this.records = [...this.records, ...result];
           }
 
-          const message = checked.result.reduce((acc, event) => {
+          const message = result.reduce((acc, event) => {
             return `${acc}#${event.pos} - ${ControlStatusCodeTexts[event.state as ControlStatusCode]}; `;
           }, '');
 
@@ -183,25 +182,60 @@ export class EmergencyEventsService {
             notifications: [{
               id: new Date().getTime(),
               title: `衍能科技`,
-              body: `${checked.result}宗突发事件。`,
+              body: `${result.length}宗突发事件。`,
               largeBody: message,
               channelId: 'important_info_channel',
-              ongoing: true,
               autoCancel: false,
               group: 'emergencyEvents',
               groupSummary: true,
               summaryText: '衍能科技',
               schedule: {
                 allowWhileIdle: true,
-                // at: new Date(Date.now() + 3000), // in a minute
+                // at: new Date(Date.now() + 1500), // in a minute
                 // repeats: false,
               },
             }]
           });
+        } else {
+          // await LocalNotifications.schedule({
+          //   notifications: [{
+          //     id: new Date().getTime(),
+          //     title: `衍能科技`,
+          //     body: `http call response status: ${response.status}`,
+          //     channelId: 'important_info_channel',
+          //     autoCancel: false,
+          //     group: 'emergencyEvents',
+          //     groupSummary: true,
+          //     summaryText: '衍能科技',
+          //     schedule: {
+          //       allowWhileIdle: true,
+          //       // at: new Date(Date.now() + 1500), // in a minute
+          //       // repeats: false,
+          //     },
+          //   }]
+          // });
         }
         
-      } catch (err) {
+      } catch (err: any) {
         // todo
+        const nextStatus = await BackgroundFetch.status();
+        await LocalNotifications.schedule({
+          notifications: [{
+            id: new Date().getTime(),
+            title: `衍能科技 Error`,
+            body: `error: ${err.message}; AVAILABLE: ${nextStatus === BackgroundFetch.STATUS_AVAILABLE}`,
+            channelId: 'important_info_channel',
+            autoCancel: false,
+            group: 'emergencyEvents',
+            groupSummary: true,
+            summaryText: '衍能科技',
+            schedule: {
+              allowWhileIdle: true,
+              // at: new Date(Date.now() + 1500), // in a minute
+              // repeats: false,
+            },
+          }]
+        });
       }
 
 
@@ -211,6 +245,24 @@ export class EmergencyEventsService {
       // You must immediately complete your work and signal #finish.
       // [REQUIRED] Signal to the OS that your work is complete.
       console.log('xxx: BackgroundFetch Timeout');
+      const nextStatus = await BackgroundFetch.status();
+      await LocalNotifications.schedule({
+        notifications: [{
+          id: new Date().getTime(),
+          title: `BG Timeout`,
+          body: `background fetch event timeout!! AVAILABLE: ${nextStatus === BackgroundFetch.STATUS_AVAILABLE}`,
+          channelId: 'important_info_channel',
+          autoCancel: false,
+          group: 'emergencyEvents',
+          groupSummary: true,
+          summaryText: '衍能科技',
+          schedule: {
+            allowWhileIdle: true,
+            // at: new Date(Date.now() + 1500), // in a minute
+            // repeats: false,
+          },
+        }]
+      });
       BackgroundFetch.finish(taskId);
     });
     // Checking BackgroundFetch status:
