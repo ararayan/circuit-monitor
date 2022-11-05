@@ -21,8 +21,8 @@
           <ion-button :v-if="[ControlStatusCode.He, ControlStatusCode.Fen].includes(item.status)"
             @click="applyForEdit(item, item.status === ControlStatusCode.Fen ? ControlStatusCode.He : ControlStatusCode.Fen)"
             style="min-width: 5em; min-height: 2.5em; margin-right: 1em;" color="light">
-            <ion-icon :icon="bulbOutline" slot="start" color="warning"></ion-icon>
-            <ion-label color="primary">{{ LightControlStatusCodeTexts[item.status as ControlStatusCode]}}</ion-label>
+            <ion-icon :icon="bulbOutline" slot="start" color="secondary"></ion-icon>
+            <ion-label color="medium">{{ LightControlStatusCodeTexts[item.status as ControlStatusCode]}}</ion-label>
           </ion-button>
         </ion-item>
       </ion-list>
