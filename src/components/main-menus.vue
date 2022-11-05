@@ -1,5 +1,5 @@
 <template>
-  <ion-menu side="start" :content-id="menuId" style="--side-max-width: 400px" :swipeGesture="false">
+  <ion-menu side="start" :content-id="menuId" style="--side-max-width: 400px" :swipeGesture="false" :disabled="disabledIonMenu">
     <ion-header lines="none" class="ion-padding-top">
       <ion-toolbar translucent padding class="drawer-header-toolbar">
         <!-- <ion-title size="large" class="drawer-header-title">衍能科技</ion-title> -->
@@ -96,19 +96,16 @@
   </ion-menu>
 </template>
 <script lang="ts">
-import { defineComponent, } from 'vue';
+import { IonAvatar, IonButton, IonContent, IonFooter, IonHeader, IonIcon, IonImg, IonItem, IonLabel, IonList, IonListHeader, IonMenu, IonRippleEffect, IonToggle, IonToolbar, useIonRouter } from '@ionic/vue';
 import { toRef } from '@vue/reactivity';
-import {
-  IonHeader, IonListHeader,
-  IonToolbar, IonContent, IonLabel, IonMenu, IonButton, IonFooter, IonList, IonItem, IonImg, IonAvatar, IonIcon, IonRippleEffect, IonToggle, useIonRouter,
-} from '@ionic/vue';
-import { settingsOutline, homeOutline, bookOutline, colorFilterOutline, notificationsOutline, powerOutline } from 'ionicons/icons';
+import { bookOutline, colorFilterOutline, homeOutline, notificationsOutline, powerOutline, settingsOutline } from 'ionicons/icons';
+import { defineComponent } from 'vue';
 
+import { cacheService, YNCacheKey } from '@/share';
 import { useUserStore } from '@/share/user';
-import { storeToRefs } from 'pinia';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
-import { cacheService, YNCacheKey } from '@/share';
+import { storeToRefs } from 'pinia';
 
 const isNativePlatform = Capacitor.isNativePlatform();
 
@@ -123,6 +120,10 @@ export default defineComponent({
     contentId: {
       type: String,
       required: true
+    },
+    disabledMenu: {
+      type: Boolean,
+      required: true
     }
   },
   setup(props) {
@@ -130,6 +131,7 @@ export default defineComponent({
     const userStore = useUserStore();
     const { user } = storeToRefs(userStore);
     const menuId = toRef(props, 'contentId');
+    const disabledIonMenu = toRef(props, 'disabledMenu');
     // const gotoHome = () => {
     //   router.push('/home');
     // };
@@ -143,15 +145,16 @@ export default defineComponent({
       router.push('/emergencyevents');
     };
     
-    function exitApp() {
+    async function exitApp() {
       cacheService.remove(YNCacheKey.AccessToken);
       userStore.isAuth = false;
       if(isNativePlatform) {
-        App.exitApp();
+        await cacheService.save();
+        await App.exitApp();
       }
    
     }
-    return { exitApp, user, menuId, gotoEmergencyEvents, settingsOutline, homeOutline, bookOutline, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
+    return { disabledIonMenu, exitApp, user, menuId, gotoEmergencyEvents, settingsOutline, homeOutline, bookOutline, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
   }
 });
 </script>

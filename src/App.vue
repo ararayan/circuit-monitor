@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts">
-import { appState$, useAppStore } from '@/share/hooks/use-app.store';
+import { useAppStore } from '@/share/hooks/use-app.store';
 import { App } from '@capacitor/app';
-import { LocalNotifications } from '@capacitor/local-notifications';
+// import { LocalNotifications } from '@capacitor/local-notifications';
 import { alertController } from '@ionic/core';
 import { IonApp, IonRouterOutlet, useBackButton } from '@ionic/vue';
 import { defineComponent, onUnmounted } from 'vue';
@@ -54,20 +54,26 @@ export default defineComponent({
     emergencyEventsService.startFgCheck();
     // const emergencyStore = useEmergencyEvents();
     App.addListener('appUrlOpen', data => appStore.setOperUrl(data.url));
-    App.addListener('appRestoredResult', data => console.log('Restored state:', data));
+    App.addListener('appRestoredResult', async (data) => {
+      // const totke = cacheService.get(YNCacheKey.AccessToken);
+      // const alert = await alertController.create({
+      //   message: `token: ${totke}, pluginId: ${data.pluginId}, method: ${data.methodName}`,
+      // });
+      // await alert.present();
+    });
     App.addListener('appStateChange', async (appState) => {
       appStore.setActive(appState.isActive);
       if (appState.isActive) {
-        if (isNativePlatform) {
-          const notified =  await LocalNotifications.getDeliveredNotifications();
-          const pending = await  LocalNotifications.getPending();
-          const alert = await alertController.create({
-            message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}`,
-          });
-          await alert.present();
-        }
+        // if (isNativePlatform) {
+        //   const notified =  await LocalNotifications.getDeliveredNotifications();
+        //   const pending = await  LocalNotifications.getPending();
+        //   const alert = await alertController.create({
+        //     message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}`,
+        //   });
+        //   await alert.present();
+        // }
       } else {
-        cacheService.save();
+        await cacheService.save();
       }
     });
 

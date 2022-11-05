@@ -1,7 +1,7 @@
 <template>
   <ion-page>
-    <ion-split-pane :contentId="menuConnectId" when="false" :disabled="disabledSplitPane">
-      <main-menus :contentId="menuConnectId" menuId="main-menu" type="push"></main-menus>
+    <ion-split-pane :contentId="menuConnectId" when="false">
+      <main-menus :contentId="menuConnectId" menuId="main-menu" type="push" :disabled-menu="disabledSplitPane"></main-menus>
       <div class="ion-page" :id="menuConnectId">
         <ion-header mode="md" collapse="fade">
           <ion-toolbar mode="md" color="primary">
