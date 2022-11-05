@@ -31,7 +31,7 @@ class PcbFielCache {
   async checkFileExists (path: string, directory: Directory = Directory.Cache): Promise<boolean> {
     const getUriOptions: GetUriOptions = { path, directory};
     try {
-      Filesystem.stat(getUriOptions);
+      await Filesystem.stat(getUriOptions);
       return true;
     } catch (err: any) {
       return false;

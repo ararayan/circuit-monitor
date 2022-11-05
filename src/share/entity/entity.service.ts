@@ -99,7 +99,7 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
               desc = '0';
             }
           }else {
-            desc = item.value;
+            desc = item.value.replace('wx', '无效');
           }
           return {...item, id: item.index, desc,  };
         }).filter(x => !!x.name) || [];
@@ -117,7 +117,7 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
           const enrichList = list.map(item => {
             return {
               ...item,
-              hasNewImage: item.imageVersion !== cache?.imageVersion
+              hasNewImage: item.imageVersion !== cache?.[item.id?.toString()]?.imageVersion
             };
           });
           cacheService.set(YNCacheKey.JXT, list.reduce((acc, item) => {
