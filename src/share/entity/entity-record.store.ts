@@ -149,7 +149,7 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
 
         });
       },
-      startRecordsCheck(params?: Record<string, any>) {
+      startRecordsCheck(params?: Record<string, any>, intervalTime = 3000) {
         if (!this.startSyncRecrod && this.syncFields.length > 0) {
           const checkParams = params || {};
           // let maxErrorCount = 5;
@@ -201,7 +201,7 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
             }),
             repeat({
               delay: () => {
-                return of(0).pipe(delay(1 * 1000, asyncScheduler));
+                return of(0).pipe(delay(intervalTime, asyncScheduler));
               }
             }),
             takeUntil(destory$),

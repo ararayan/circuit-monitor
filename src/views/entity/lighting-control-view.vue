@@ -74,7 +74,7 @@ export default defineComponent({
 
     const disposeRecordsWatch = watch(records, () => {
       if (records.value.length && recordStore.meta.records === DataStatus.Loaded) {
-        recordStore.startRecordsCheck();
+        recordStore.startRecordsCheck({}, 1000);
         disposeRecordsWatch();
       }
     });
