@@ -42,10 +42,10 @@ import { defineComponent, onMounted, onUnmounted, watch, WatchStopHandle } from 
 
 
 const LightControlStatusCodeTexts = {
-  [ControlStatusCode.He]: '打开',
-  [ControlStatusCode.Fen]: '关闭',
-  [ControlStatusCode.HeWx]: '(合)无效',
-  [ControlStatusCode.FenWx]: '(分)无效',
+  [ControlStatusCode.He]: '关闭',
+  [ControlStatusCode.Fen]: '打开',
+  [ControlStatusCode.HeWx]: '关闭(无效)',
+  [ControlStatusCode.FenWx]: '打开(无效)',
 };
 
 export default defineComponent({
@@ -109,7 +109,8 @@ export default defineComponent({
         yxIds: item.yxId,
         kfId: item.kfId,
         khId: item.khId,
-        action: action
+        action: action,
+        type: 'zm',
       };
       recordStore.requestExcute(data);
     }

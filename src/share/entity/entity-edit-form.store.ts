@@ -25,6 +25,7 @@ export interface YxOperatorParams {
   khId: string;
   kfId: string;
   action: ControlStatusCode;
+  type: 'zm' | 'yk',
 }
 
 export interface YxOperatorResponse {
