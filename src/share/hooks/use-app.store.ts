@@ -6,6 +6,7 @@ import { cacheService, StorageType, YNCacheKey } from "../cache.service";
 
 const destory$ = new Subject<boolean>();
 const isAppActive$ = new BehaviorSubject(false);
+const _canNotification$ = new BehaviorSubject(true);
 (window as any)['abc'] = isAppActive$;
 
 const appStore = defineStore('App', {
@@ -22,8 +23,8 @@ const appStore = defineStore('App', {
       errorMsgLogs: [] as Array< {url: string, params: any, msg: string}>,
       localNotificationsPermissions: false,
       batteryOptimization: false,
+      canNotification: true,
     };
-   
     return { ...initialState };
   },
   actions: {
@@ -91,6 +92,9 @@ export function useAppStore() {
       if (isAppActive$.value !== store.isActive) {
         isAppActive$.next(store.isActive);
       }
+      if (_canNotification$.value !== store.canNotification) {
+        _canNotification$.next(store.canNotification);
+      }
     }, {immediate: true});
     isSubscribed = true;
   }
@@ -98,3 +102,4 @@ export function useAppStore() {
 }
 
 export const appState$ = isAppActive$.asObservable();
+export const canNotification$ = _canNotification$.asObservable();

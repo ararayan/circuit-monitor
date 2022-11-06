@@ -1,6 +1,6 @@
 
 import { IonicPredefinedColors } from "@/model";
-import { appState$, useAppStore } from "@/share/hooks/use-app.store";
+import { appState$, canNotification$, useAppStore } from "@/share/hooks/use-app.store";
 import { httpService, YNAPI_SJCX } from "@/share/http";
 import { toastService } from "@/share/toast.service";
 import { Http } from "@capacitor-community/http";
@@ -53,10 +53,10 @@ export class EmergencyEventsService {
     if (!this.isStartFgCheck) {
       const appStore = useAppStore();
       this.isStartFgCheck = true;
-      combineLatest([auth$, appState$]).pipe(
-        switchMap(([x, y]) => {
+      combineLatest([auth$, appState$, canNotification$]).pipe(
+        switchMap(([isAuth, appIsActive, canNotification]) => {
           // use materialize wrap next/error/complete to next, so the of(x) will emit the next value that come from complete
-          return !!x && !!y ? of(true).pipe(materialize()) : EMPTY;
+          return !!isAuth && !!appIsActive && !!canNotification ? of(true).pipe(materialize()) : EMPTY;
         }),
         // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
         dematerialize(),
@@ -142,7 +142,7 @@ export class EmergencyEventsService {
       stopOnTerminate: false,
       startOnBoot: true,
       forceAlarmManager: false,
-      requiredNetworkType: BackgroundFetch.NETWORK_TYPE_NONE,
+      requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
       requiresBatteryNotLow: false,
       requiresCharging: false,
       requiresDeviceIdle: false,
@@ -153,7 +153,7 @@ export class EmergencyEventsService {
       cacheService.set(YNCacheKey.DebugCanSaveInBGFetch, 'cache can be save in BGFetch CallBack', StorageType.Persistent);
       await cacheService.save();
 
-      if (appStore.isActive) {
+      if (appStore.isActive && appStore.canNotification) {
         BackgroundFetch.finish(taskId);
         return ;
       }

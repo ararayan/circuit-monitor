@@ -49,8 +49,8 @@
         </ion-item> -->
         <ion-item>
           <ion-icon :icon="notificationsOutline" class="menu-item-icon" color="primary" slot="start"></ion-icon>
-          <ion-label>是否推送通知</ion-label>
-          <ion-toggle slot="end" name="grape" color="danger" checked="false"></ion-toggle>
+          <ion-label>推送事件通知</ion-label>
+          <ion-toggle slot="end" name="grape" @update:modelValue="onNotificationSettingChange($event)" color="danger" :checked="canNotification"></ion-toggle>
         </ion-item>
       </ion-list>
       <!-- <ion-accordion-group>
@@ -106,6 +106,8 @@ import { useUserStore } from '@/share/user';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { storeToRefs } from 'pinia';
+import { useAppStore } from '@/share/hooks/use-app.store';
+import { IonToggleCustomEvent, ToggleChangeEventDetail } from '@ionic/core/components';
 
 const isNativePlatform = Capacitor.isNativePlatform();
 
@@ -129,7 +131,9 @@ export default defineComponent({
   setup(props) {
     const router = useIonRouter();
     const userStore = useUserStore();
+    const appStore = useAppStore();
     const { user } = storeToRefs(userStore);
+    const { canNotification } = storeToRefs(appStore);
     const menuId = toRef(props, 'contentId');
     const disabledIonMenu = toRef(props, 'disabledMenu');
     // const gotoHome = () => {
@@ -152,9 +156,11 @@ export default defineComponent({
         await cacheService.save();
         await App.exitApp();
       }
-   
     }
-    return { disabledIonMenu, exitApp, user, menuId, gotoEmergencyEvents, settingsOutline, homeOutline, bookOutline, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
+    function onNotificationSettingChange(value: boolean) {
+      canNotification.value = value;
+    }
+    return { canNotification, onNotificationSettingChange, disabledIonMenu, exitApp, user, menuId, gotoEmergencyEvents, settingsOutline, homeOutline, bookOutline, gotoUser, gotoAbout, colorFilterOutline, notificationsOutline, powerOutline };
   }
 });
 </script>
