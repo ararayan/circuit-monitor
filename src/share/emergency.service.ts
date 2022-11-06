@@ -150,6 +150,8 @@ export class EmergencyEventsService {
     }, async (taskId) => {
 
       this.debugEETotal++;
+      cacheService.set(YNCacheKey.DebugCanSaveInBGFetch, 'cache can be save in BGFetch CallBack', StorageType.Persistent);
+      await cacheService.save();
 
       if (appStore.isActive) {
         BackgroundFetch.finish(taskId);
@@ -157,6 +159,8 @@ export class EmergencyEventsService {
       }
 
       this.debugEE++;
+
+
 
       try {
         const response = await Http.post({
@@ -175,36 +179,35 @@ export class EmergencyEventsService {
           const emergencyEventsResponse: CheckEmergencyEventsResponseData = response.data;
           const result = emergencyEventsResponse?.result || [];
           if ( emergencyEventsResponse?.startIndex !== undefined && this.startIndex !== emergencyEventsResponse?.startIndex?.toString() ) {
-            this.startIndex = emergencyEventsResponse.startIndex?.toString();
+            this.startIndex = emergencyEventsResponse.startIndex?.toString();  //??? can udpate???
             cacheService.set(YNCacheKey.StartBgCheckIndex, this.startIndex, StorageType.Persistent);
             await cacheService.save();
           }
         
           if (result.length) {
             this.records = [...this.records, ...result];
+            const message = result.reduce((acc, event) => {
+              return `${acc}#${event.pos} - ${ControlStatusCodeTexts[event.state as ControlStatusCode]}; `;
+            }, '');
+            await LocalNotifications.schedule({
+              notifications: [{
+                id: new Date().getTime(),
+                title: `衍能科技`,
+                body: `${result.length}宗突发事件。`,
+                largeBody: message,
+                channelId: 'important_info_channel',
+                autoCancel: false,
+                group: 'emergencyEvents',
+                groupSummary: true,
+                summaryText: '衍能科技',
+                schedule: {
+                  allowWhileIdle: true,
+                  // at: new Date(Date.now() + 1500), // in a minute
+                  // repeats: false,
+                },
+              }]
+            });
           }
-
-          const message = result.reduce((acc, event) => {
-            return `${acc}#${event.pos} - ${ControlStatusCodeTexts[event.state as ControlStatusCode]}; `;
-          }, '');
-          await LocalNotifications.schedule({
-            notifications: [{
-              id: new Date().getTime(),
-              title: `衍能科技`,
-              body: `${result.length}宗突发事件。`,
-              largeBody: message,
-              channelId: 'important_info_channel',
-              autoCancel: false,
-              group: 'emergencyEvents',
-              groupSummary: true,
-              summaryText: '衍能科技',
-              schedule: {
-                allowWhileIdle: true,
-                // at: new Date(Date.now() + 1500), // in a minute
-                // repeats: false,
-              },
-            }]
-          });
         } else {
           // http call failure
         }

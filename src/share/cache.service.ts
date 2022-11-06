@@ -9,6 +9,7 @@ const enum YNCacheKey {
     // IsStartBgCheck = 'YN:isStartBgCheck',
     StartBgCheckIndex = 'YN:StartBgCheckIndex',
     JXT = 'YN:JXT',
+    DebugCanSaveInBGFetch = 'YN:DebugCanSaveInBGFetch',
 }
 
 

@@ -19,6 +19,7 @@ import { ignoreBatteryOptimization } from './plugin/ignoreBatteryOptimizationPlu
 import { Capacitor } from '@capacitor/core';
 import { cacheService, StorageType, YNCacheKey } from './share';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { Preferences } from '@capacitor/preferences';
 
 const isNativePlatform = Capacitor.isNativePlatform();
 
@@ -66,9 +67,12 @@ export default defineComponent({
       if (appState.isActive) {
         if (isNativePlatform) {
           const notified =  await LocalNotifications.getDeliveredNotifications();
-          const pending = await  LocalNotifications.getPending();
+          const pending = await LocalNotifications.getPending();
+          const persistentObj = await Preferences.get({ key: StorageType.Persistent });
+          const persistent = JSON.parse(persistentObj?.value as string);
+          const debugCacheMsg = persistent[YNCacheKey.DebugCanSaveInBGFetch];
           const alert = await alertController.create({
-            message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}`,
+            message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}, DebugCacheMsg: ${debugCacheMsg};`,
           });
           await alert.present();
         }
