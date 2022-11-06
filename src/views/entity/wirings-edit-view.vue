@@ -149,34 +149,34 @@ export default defineComponent({
       
     });
 
-    let editPoint: Record<'offsetX' | 'offsetY', number>;
+    let openRecordId: string;
 
-    const editRecord = function (event: Record<'offsetX' | 'offsetY', number>) {
+    const editRecord = function (itemId: string) {
+      const switchItem = pcbStore.getSwitchItem(itemId);
+      const entityEditFormStore = useEntityEditFormStore(Entities.Operations, itemId);
+      entityEditFormStore.$patch({
+        currRecordInfo: {
+          kfId: switchItem.kf,
+          khId: switchItem.kh,
+        } as ControlStatusIds
+      });
+      ionRouter.push({
+        path: `/entity/${entityName}/${recordId}/${Entities.Operations}/${itemId}`,
+        query: {
+          skipSelfEntity: 1
+        }
+      });
+    };
+
+    const edit = (event: PointerEvent) => {
       const { offsetX: x, offsetY: y } = event;
       const clickedItemId = Object.entries(canvasSwitchItemInfos).find(([, value]) => {
         return isPointInRect({ x, y }, value);
       })?.[0] || '';
       if (clickedItemId !== '') {
-        const switchItem = pcbStore.getSwitchItem(clickedItemId);
-        const entityEditFormStore = useEntityEditFormStore(Entities.Operations, clickedItemId);
-        entityEditFormStore.$patch({
-          currRecordInfo: {
-            kfId: switchItem.kf,
-            khId: switchItem.kh,
-          } as ControlStatusIds
-        });
-        ionRouter.push({
-          path: `/entity/${entityName}/${recordId}/${Entities.Operations}/${clickedItemId}`,
-          query: {
-            skipSelfEntity: 1
-          }
-        });
+        isShowModal.value = true;
+        openRecordId = clickedItemId;
       }
-    };
-
-    const edit = (event: PointerEvent) => {
-      isShowModal.value = true;
-      editPoint = { offsetX: event.offsetX, offsetY: event.offsetY };
     };
 
     const backBtnSubscription = useBackButton(10, () => {
@@ -207,7 +207,7 @@ export default defineComponent({
         isPwdInvalid.value = !canAccess;
         isShowModal.value = !canAccess;
         if (canAccess) {
-          editRecord(editPoint);
+          editRecord(openRecordId);
         }
 
       });
