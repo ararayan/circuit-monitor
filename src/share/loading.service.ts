@@ -91,9 +91,9 @@ const loadingResponseInterceptor = [
     // }
 
     appStore.logError({
-      url: error.config.url || '',
-      params: Object.fromEntries(new URLSearchParams(error.config.data || '')),
-      msg: error?.message,
+      url: error.config?.url || '',
+      params: Object.fromEntries(new URLSearchParams(error.config?.data || '')),
+      msg: error.message,
     });
     return Promise.reject(error);
   }
