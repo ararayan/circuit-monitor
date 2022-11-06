@@ -9,28 +9,21 @@
       </ion-toolbar>
     </ion-header>
     <ion-content fullscreen :scroll-y="false">
-      <ion-list :scroll-y="false" style="height: 100%">
-        <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="80" key-field="seq"
+      <!-- <ion-list :scroll-y="false" style="height: 100%">
+        <RecycleScroller class="scroller ion-content-scroll-host" :items="records" :item-size="60" key-field="seq"
           ref="virtualScroller">
           <template #default="{ item }">
-            <ion-item>
-              <ion-label>
-                <i class="seq-number">{{ item.seq || '' }}</i>
-                <span>{{ item.message }}</span>
-              </ion-label>
-            </ion-item>
+            <ion-item> <ion-label>{{ item.text }}</ion-label> </ion-item>
           </template>
         </RecycleScroller>
-      </ion-list>
+      </ion-list> -->
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
-import { arrowBackOutline, chevronForwardOutline } from 'ionicons/icons';
-import { defineComponent, ref } from 'vue';
-import { RecycleScroller } from 'vue-virtual-scroller';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+import { defineComponent } from 'vue';
 
 
 export default defineComponent({
@@ -40,18 +33,8 @@ export default defineComponent({
     IonHeader,
     IonToolbar,
     IonTitle,
-    IonList,
-    IonItem,
     IonContent,
-    IonLabel,
-    RecycleScroller, IonButtons, IonBackButton,
-  },
-  setup() {
-    const records = ref([]);
-  
-    return {
-      records, arrowBackOutline, chevronForwardOutline
-    };
+    IonButtons, IonBackButton,
   },
 });
 
