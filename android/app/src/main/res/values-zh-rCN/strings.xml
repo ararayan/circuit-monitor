@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">circuit-monitor</string>
+    <string name="app_name">衍能科技</string>
     <string name="title_activity_main">衍能科技</string>
     <string name="package_name">com.yanneng.circuitmonitor</string>
     <string name="custom_url_scheme">com.yanneng.circuitmonitor</string>
