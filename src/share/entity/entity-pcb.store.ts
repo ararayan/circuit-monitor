@@ -301,7 +301,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
             }),
             // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
             dematerialize(),
-            delay(1000),
+            delay(500),
             switchMap(() => {
               const ycIds = this.fontItems?.map(x => x.yc) as string[];
               const yxIds = Object.keys(this.switchItems);
@@ -350,7 +350,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
             }),
             repeat({
               delay: () => {
-                return of(0).pipe(delay(3 * 1000, asyncScheduler));
+                return of(0).pipe(delay(2.5 * 1000, asyncScheduler));
               }
             }),
             takeUntil(destory$),
