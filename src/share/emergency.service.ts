@@ -82,7 +82,7 @@ export class EmergencyEventsService {
           }
         }),
         switchMap(checked => {
-          if (checked?.result.length) { 
+          if (checked?.result?.length) { 
             this.records = [...this.records, ...checked.result];
             const message = checked.result.reduce((acc, event) => {
               return `${acc}#${event.pos} - ${ControlStatusCodeTexts[event.state as ControlStatusCode]}; `;
@@ -138,9 +138,15 @@ export class EmergencyEventsService {
 
     const status = await BackgroundFetch.configure({
       minimumFetchInterval: 15,
-      stopOnTerminate: false,
       enableHeadless: true,
-      forceAlarmManager: true,
+      stopOnTerminate: false,
+      startOnBoot: true,
+      forceAlarmManager: false,
+      requiredNetworkType: BackgroundFetch.NETWORK_TYPE_NONE,
+      requiresBatteryNotLow: false,
+      requiresCharging: false,
+      requiresDeviceIdle: false,
+      requiresStorageNotLow: false
     }, async (taskId) => {
 
       this.debugEETotal++;
@@ -159,7 +165,7 @@ export class EmergencyEventsService {
             ['content-type']: 'application/x-www-form-urlencoded',
             token: '',
           },
-          connectTimeout: 10 * 1000,
+          connectTimeout: 12 * 1000,
           responseType: 'json',
           data: new URLSearchParams({ startIndex: this.startIndex, recordName: '' })
         });
@@ -168,8 +174,12 @@ export class EmergencyEventsService {
           // successful
           const emergencyEventsResponse: CheckEmergencyEventsResponseData = response.data;
           const result = emergencyEventsResponse?.result || [];
-          this.startIndex = emergencyEventsResponse?.startIndex?.toString() || '0';
-          cacheService.set(YNCacheKey.StartBgCheckIndex, this.startIndex, StorageType.Persistent);
+          if ( emergencyEventsResponse?.startIndex !== undefined && this.startIndex !== emergencyEventsResponse?.startIndex?.toString() ) {
+            this.startIndex = emergencyEventsResponse.startIndex?.toString();
+            cacheService.set(YNCacheKey.StartBgCheckIndex, this.startIndex, StorageType.Persistent);
+            await cacheService.save();
+          }
+        
           if (result.length) {
             this.records = [...this.records, ...result];
           }
@@ -177,7 +187,6 @@ export class EmergencyEventsService {
           const message = result.reduce((acc, event) => {
             return `${acc}#${event.pos} - ${ControlStatusCodeTexts[event.state as ControlStatusCode]}; `;
           }, '');
-
           await LocalNotifications.schedule({
             notifications: [{
               id: new Date().getTime(),
@@ -197,27 +206,11 @@ export class EmergencyEventsService {
             }]
           });
         } else {
-          // await LocalNotifications.schedule({
-          //   notifications: [{
-          //     id: new Date().getTime(),
-          //     title: `衍能科技`,
-          //     body: `http call response status: ${response.status}`,
-          //     channelId: 'important_info_channel',
-          //     autoCancel: false,
-          //     group: 'emergencyEvents',
-          //     groupSummary: true,
-          //     summaryText: '衍能科技',
-          //     schedule: {
-          //       allowWhileIdle: true,
-          //       // at: new Date(Date.now() + 1500), // in a minute
-          //       // repeats: false,
-          //     },
-          //   }]
-          // });
+          // http call failure
         }
         
       } catch (err: any) {
-        // todo
+        // http error, usauly time out
         const nextStatus = await BackgroundFetch.status();
         await LocalNotifications.schedule({
           notifications: [{
@@ -231,8 +224,6 @@ export class EmergencyEventsService {
             summaryText: '衍能科技',
             schedule: {
               allowWhileIdle: true,
-              // at: new Date(Date.now() + 1500), // in a minute
-              // repeats: false,
             },
           }]
         });
@@ -250,7 +241,7 @@ export class EmergencyEventsService {
         notifications: [{
           id: new Date().getTime(),
           title: `BG Timeout`,
-          body: `background fetch event timeout!! AVAILABLE: ${nextStatus === BackgroundFetch.STATUS_AVAILABLE}`,
+          body: `BG Fetch Timeout!! AVAILABLE: ${nextStatus === BackgroundFetch.STATUS_AVAILABLE}`,
           channelId: 'important_info_channel',
           autoCancel: false,
           group: 'emergencyEvents',

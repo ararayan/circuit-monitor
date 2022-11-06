@@ -7,7 +7,6 @@
 <script lang="ts">
 import { useAppStore } from '@/share/hooks/use-app.store';
 import { App } from '@capacitor/app';
-// import { LocalNotifications } from '@capacitor/local-notifications';
 import { alertController } from '@ionic/core';
 import { IonApp, IonRouterOutlet, useBackButton } from '@ionic/vue';
 import { defineComponent, onUnmounted } from 'vue';
@@ -19,6 +18,7 @@ import { useUserStore } from './share/user/user.store';
 import { ignoreBatteryOptimization } from './plugin/ignoreBatteryOptimizationPlugin';
 import { Capacitor } from '@capacitor/core';
 import { cacheService, StorageType, YNCacheKey } from './share';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 const isNativePlatform = Capacitor.isNativePlatform();
 
@@ -64,14 +64,14 @@ export default defineComponent({
     App.addListener('appStateChange', async (appState) => {
       appStore.setActive(appState.isActive);
       if (appState.isActive) {
-        // if (isNativePlatform) {
-        //   const notified =  await LocalNotifications.getDeliveredNotifications();
-        //   const pending = await  LocalNotifications.getPending();
-        //   const alert = await alertController.create({
-        //     message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}`,
-        //   });
-        //   await alert.present();
-        // }
+        if (isNativePlatform) {
+          const notified =  await LocalNotifications.getDeliveredNotifications();
+          const pending = await  LocalNotifications.getPending();
+          const alert = await alertController.create({
+            message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}`,
+          });
+          await alert.present();
+        }
       } else {
         await cacheService.save();
       }
