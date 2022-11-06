@@ -14,18 +14,22 @@
         @pointerdown="edit($event)"></canvas>
       <canvas id="fonts-layer" :width="width" :height="height"></canvas>
     </ion-content>
+    <ensure-password-modal :is-open="isShowModal" :invalid="isPwdInvalid" @ok="submitPassword($event)"
+      @cancel="modalClose()" @change="isPwdInvalid = false"></ensure-password-modal>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, ControlStatusIds, SwitchItemStatusImageKeyMap, useEntityContext, useEntityEditFormStore, useEntityPCBStore, PCBFontItem } from '@/share';
+import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, ControlStatusIds, SwitchItemStatusImageKeyMap, useEntityContext, useEntityEditFormStore, useEntityPCBStore, PCBFontItem, FormField } from '@/share';
+import { authService } from '@/share/auth/auth.service';
 import { useUserStore } from '@/share/user';
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, useBackButton, onIonViewDidLeave, onIonViewDidEnter } from '@ionic/vue';
-import { computed } from '@vue/reactivity';
+import { computed, ref } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { MutationType, storeToRefs } from 'pinia';
+import { take } from 'rxjs/operators';
 import { defineComponent, onMounted, onUnmounted } from 'vue';
-
+import EnsurePasswordModal from '@/components/ensure-password-modal.vue';
 
 function isPointInRect(point: { x: number; y: number; }, rect: PCBRect) {
   return rect.left <= point.x && point.x <= rect.right && rect.top <= point.y && point.y <= rect.bottom;
@@ -35,7 +39,7 @@ export default defineComponent({
   name: 'WiringsEditView',
   components: {
     IonPage, IonHeader, IonContent,
-    IonButtons, IonBackButton, IonToolbar, IonTitle,
+    IonButtons, IonBackButton, IonToolbar, IonTitle, EnsurePasswordModal,
   },
   setup() {
     const ionRouter = useIonRouter();
@@ -144,7 +148,10 @@ export default defineComponent({
       }, {detached: true});
       
     });
-    const edit = function (event: PointerEvent) {
+
+    let editPoint: Record<'offsetX' | 'offsetY', number>;
+
+    const editRecord = function (event: Record<'offsetX' | 'offsetY', number>) {
       const { offsetX: x, offsetY: y } = event;
       const clickedItemId = Object.entries(canvasSwitchItemInfos).find(([, value]) => {
         return isPointInRect({ x, y }, value);
@@ -167,6 +174,11 @@ export default defineComponent({
       }
     };
 
+    const edit = (event: PointerEvent) => {
+      isShowModal.value = true;
+      editPoint = { offsetX: event.offsetX, offsetY: event.offsetY };
+    };
+
     const backBtnSubscription = useBackButton(10, () => {
       ionRouter.back();
     });
@@ -180,12 +192,34 @@ export default defineComponent({
         pcbStore.setPageReady(false);
       }) as any,
     );
+
+    //#region ensure pass word
+    const isShowModal = ref(false);
+    const isPwdInvalid = ref(false);
+    function modalClose() {
+      isPwdInvalid.value = false;
+      isShowModal.value = false;
+    }
+    function submitPassword(password: FormField) {
+      authService.checkPassword(password.value as string).pipe(
+        take(1),
+      ).subscribe(canAccess => {
+        isPwdInvalid.value = !canAccess;
+        isShowModal.value = !canAccess;
+        if (canAccess) {
+          editRecord(editPoint);
+        }
+
+      });
+    }
     onUnmounted(() => {
       backBtnSubscription.unregister();
       pcbStore.destroy();
       ionLifeCycleSubs.forEach(sub => sub?.());
     });
-    return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, edit, baseMapItem, width, height, };
+    return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, edit, baseMapItem, width, height,
+      isShowModal, isPwdInvalid, submitPassword, modalClose,
+    };
   }
 });
 </script>

@@ -35,7 +35,7 @@ import { ref } from '@vue/reactivity';
 import { chevronForwardOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { take } from "rxjs/operators";
-import { defineComponent, onBeforeUnmount, onUnmounted } from 'vue';
+import { defineComponent, onUnmounted } from 'vue';
 /* 
   ion-content-scroll-host
   Ionic Framework requires that features such as collapsible large titles,
@@ -105,27 +105,6 @@ export default defineComponent({
       });
     }
 
-    // const openModal = async function() {
-    //   const modal = await modalController
-    //     .create({
-    //       id: 'pw_modal_1',
-    //       cssClass: 'auto-height',
-    //       backdropDismiss: true,
-    //       swipeToClose: true,
-    //       component: EnsurePasswordModal,
-    //       componentProps: {
-    //         modalId: 'pw_modal_1'
-    //       },
-    //     }) as Components.IonModal;
-    //   await modal.present();
-    //   modal.canDismiss = () => {
-    //     return Promise.resolve(false);
-    //   };
-    //   debugger;
-    //   const abc =  await modal.onDidDismiss<string>();
-    //   debugger;
-    //   return abc;
-    // };
     function modalClose() {
       isPwdInvalid.value = false;
       isShowModal.value = false;
