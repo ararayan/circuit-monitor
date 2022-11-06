@@ -1,13 +1,12 @@
 import { AxiosRequestConfig } from "axios";
 import { defineStore } from "pinia";
 import { asyncScheduler, EMPTY, from, of, Subject } from "rxjs";
-import { catchError, concatMap, delay, dematerialize, filter, map, materialize, repeat, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, concatMap, delay, dematerialize, map, materialize, repeat, switchMap, take, takeUntil } from 'rxjs/operators';
 import { DataStatus } from "../data.meta";
 import { appState$ } from "../hooks/use-app.store";
 import { httpService, YNAPI_JXT } from "../http";
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 import { Entities } from "./entity.types";
-// import { alertController } from "@ionic/vue";
 import { Capacitor } from '@capacitor/core';
 import { pcbFielCache } from "../pcb-cache.service";
 import { useEntityRecordsStore } from './entity-record.store';
@@ -108,10 +107,11 @@ export interface PCBFontItem {
   id: string;
   ['left|top']: string;
   ['fen_he_other']: string;
-  Ia: string;
-  Ib: string;
-  Ic: string;
-  name: string;
+  // server format
+  text: string;
+  // real showing pcb canvas
+  label: string;
+  precision: string;
   colorRGB:string;
   fontGB2312: string;
   yc: string;
@@ -146,6 +146,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
         switchItems: {} as Record<string, PCBSwitchItem>,
         fontItems: [] as PCBFontItem[],
         isStartSwitchItemUpdate: false,
+        isInited: false,
         meta: {
           pcbInfo: DataStatus.Unloaded,
         },
@@ -237,7 +238,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
               });
               //#region: API
               const ycIds = fontItems.map(x => x.yc) as string[];
-              const yxIds = Object.keys(switchItems);
+              const yxIds = Object.keys(switchItems) as string[];
               //#endregion: API
               return httpService.post(YNAPI_JXT.GetPCBStatus, {ycIds, yxIds}).pipe(
                 map(valueInfosResult => {
@@ -256,6 +257,11 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
                   });
                   fontItems.forEach(fontItem => {
                     fontItem.value = ycInfos[fontItem.yc] || '';
+                    // handle text by precision and value
+                    const precision = parseInt(fontItem.precision);
+                    const value = parseFloat(fontItem.value);
+                    const resultValue = Math.round(value * Math.pow(10, precision))/Math.pow(10, precision);
+                    fontItem.label = fontItem.text.replace('{0}', resultValue.toFixed(precision));
                   });
                   return {baseMapItem, switchItems, fontItems};
                 })
@@ -268,7 +274,8 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
               ...response,
               meta: {
                 pcbInfo: DataStatus.Loaded,
-              }
+              },
+              isInited: true,
             });
           });
         }
@@ -276,7 +283,6 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
       startSwitchItemsCheck() {
         if (!this.isStartSwitchItemUpdate) {
          
-          let maxErrorCount = 5;
           const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
           this.$patch({
             isStartSwitchItemUpdate: true
@@ -289,54 +295,82 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
             }),
             // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
             dematerialize(),
+            delay(1000),
             switchMap(() => {
+              const ycIds = this.fontItems?.map(x => x.yc) as string[];
               const yxIds = Object.keys(this.switchItems);
-              if (!yxIds.length) {
+              if (!yxIds.length && !ycIds.length) {
                 return EMPTY;
               }
-              return httpService.post(YNAPI_JXT.GetPCBStatus, {yxIds}, skipMaskConfig).pipe(
+              return httpService.post(YNAPI_JXT.GetPCBStatus, {yxIds, ycIds}, skipMaskConfig).pipe(
                 map(response => {
                   const yxInfos = (response.data?.yx || []) as Record<string, string>[];
-                  const patchChangedInfos = yxInfos.reduce((acc, valueInfo) => {
+                  const yxPatchChangedInfos = yxInfos.reduce((acc, valueInfo) => {
                     const [[id, value]] = Object.entries(valueInfo);
                     if (this.switchItems[id].value !== value) {
                       acc[id] = {value};
                     }
                     return acc;
                   }, {} as PatchSwitchInfo);
-                  return patchChangedInfos;
+                 
+                  const ycInfos = (response.data?.yc || []).reduce((acc: any, valueInfo: any) => {
+                    acc = {...acc, ...valueInfo};
+                    return acc;
+                  }, {});
+
+                  let nextFontItems = [] as PCBFontItem[];
+                  const ycChanged = !!this.fontItems.find(curr => curr.value !== ycInfos[curr.yc]);
+                  if (ycChanged) {
+                    nextFontItems = this.fontItems.map(fontItem => {
+                      const nextValue = ycInfos[fontItem.yc] || '';
+                      // handle text by precision and value
+                      const precision = parseInt(fontItem.precision);
+                      const value = parseFloat(nextValue);
+                      const resultValue = Math.round(value * Math.pow(10, precision))/Math.pow(10, precision);
+                      const nextLabel = fontItem.text.replace('{0}', resultValue.toFixed(precision));
+                      return {
+                        ...fontItem,
+                        value: nextValue,
+                        label: nextLabel,
+                      };
+                    });
+                  }
+                  return { yxPatchChangedInfos, nextFontItems };
                 })
               );
             }),
-            catchError(err => {
-              maxErrorCount--;
-              console.error(err.message);
-              if (!maxErrorCount) { 
-                return EMPTY;
-              }
-              return of({} as PatchSwitchInfo);
+            catchError(() => {
+              return of({yxPatchChangedInfos: {}  as PatchSwitchInfo, nextFontItems: [] as PCBFontItem[]});
             }),
             repeat({
               delay: () => {
-                return of(0).pipe(delay(10 * 1000, asyncScheduler));
+                return of(0).pipe(delay(3 * 1000, asyncScheduler));
               }
-            }),
-            filter(patchChangedInfos => {
-              const needPatch = !!Object.keys(patchChangedInfos).length;
-              if (needPatch) {
-                return true;
-              } 
-              return false;
             }),
             takeUntil(destory$),
           ).subscribe({
-            next: (patchChangedInfos) => {
-              this.$patch({
-                switchItems: {
-                  ...patchChangedInfos
-                },
-                isStartSwitchItemUpdate: false,
-              });
+            next: ({yxPatchChangedInfos, nextFontItems}) => {
+              const isYxChanged = !!Object.keys(yxPatchChangedInfos).length;
+              const isYcChanged = !!nextFontItems.length;
+              if (isYxChanged && !isYcChanged) {
+                this.$patch({
+                  switchItems: {
+                    ...yxPatchChangedInfos
+                  }
+                });
+              } else if (!isYxChanged && isYcChanged) {
+                this.$patch({
+                  fontItems: [...nextFontItems]
+                });
+              } else if (isYcChanged && isYcChanged) {
+                this.$patch({
+                  switchItems: {
+                    ...yxPatchChangedInfos
+                  },
+                  fontItems: [...nextFontItems]
+                });
+              }
+
             },
             complete: () => {
               if (this.isStartSwitchItemUpdate) {

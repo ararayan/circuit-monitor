@@ -59,7 +59,9 @@ export default defineComponent({
       const dynamicLayerCanvas = document.querySelector('#control-layer') as HTMLCanvasElement;
       const dynamicLayerCtx = dynamicLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
       const fontsLayerCanvas = document.querySelector('#fonts-layer') as HTMLCanvasElement;
-      const fontsLayerCtx = dynamicLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
+      const fontsLayerCtx = fontsLayerCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+      let switchItemsAsyncLotId = '';
 
       pcbStore.$subscribe((mutation) => {
         if (mutation.type === MutationType.patchObject) {
@@ -73,22 +75,26 @@ export default defineComponent({
           }
           if (mutation.payload.switchItems) {
             dynamicLayerCtx.clearRect(0, 0, dynamicLayerCanvas.width, dynamicLayerCanvas.height);
+            switchItemsAsyncLotId = new Date().getTime().toString();
             canvasSwitchItemInfos = {} as Record<string, PCBRect>;
-            const switchItems = mutation.payload.switchItems as Record<string, PCBSwitchItem>;
-            Object.entries(switchItems).forEach(([, switchItem]) => {
+            // const switchItems = mutation.payload.switchItems as Record<string, PCBSwitchItem>;
+            Object.entries(pcbStore.switchItems).forEach(([, switchItem]) => {
               const imageName = SwitchItemStatusImageKeyMap[switchItem.value];
               const valueImgString = switchItem[imageName as keyof PCBSwitchItem];
               if (valueImgString) {
                 const switchImage = new Image();
                 switchImage.src = 'data:image/jpeg;base64,' + valueImgString;
+                switchImage.dataset['lotId'] = switchItemsAsyncLotId;
                 switchImage.onload = () => {
-                  const { left, top } = switchItem;
-                  const width = switchImage.naturalWidth;
-                  const height = switchImage.naturalHeight;
-                  dynamicLayerCtx.drawImage(switchImage, left, top);
-                  const right = left + width;
-                  const bottom = top + height;
-                  canvasSwitchItemInfos[switchItem.id] = { left, right, top, bottom };
+                  if (switchItemsAsyncLotId ===  switchImage.dataset['lotId']) {
+                    const { left, top } = switchItem;
+                    const width = switchImage.naturalWidth;
+                    const height = switchImage.naturalHeight;
+                    dynamicLayerCtx.drawImage(switchImage, left, top);
+                    const right = left + width;
+                    const bottom = top + height;
+                    canvasSwitchItemInfos[switchItem.id] = { left, right, top, bottom };
+                  }
                 };
               }
             });
@@ -121,21 +127,22 @@ export default defineComponent({
               fontsLayerCtx.font = `${fontInfo.italic ? 'italic ' : '' }${fontInfo.weight === 400 ? '' : 'bold '}14px GB2312, Droid Sans, Droid Serif`;
               fontsLayerCtx.fillStyle =`#${cssHexColorValue}`;
               fontsLayerCtx.textBaseline = 'top';
-              fontsLayerCtx.fillText(
-                item.Ia ? `Ia = ${item.Ia}` : ''
-                  || item.Ib ? `Ib = ${item.Ib}` : ''
-                  || item.Ic ? `Ic = ${item.Ic}` : ''
-                  || item.name ? `Name = ${item.name}` : '',
-                item.left,
-                item.top);
+              fontsLayerCtx.fillText(item.label, item.left, item.top);
             });
           }
         }
         // draw canvas image
       }, { detached: true, immediate: true });
 
-      //#WIP
-      pcbStore.startSwitchItemsCheck();
+      const disposeInitSubscription = pcbStore.$subscribe((mutation) => {
+        if (mutation.type === MutationType.patchObject) {
+          if (mutation.payload.isInited) {
+            pcbStore.startSwitchItemsCheck();
+            disposeInitSubscription();
+          }
+        }
+      }, {detached: true});
+      
     });
     const edit = function (event: PointerEvent) {
       const { offsetX: x, offsetY: y } = event;
@@ -160,12 +167,12 @@ export default defineComponent({
       }
     };
 
-    const result = useBackButton(10, () => {
+    const backBtnSubscription = useBackButton(10, () => {
       ionRouter.back();
     });
 
     onUnmounted(() => {
-      result.unregister();
+      backBtnSubscription.unregister();
       pcbStore.destroy();
     });
     return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, edit, baseMapItem, width, height, };
@@ -185,16 +192,19 @@ export default defineComponent({
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1;
 }
 
 #control-layer {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 3;
 }
 #fonts-layer {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 2;
 }
 </style>
