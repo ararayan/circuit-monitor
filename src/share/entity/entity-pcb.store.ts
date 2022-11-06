@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from "axios";
 import { defineStore } from "pinia";
-import { asyncScheduler, EMPTY, from, of, Subject } from "rxjs";
+import { asyncScheduler, BehaviorSubject, combineLatest, EMPTY, from, of, Subject } from "rxjs";
 import { catchError, concatMap, delay, dematerialize, map, materialize, repeat, switchMap, take, takeUntil } from 'rxjs/operators';
 import { DataStatus } from "../data.meta";
 import { appState$ } from "../hooks/use-app.store";
@@ -127,6 +127,7 @@ export interface PCBFontItem {
 export function useEntityPCBStore(entityName: Entities, recordId: string) {
   const destory$ = new Subject<boolean>();
   const storeId = getEntityRecordStoreId(entityName, EntityStoreFeature.PCB, recordId);
+  const pageReady$ = new BehaviorSubject<boolean>(false);
 
   const store = defineStore(storeId, {
     state: () => {
@@ -150,6 +151,7 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
         meta: {
           pcbInfo: DataStatus.Unloaded,
         },
+        isPageReady: false,
       };
       return { ...initialState, entityName };
     },
@@ -168,6 +170,10 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
       getFontvalue: (state) => (id: string) => state.fontItems.find(item => item.id === id)?.value || '',
     },
     actions: {
+      setPageReady(value: boolean) {
+        this.isPageReady = value;
+        pageReady$.next(value);
+      },
       getPCBInfos(openRecordId: string) {
         if (openRecordId === '') {
           return ;
@@ -288,10 +294,10 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
             isStartSwitchItemUpdate: true
           });
 
-          appState$.pipe(
-            switchMap(x => {
+          combineLatest([appState$, pageReady$]).pipe(
+            switchMap(([isAppActive, pageReady]) => {
               // use materialize wrap next/error/complete to next, so the of(0) will emit the next value that come from complete
-              return x ? of(0).pipe(materialize()) : EMPTY;
+              return isAppActive && pageReady ? of(0).pipe(materialize()) : EMPTY;
             }),
             // use dematerialize unwrap the next to origin in which previous was complete, so the repeat treat the source was complete
             dematerialize(),
@@ -383,9 +389,9 @@ export function useEntityPCBStore(entityName: Entities, recordId: string) {
         }
       },
       destroy() {
+        pageReady$.complete();
         destory$.next(true);
         destory$.complete();
-
         // fix: pinia.state will cache state even the store instance was remove by call self dispose;
         // manual call reset make cahce state backto inital status; more detail see the state fn on below;
         // call the dispose first, to remove all subscribe which may invoke by $reset state;

@@ -20,7 +20,7 @@
 <script lang="ts">
 import { Entities, PCBBaseMapItem, PCBRect, PCBSwitchItem, ControlStatusIds, SwitchItemStatusImageKeyMap, useEntityContext, useEntityEditFormStore, useEntityPCBStore, PCBFontItem } from '@/share';
 import { useUserStore } from '@/share/user';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, useBackButton } from '@ionic/vue';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, useBackButton, onIonViewDidLeave, onIonViewDidEnter } from '@ionic/vue';
 import { computed } from '@vue/reactivity';
 import { cloudOutline, discOutline, locateOutline } from 'ionicons/icons';
 import { MutationType, storeToRefs } from 'pinia';
@@ -171,9 +171,19 @@ export default defineComponent({
       ionRouter.back();
     });
 
+    const ionLifeCycleSubs = [] as Array<() => void>;
+    ionLifeCycleSubs.push(
+      onIonViewDidEnter(() => {
+        pcbStore.setPageReady(true);
+      }) as any,
+      onIonViewDidLeave(() => {
+        pcbStore.setPageReady(false);
+      }) as any,
+    );
     onUnmounted(() => {
       backBtnSubscription.unregister();
       pcbStore.destroy();
+      ionLifeCycleSubs.forEach(sub => sub?.());
     });
     return { entityName, title, defaultHref, cloudOutline, discOutline, locateOutline, edit, baseMapItem, width, height, };
   }
