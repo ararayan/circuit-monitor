@@ -111,6 +111,7 @@ export default defineComponent({
         khId: item.khId,
         action: action,
         type: 'zm',
+        id: item.yxId,
       };
       recordStore.requestExcute(data);
     }

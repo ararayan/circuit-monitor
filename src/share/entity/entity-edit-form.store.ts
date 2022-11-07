@@ -26,6 +26,7 @@ export interface YxOperatorParams {
   kfId: string;
   action: ControlStatusCode;
   type: 'zm' | 'yk',
+  id: string;
 }
 
 export interface YxOperatorResponse {
@@ -331,9 +332,9 @@ export function useEntityEditFormStore(entityName: Entities, recordId: string) {
                   action: data.action,
                   startIndex: result.startIndex,
                 },
-                retryCount: 6,
-                intervalTime: 2 * 1000,
-                incrementIntervalTime: 3 * 1000,
+                retryCount: 7,
+                intervalTime: 1 * 1000,
+                incrementIntervalTime: 2 * 1000,
                 notifyInfo: {
                   success: {
                     title: '遥控执行成功',

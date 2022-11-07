@@ -106,7 +106,7 @@ export default defineComponent({
         const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as ControlStatusCode;
         const isvalidAction = [ControlStatusCode.Fen, ControlStatusCode.He].includes(action);
         if (isvalidAction && action && yxIds && kfId && khId) {
-          entityEditFormStore.requestSelect({ yxIds, kfId, khId, action, type: 'yk' });
+          entityEditFormStore.requestSelect({ yxIds, kfId, khId, action, type: 'yk', id: yxIds });
         }
       } else if (operator.value.id === OperatorType.RemoteExcute) {
         const { kfId, khId, } = entityEditFormStore.currRecordInfo;
@@ -114,7 +114,7 @@ export default defineComponent({
         const action = entityEditFormStore.editForm.find(x => x.id === YxActionFieldId)?.value as ControlStatusCode;
         const isvalidAction = [ControlStatusCode.Fen, ControlStatusCode.He].includes(action);
         if (isvalidAction && action && yxIds && kfId && khId) {
-          entityEditFormStore.requestExcute({ yxIds, kfId, khId, action, type: 'yk' });
+          entityEditFormStore.requestExcute({ yxIds, kfId, khId, action, type: 'yk', id: yxIds });
         }
       }
 

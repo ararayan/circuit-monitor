@@ -1,12 +1,14 @@
 import { AxiosRequestConfig } from "axios";
 import { defineStore, MutationType } from "pinia";
 import { asyncScheduler, EMPTY, Observable, of, Subject, throwError } from "rxjs";
-import { catchError, delay, dematerialize, map, materialize, repeat, switchMap, take, takeUntil, takeWhile, tap } from "rxjs/operators";
+import { catchError, delay, dematerialize, finalize, map, materialize, repeat, switchMap, take, takeUntil, takeWhile, tap } from "rxjs/operators";
 import { DataStatus } from "../data.meta";
 import { appState$ } from "../hooks/use-app.store";
+import { checkControlResultService, getCheckItemId, OperatorCheckNotifyStyle } from "../hooks/use-check-operator";
 import { httpService, YNAPI_KZCZ } from "../http";
 import { loadingService } from "../loading.service";
-import { YxOperatorParams, YxOperatorResponse } from "./entity-edit-form.store";
+import { ControlStatusCode, ControlStatusCodeIds, ControlStatusCodeTexts } from "./data/operations";
+import { OperatorStatus, OperatorType, YxOperatorParams, YxOperatorResponse } from "./entity-edit-form.store";
 import { EntityStoreFeature, getEntityRecordStoreId } from "./entity-store-id";
 import { FixedModuleRecord, getRecords } from './entity.service';
 import { Entities, EntityRecord, EntityRecordAlias } from "./entity.types";
@@ -32,6 +34,7 @@ export interface EntityRecordInitialState {
 export enum ToastType {
   Success = 'success',
   Failure = 'failure',
+  Empty = 'empty',
 }
 
 export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entities, tabId?: string ) {
@@ -52,9 +55,10 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
         },
         hasPagination: false,
         toastMsg: '',
-        toastType: ToastType.Success,
+        toastType: ToastType.Empty,
         startSyncRecrod: false,
         syncFields: [] as string[],
+        checkItemIds: new Set<string>(),
       };
       return { ...initialState, entityName };
     },
@@ -230,38 +234,81 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
       requestExcute(data: YxOperatorParams) {
         this.$patch({
           toastMsg: '',
-          toastType: ToastType.Success,
+          toastType: ToastType.Empty,
         });
         const skipMaskConfig: Partial<AxiosRequestConfig> = {headers: {skipMask: true}};
         loadingService.show({
-          message: '发送遥控执行，请等候...'
+          message: '遥控执行中，请等候...'
         });
         httpService.post<YxOperatorResponse>(YNAPI_KZCZ.RemoteExcute, data, skipMaskConfig).pipe(
-          map(response => {
-            const action = response.data || {};
-            // eslint-disable-next-line no-constant-condition
-            if (action.isYxEffect && action.sendActionSuccess) {
-              return true;
+          tap(() =>  loadingService.hide()),
+          switchMap(response => {
+            const result = response.data || {};
+            const checkId = getCheckItemId(entityName, data.id, OperatorType.RemoteExcute);
+            if (result.isYxEffect && result.sendActionSuccess) {
+              this.checkItemIds.add(checkId);
+              checkControlResultService.addCheckItem({
+                id: checkId,
+                url: YNAPI_KZCZ.CheckControlResult,
+                payload: {
+                  controlType: OperatorType.RemoteExcute,
+                  kfkhID: data[ControlStatusCodeIds[data.action as ControlStatusCode.Fen | ControlStatusCode.He]],
+                  action: data.action,
+                  startIndex: result.startIndex,
+                },
+                retryCount: 7,
+                intervalTime: 1 * 1000,
+                incrementIntervalTime: 2 * 1000,
+                notifyInfo: {
+                  success: {
+                    title: '遥控执行成功',
+                    message: `遥信ID: ${data.yxIds}; 操作：${ControlStatusCodeTexts[data.action as ControlStatusCode]};`,
+                  },
+                  failure: {
+                    title: '遥控执行失败',
+                    message: `遥信ID: ${data.yxIds}; 操作：${ControlStatusCodeTexts[data.action as ControlStatusCode]};`,
+                  }
+                },
+                style: OperatorCheckNotifyStyle.Custom 
+              }, (checkResult) => {
+                return checkResult.hasNewControlResult === 1 && checkResult.result === 1;
+              });
+              return checkControlResultService.getCheckResult$(checkId).pipe(
+                finalize(() => {
+                  this.checkItemIds.delete(checkId);
+                })
+              ); 
             }
-            return false;
+            this.$patch({
+              toastMsg: '遥控执行失败, 请稍候重试.',
+              toastType: ToastType.Failure,
+            });
+            return EMPTY;
           }),
-          tap(() => {
-            loadingService.hide();
+          tap(checkResult => {
+            if (checkResult) {
+              this.$patch({
+                toastMsg: '遥控执行成功.',
+                toastType: ToastType.Success,
+              });
+            }else {
+              this.$patch({
+                toastMsg: '遥控执行失败, 请稍候重试.',
+                toastType: ToastType.Failure,
+              });
+            }
           }),
           catchError(err => {
+            this.$patch({
+              toastMsg: '遥控执行失败, 请稍候重试.',
+              toastType: ToastType.Failure,
+            });
             loadingService.hide();
             return of(err);
           }),
           take(1),
           takeUntil(destory$),
-        ).subscribe(success => {
-          const msg = success ? '发送遥控执行成功。' : '发送遥控执行失败！';
-          const type = success ? ToastType.Success : ToastType.Failure;
-          this.$patch({
-            toastMsg: msg,
-            toastType: type,
-          });
-        });
+        ).subscribe();
       },
       subscribeRecordLoadResult(subscriber: Partial<Record<'next' | 'complete' | 'error', (...args: any[]) => any>>) {
         const ob = new Observable(observer => {
@@ -295,6 +342,9 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
         this.$reset();
       },
       destroy() {
+        [...this.checkItemIds].forEach(checkId => {
+          checkControlResultService.setNotifyStyle(checkId, OperatorCheckNotifyStyle.Default);
+        });
         destory$.next(true);
         destory$.complete();
 

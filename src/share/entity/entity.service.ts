@@ -143,11 +143,7 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
       );
     } else if (entityName === Entities.LightingControl) {
       return httpService.post<LightingControlRecord[]>(YNAPI_ZMGL.GetList, params || {}, config).pipe(
-        map(response => (response.data || []).map(item => {
-          return {
-            ...item,
-          };
-        }))
+        map(response => response?.data || [])
       );
     } 
     else if (entityName === Entities.Events) {
