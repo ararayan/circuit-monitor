@@ -66,17 +66,17 @@ export default defineComponent({
       appStore.setActive(appState.isActive);
       if (appState.isActive) {
         if (isNativePlatform) {
-          if (appStore.debug) {
-            const notified =  await LocalNotifications.getDeliveredNotifications();
-            const pending = await LocalNotifications.getPending();
-            const persistentObj = await Preferences.get({ key: StorageType.Persistent });
-            const persistent = JSON.parse(persistentObj?.value as string);
-            const debugCacheMsg = persistent[YNCacheKey.DebugCanSaveInBGFetch];
-            const alert = await alertController.create({
-              message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}, DebugCacheMsg: ${debugCacheMsg};`,
-            });
-            await alert.present();
-          }
+          // if (appStore.debug) {
+          // const notified =  await LocalNotifications.getDeliveredNotifications();
+          // const pending = await LocalNotifications.getPending();
+          // const persistentObj = await Preferences.get({ key: StorageType.Persistent });
+          // const persistent = JSON.parse(persistentObj?.value as string);
+          // const debugCacheMsg = persistent[YNCacheKey.DebugCanSaveInBGFetch];
+          // const alert = await alertController.create({
+          //   message: `pending: ${pending.notifications.length}, notified: ${notified.notifications.length}, BG Event Total: ${emergencyEventsService.debugEETotal}, BG Fetch Event: ${emergencyEventsService.debugEE}, DebugCacheMsg: ${debugCacheMsg};`,
+          // });
+          // await alert.present();
+          // }
         }
       } else {
         await cacheService.save();

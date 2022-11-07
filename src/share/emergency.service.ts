@@ -131,27 +131,21 @@ export class EmergencyEventsService {
   async startBgCheck(url: string) {
     const appStore = useAppStore();
     if (!appStore.localNotificationsPermissions) return;
-    // this.isStartBgCheck = true;
-    // cacheService.set(YNCacheKey.IsStartBgCheck, true, StorageType.Persistent);
-   
-    // alertController.create({ message: 'configure BackgroundFetch Events!!!' }).then(x => x.present());
 
     const status = await BackgroundFetch.configure({
       minimumFetchInterval: 15,
       enableHeadless: true,
       stopOnTerminate: false,
       startOnBoot: true,
-      forceAlarmManager: false,
+      forceAlarmManager: true,
       requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
-      requiresBatteryNotLow: false,
-      requiresCharging: false,
-      requiresDeviceIdle: false,
-      requiresStorageNotLow: false
+      // requiresBatteryNotLow: false,
+      // requiresCharging: false,
+      // requiresDeviceIdle: false,
+      // requiresStorageNotLow: false
     }, async (taskId) => {
 
       this.debugEETotal++;
-      cacheService.set(YNCacheKey.DebugCanSaveInBGFetch, 'cache can be save in BGFetch CallBack', StorageType.Persistent);
-      await cacheService.save();
 
       if (appStore.isActive && appStore.canNotification) {
         BackgroundFetch.finish(taskId);
@@ -159,8 +153,6 @@ export class EmergencyEventsService {
       }
 
       this.debugEE++;
-
-
 
       try {
         const response = await Http.post({
@@ -214,22 +206,22 @@ export class EmergencyEventsService {
         
       } catch (err: any) {
         // http error, usauly time out
-        const nextStatus = await BackgroundFetch.status();
-        await LocalNotifications.schedule({
-          notifications: [{
-            id: new Date().getTime(),
-            title: `衍能科技 Error`,
-            body: `error: ${err.message}; AVAILABLE: ${nextStatus === BackgroundFetch.STATUS_AVAILABLE}`,
-            channelId: 'important_info_channel',
-            autoCancel: false,
-            group: 'emergencyEvents',
-            groupSummary: true,
-            summaryText: '衍能科技',
-            schedule: {
-              allowWhileIdle: true,
-            },
-          }]
-        });
+        // const nextStatus = await BackgroundFetch.status();
+        // await LocalNotifications.schedule({
+        //   notifications: [{
+        //     id: new Date().getTime(),
+        //     title: `衍能科技 Error`,
+        //     body: `error: ${err.message}; AVAILABLE: ${nextStatus === BackgroundFetch.STATUS_AVAILABLE}`,
+        //     channelId: 'important_info_channel',
+        //     autoCancel: false,
+        //     group: 'emergencyEvents',
+        //     groupSummary: true,
+        //     summaryText: '衍能科技',
+        //     schedule: {
+        //       allowWhileIdle: true,
+        //     },
+        //   }]
+        // });
       }
 
 
@@ -239,24 +231,6 @@ export class EmergencyEventsService {
       // You must immediately complete your work and signal #finish.
       // [REQUIRED] Signal to the OS that your work is complete.
       console.log('xxx: BackgroundFetch Timeout');
-      const nextStatus = await BackgroundFetch.status();
-      await LocalNotifications.schedule({
-        notifications: [{
-          id: new Date().getTime(),
-          title: `BG Timeout`,
-          body: `BG Fetch Timeout!! AVAILABLE: ${nextStatus === BackgroundFetch.STATUS_AVAILABLE}`,
-          channelId: 'important_info_channel',
-          autoCancel: false,
-          group: 'emergencyEvents',
-          groupSummary: true,
-          summaryText: '衍能科技',
-          schedule: {
-            allowWhileIdle: true,
-            // at: new Date(Date.now() + 1500), // in a minute
-            // repeats: false,
-          },
-        }]
-      });
       BackgroundFetch.finish(taskId);
     });
     // Checking BackgroundFetch status:

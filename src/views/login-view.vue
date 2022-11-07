@@ -15,7 +15,7 @@
             <ion-input type="text" v-model="apiBaseURL" name="apiUrl" id="apiUrl"></ion-input>
           </ion-item>
 
-          <ion-item>
+          <ion-item v-if="false">
             <ion-label >Enable App Debug</ion-label>
             <ion-checkbox slot="start" color="success" v-model="enableAppDebug"></ion-checkbox>
           </ion-item>
