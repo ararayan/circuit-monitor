@@ -133,22 +133,39 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
           }),
           takeUntil(destory$)
         ).subscribe(result => {
-          const patchInfo = {
-            records: [...this.records, ...(result || [])],
-            pagination: {
-              current: queryPageIndex
-            },
-            meta: {
-              records: DataStatus.Loaded
-            }
-          };
+
           if (isInit) {
+            const patchInfo = {
+              records: [...this.records, ...(result || [])],
+              pagination: {
+                current: queryPageIndex
+              },
+              meta: {
+                records: DataStatus.Loaded
+              }
+            };
             this.$patch({
               ...patchInfo,
               isInited: true,
             });
           }else {
-            this.$patch(patchInfo);
+            if (result.length) {
+              this.$patch({
+                records: [...this.records, ...(result || [])],
+                pagination: {
+                  current: queryPageIndex
+                },
+                meta: {
+                  records: DataStatus.Loaded
+                }
+              });
+            }else {
+              this.$patch({
+                meta: {
+                  records: DataStatus.Loaded
+                }
+              });
+            }
           }
 
         });
@@ -213,8 +230,17 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
             next: (result) => {
               const {list, isChanged} = result as any;
               if (isChanged) {
+                // when the checkReponseRecords.length < this.records.length
+                // scenario: start check -> load data -> load new data and add to records -> check response => checkResponseRecords.length < this.records.length
+                // when the checkReponseREcords.length > this.records.length
+                // 1. switch tab not clear check ob, this was bug if it ocurrs!
+                // 2. the server was not any records in inited, then add the record in server before the check request emit to server; the code was cover, direct cover the check list to records
+                let newRecords = list;
+                if (list.length !== this.records.length) {
+                  newRecords = [...list, ...this.records.slice(list.length)] as typeof this.records;
+                }
                 this.$patch({
-                  records: list
+                  records: newRecords
                 });
               }
             },
@@ -313,7 +339,7 @@ export function useEntityRecordsStore<T extends EntityRecord >(entityName: Entit
       subscribeRecordLoadResult(subscriber: Partial<Record<'next' | 'complete' | 'error', (...args: any[]) => any>>) {
         const ob = new Observable(observer => {
           const subscription = this.$subscribe((mutation, state) => {
-            if (mutation.type === MutationType.patchObject && mutation.payload.records?.length) {
+            if (mutation.type === MutationType.patchObject) {
               if (DataStatus.Loaded === mutation.payload.meta?.records) {
                 observer.next({mutation, state});
                 // observer.complete();
