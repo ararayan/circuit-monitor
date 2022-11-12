@@ -148,9 +148,9 @@ class CheckControlResultService {
           id: itemId,
           header: checkResult ? notifyInfo.success.title : notifyInfo.failure.title,
           message: checkResult ? notifyInfo.success.message : notifyInfo.failure.message,
-          duration: 5 * 1000,
+          duration: 8 * 1000,
           position: 'top',
-          color: checkResult ? IonicPredefinedColors.Success : IonicPredefinedColors.Warning,
+          color: checkResult ? IonicPredefinedColors.Success : IonicPredefinedColors.Danger,
           buttons: [{
             icon: closeOutline,
             side: 'end'
