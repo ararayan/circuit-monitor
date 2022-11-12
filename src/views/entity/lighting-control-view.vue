@@ -18,11 +18,11 @@
           </ion-label>
           <!-- <ion-toggle slot="end" name="item.id" :color="item.isPendingStatus ? 'warning' : 'success' " mode="ios" :checked="item.status === 'he'"></ion-toggle> -->
           <!-- <ion-toggle slot="end" name="item.id" color="success" mode="ios" :checked="item.status === 'he'" class="toggle-disabled"></ion-toggle> -->
-          <ion-button :v-if="[ControlStatusCode.He, ControlStatusCode.Fen].includes(item.status)"
+          <ion-button :v-if="[ControlStatusCode.He, ControlStatusCode.Fen].includes(item.status)" :color="item.status === ControlStatusCode.He ? 'success' : 'light'"
             @click="applyForEdit(item, item.status === ControlStatusCode.Fen ? ControlStatusCode.He : ControlStatusCode.Fen)"
-            style="min-width: 5em; min-height: 2.5em; margin-right: 1em;" color="light">
-            <ion-icon :icon="bulbOutline" slot="start" color="secondary"></ion-icon>
-            <ion-label color="medium">{{ LightControlStatusCodeTexts[item.status as ControlStatusCode]}}</ion-label>
+            style="min-width: 5em; min-height: 2.5em; margin-right: 1em;" >
+            <ion-icon :icon="bulbOutline" slot="start" :color="item.status === ControlStatusCode.He ? 'light' : 'medium'"></ion-icon>
+            <ion-label :color="item.status === ControlStatusCode.He ? 'light' : 'medium'">{{ LightControlStatusCodeTexts[item.status as ControlStatusCode]}}</ion-label>
           </ion-button>
         </ion-item>
       </ion-list>
