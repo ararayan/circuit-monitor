@@ -1,6 +1,6 @@
 import { EntityAttrType, FormField } from "../entity.types";
 
-const fakeFields = [
+const eventsSearchForm = [
   {id: 'recordName', label: '记录名：', type: EntityAttrType.Text, value: '',}, 
   {id: 'fromDate', label:  '开始日期：', type: EntityAttrType.Date, value: '', required: true},
   {id: 'fromTime', label:  '开始时间：', type: EntityAttrType.Time, value: '00:00',  }, 
@@ -10,7 +10,7 @@ const fakeFields = [
 
 
 export const getSearchForm = function() {
-  return fakeFields.map(field => ({
+  return eventsSearchForm.map(field => ({
     id: field.id,
     name: field.id,
     label: field.label,

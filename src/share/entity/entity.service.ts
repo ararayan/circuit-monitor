@@ -8,7 +8,6 @@ import { ControlStatusCode } from './data/operations';
 import { MixedModuleType } from './entity-tab.store';
 import { Entities, EntityRecord, EntityRecordAlias, FormField } from "./entity.types";
 
-export const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 export const entityMappingTitle: Record<Entities, string> = {
   [Entities.Wirings]: '接线图',
@@ -68,7 +67,6 @@ export interface LightingControlRecord {
   yxId: number;
 }
 
-
 export interface EventRecord {
   // id: number;
   id: number;
@@ -105,80 +103,60 @@ export function getRecords(entityName: Entities, params?: any, config?: AxiosReq
         }).filter(x => !!x.name) || [];
       })
     );
-  } else {
-    if (entityName === Entities.Wirings) {
-      return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList, params || {}, config).pipe(
-        map(response => {
-          return response?.data || [];
-        }),
-        tap(list => {
-          // cache??? has issue between get list and get image duration the image file refresh in server;
-          const cache = cacheService.get(YNCacheKey.JXT);
-          const enrichList = list.map(item => {
-            return {
-              ...item,
-              hasNewImage: item.imageVersion !== cache?.[item.id?.toString()]?.imageVersion
-            };
-          });
-          cacheService.set(YNCacheKey.JXT, list.reduce((acc, item) => {
-            acc[item.id] = item.imageVersion;
-            return acc;
-          }, cache || {}), StorageType.Persistent);
-          return enrichList;
-        })
-      );
-    } else if (entityName ===  Entities.Segments) {
-      return httpService.post<EntityRecord[]>(YNAPI_JGSJ.GetList, params || {}, config).pipe(
-        map(response => {
-          return response?.data || [];
-        })
-      );
-    } else if (entityName === Entities.Operations) {
-      return httpService.post<OperationListItem[]>(YNAPI_KZCZ.GetList, params || {}, config).pipe(
-        map(response => {
-          return response?.data?.map(x => {
-            return {id: x.yxId, ...x};
-          }) || [];
-        })
-      );
-    } else if (entityName === Entities.LightingControl) {
-      return httpService.post<LightingControlRecord[]>(YNAPI_ZMGL.GetList, params || {}, config).pipe(
-        map(response => response?.data || [])
-      );
-    } 
-    else if (entityName === Entities.Events) {
-      return httpService.post<EventRecord[]>(YNAPI_SJCX.GetEventList, params || {}, config).pipe(
-        map(response => {
-          return (response.data || []).map((item, index) => {
-            const idFromDate = Date.parse(item?.date);
-            return {
-              ...item,
-              id: isNaN(idFromDate) ? index + 1 : idFromDate, //#WIP: API Returan Id;
-            };
-          });
-        })
-      );
-    } 
-    else {
-      const _records: EntityRecord[] = [];
-      const startIndex = params?.startIndex || 0;
-      const endIndex = params?.endIndex || 20;
-      for(let index = startIndex; index < endIndex; index++) {
-        const item: EntityRecord = {
-          id: index,
-          avatar: 'assets/circuit.jpg',
-          displayName: `标题 ${entityMappingTitle[entityName]} ${index + 1}`,
-          colA:  `字段 ${characters[Math.floor(Math.random() * 10)]}`,
-          colB:  `列表项， 描述文本内容`,
-          colC:  `${entityName} colC ${index} - ${characters[Math.floor(Math.random() * 10)]}`,
-        };
-        if ([Entities.LightingControl, Entities.Operations].includes(entityName)) {
-          item['controlCol'] = !!(Math.floor(Math.random() * 10) % 2);
-        }
-        _records.push(item);
-      }
-      return of(_records).pipe(delay(300), take(1));
-    }
-
+  }
+  if (entityName === Entities.Wirings) {
+    return httpService.post<EntityRecord[]>(YNAPI_JXT.GetList, params || {}, config).pipe(
+      map(response => {
+        return response?.data || [];
+      }),
+      tap(list => {
+        // cache??? has issue between get list and get image duration the image file refresh in server;
+        const cache = cacheService.get(YNCacheKey.JXT);
+        const enrichList = list.map(item => {
+          return {
+            ...item,
+            hasNewImage: item.imageVersion !== cache?.[item.id?.toString()]?.imageVersion
+          };
+        });
+        cacheService.set(YNCacheKey.JXT, list.reduce((acc, item) => {
+          acc[item.id] = item.imageVersion;
+          return acc;
+        }, cache || {}), StorageType.Persistent);
+        return enrichList;
+      })
+    );
+  } else if (entityName ===  Entities.Segments) {
+    return httpService.post<EntityRecord[]>(YNAPI_JGSJ.GetList, params || {}, config).pipe(
+      map(response => {
+        return response?.data || [];
+      })
+    );
+  } else if (entityName === Entities.Operations) {
+    return httpService.post<OperationListItem[]>(YNAPI_KZCZ.GetList, params || {}, config).pipe(
+      map(response => {
+        return response?.data?.map(x => {
+          return {id: x.yxId, ...x};
+        }) || [];
+      })
+    );
+  } else if (entityName === Entities.LightingControl) {
+    return httpService.post<LightingControlRecord[]>(YNAPI_ZMGL.GetList, params || {}, config).pipe(
+      map(response => response?.data || [])
+    );
+  } else if (entityName === Entities.Events) {
+    return httpService.post<EventRecord[]>(YNAPI_SJCX.GetEventList, params || {}, config).pipe(
+      map(response => {
+        return (response.data || []).map((item, index) => {
+          const idFromDate = Date.parse(item?.date);
+          return {
+            ...item,
+            id: isNaN(idFromDate) ? index + 1 : idFromDate, //#WIP: API Returan Id;
+          };
+        });
+      })
+    );
+  }  else {
+    const _records: EntityRecord[] = [];
+    return of(_records).pipe(delay(0), take(1));
   }
 }

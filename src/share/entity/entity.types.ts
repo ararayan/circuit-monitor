@@ -50,8 +50,6 @@ export interface FormField{
   }
 }
 
-
-
 export const enum Entities {
     Empty = 'empty',
     Wirings = 'wirings',
