@@ -20,7 +20,7 @@
       </template>
     </RecycleScroller>
   </ion-list>
-  <ion-list :class="{ 'ion-hide': !!records.length }">
+  <ion-list :class="{ 'ion-hide': isInited }">
     <ion-item v-for="(item, index) in skeletonSize" :key="index">
       <ion-thumbnail slot="start">
         <ion-skeleton-text></ion-skeleton-text>
@@ -38,6 +38,9 @@
       </ion-label>
     </ion-item>
   </ion-list>
+  <div class="empty-list" v-if="!!!records.length && isInited">
+    <span>无数据</span>
+  </div>
 </template>
 
 <script lang="ts">
@@ -66,7 +69,7 @@ export default defineComponent({
   setup(props) {
     const { tabId } = toRefs(props);
     const recordStore = useEntityRecordsStore(props.entityName);
-    const { records } = storeToRefs(recordStore);
+    const { records, isInited } = storeToRefs(recordStore);
     const skeletonSize: string[] = Array.from({ length: 12 });
     const virtualScroller = ref(null) as Ref<any>;
     const ionInfiniteScroll = ref(null) as Ref<any>;
@@ -120,7 +123,7 @@ export default defineComponent({
       window.clearTimeout(initTimeoutId);
       recordStore.destroy();
     });
-    return { ionInfiniteScroll, records, scaleOutline, pulseOutline, radioOutline, loadData, skeletonSize, virtualScroller };
+    return { ionInfiniteScroll, records, scaleOutline, pulseOutline, radioOutline, loadData, skeletonSize, virtualScroller, isInited };
   },
 });
 </script>
@@ -140,5 +143,19 @@ export default defineComponent({
 }
 .seq-number:empty {
   margin-right: 0;
+}
+
+.empty-list{
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.empty-list span {
+  max-width: 80%;
+  color: var(--ion-color-medium);
+  margin-top: -4em;
 }
 </style>
