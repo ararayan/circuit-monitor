@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 168,
-      "versionName": "0.1.68",
-      "outputFile": "com.yanneng_release_v0.1.68.apk"
+      "versionCode": 211,
+      "versionName": "0.2.11",
+      "outputFile": "com.yanneng_release_v0.2.11.apk"
     }
   ],
   "elementType": "File"
